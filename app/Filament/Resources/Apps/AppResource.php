@@ -2,9 +2,11 @@
 
 namespace App\Filament\Resources\Apps;
 
+use App\Filament\Actions\AppTestWebhookAction;
 use App\Filament\Resources\Apps\Pages\ManageApps;
 use App\Models\App;
 use BackedEnum;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -15,6 +17,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\PaginationMode;
 use Filament\Tables\Table;
 
 class AppResource extends Resource
@@ -39,20 +42,19 @@ class AppResource extends Resource
         return $schema
             ->components([
                 TextInput::make('name')
+                    ->columnSpanFull()
                     ->required(),
-                TextInput::make('description'),
-                TextInput::make('bundle_id'),
-                TextInput::make('issuer_id'),
-                TextInput::make('key_id'),
-                Textarea::make('p8_key')
-                    ->columnSpanFull(),
+                Textarea::make('description')->columnSpanFull(),
             ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('id', 'desc')
+            ->paginated([10, 20, 50, 100])
             ->columns([
+                TextColumn::make('id'),
                 TextColumn::make('name')
                     ->searchable(),
                 TextColumn::make('description')
@@ -77,6 +79,7 @@ class AppResource extends Resource
             ->recordActions([
                 EditAction::make(),
                 DeleteAction::make(),
+                AppTestWebhookAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
