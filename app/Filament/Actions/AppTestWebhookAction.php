@@ -3,22 +3,13 @@
 namespace App\Filament\Actions;
 
 use App\Enums\AppStatusEnum;
-use App\Enums\PayTypeEnum;
 use App\Models\App;
 use App\Services\ApplePayService;
 use Filament\Actions\Action;
-use Filament\Forms\Components\Checkbox;
-use Filament\Forms\Components\MarkdownEditor;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\ViewField;
-use Filament\Infolists\Components\CodeEntry;
-use Filament\Infolists\Components\TextEntry;
-use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Wizard\Step;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\HtmlString;
 use Readdle\AppStoreServerAPI\Environment;
@@ -27,17 +18,13 @@ class AppTestWebhookAction
 {
     public static function make()
     {
-        return Action::make(__('test_webhook'))
-            ->icon('heroicon-m-pencil-square')
+        return Action::make(__('config_webhook'))
+            ->icon('heroicon-m-paper-airplane')
             ->color('success')
             ->modalHeading('Check webhook address in app store')
             ->modalDescription(function (App $app) {
-                $url = sprintf('%s/apps/%d/webhook', config('app.url'), $app->id);
-                $html = <<<HTML
-1. Navigate to Keys: From the main menu, go to "Users and Access" > "Integrations" > "App Store Connect API".<br>
-2. App Store Server Notifications: <span style="color: dodgerblue; font-weight: bold;">{$url}</span>
-HTML;
-                return new HtmlString($html);
+                $url = sprintf('%s/api/v1/apps/%d/webhook', rtrim(config('app.url'), '/'), $app->id);
+                return new HtmlString(__('apple_config_hits', ['url' => $url]));
             })
             ->fillForm(fn (App $record): array => $record->toArray())
             ->schema([

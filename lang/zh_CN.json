@@ -6,8 +6,10 @@
     "Status": "状态",
     "Created at": "创建时间",
     "Updated at": "修改时间",
-    "test_webhook": "测试",
+    "config_webhook": "应用配置",
+    "config_webhook_status": "查看回调状态",
     "status_unverified": "未验证",
     "status_web_hooking": "未回调",
-    "status_normal": "正常"
+    "status_normal": "正常",
+    "apple_config_hits": "导航到密钥：从主菜单进入“用户与访问权限” > “集成” > “App Store Connect API”。<br/>App Store 服务器通知：<span style=\"color: dodgerblue; font-weight: bold;\">:url</span>"
 }
