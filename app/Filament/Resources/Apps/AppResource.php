@@ -23,7 +23,16 @@ class AppResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $recordTitleAttribute = 'App';
+    protected static ?string $recordTitleAttribute = 'name';
+    protected static ?int $navigationSort = 2;
+    public static function getModelLabel(): string
+    {
+        return __('app.title');
+    }
+    public static function getNavigationLabel(): string
+    {
+        return __('app.title');
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -43,7 +52,6 @@ class AppResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('App')
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
@@ -57,8 +65,7 @@ class AppResource extends Resource
                     ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable(),
                 TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
