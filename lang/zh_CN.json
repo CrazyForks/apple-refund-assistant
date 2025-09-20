@@ -1,0 +1,13 @@
+{
+    "Id": "id",
+    "Name": "名字",
+    "Description": "描述",
+    "Bundle id": "bundle id",
+    "Status": "状态",
+    "Created at": "创建时间",
+    "Updated at": "修改时间",
+    "test_webhook": "测试",
+    "status_unverified": "未验证",
+    "status_web_hooking": "未回调",
+    "status_normal": "正常"
+}

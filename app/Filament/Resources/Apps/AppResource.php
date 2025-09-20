@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Apps;
 
+use App\Enums\AppStatusEnum;
 use App\Filament\Actions\AppTestWebhookAction;
 use App\Filament\Resources\Apps\Pages\ManageApps;
 use App\Models\App;
@@ -16,6 +17,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\PaginationMode;
 use Filament\Tables\Table;
@@ -61,10 +63,8 @@ class AppResource extends Resource
                     ->searchable(),
                 TextColumn::make('bundle_id')
                     ->searchable(),
-                TextColumn::make('issuer_id')
-                    ->searchable(),
-                TextColumn::make('key_id')
-                    ->searchable(),
+                TextColumn::make('status')
+                    ->badge(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable(),

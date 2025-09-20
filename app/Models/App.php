@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Enums\AppStatusEnum;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Crypt;
 use Kra8\Snowflake\HasShortflakePrimary;
+
 
 /**
  * @property int $id
@@ -15,6 +17,8 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @property string|null $issuer_id
  * @property string|null $key_id
  * @property string|null $p8_key
+ * @property string|null $test_notification_token
+ * @property string $status
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App newModelQuery()
@@ -28,6 +32,8 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App whereKeyId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App whereP8Key($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|App whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|App whereTestNotificationToken($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App whereUpdatedAt($value)
  * @mixin \Eloquent
  */
@@ -36,6 +42,10 @@ class App extends Model
     use HasShortflakePrimary;
 
     protected $guarded = [];
+    protected $casts = [
+        'status' => AppStatusEnum::class,
+    ];
+
     protected function p8Key(): Attribute
     {
         return Attribute::make(
