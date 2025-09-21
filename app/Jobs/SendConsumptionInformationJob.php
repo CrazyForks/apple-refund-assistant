@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Enums\ConsumptionLogStatusEnum;
 use App\Models\ConsumptionLog;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -26,7 +27,10 @@ class SendConsumptionInformationJob implements ShouldQueue
      */
     public function handle(): void
     {
+        $model = $this->log;
         // TODO SEND DATA
-        Log::info("[{$this->log->notification_uuid}] send consumption info...");
+        Log::info("[{$model->notification_uuid}] send consumption info...");
+        $model->status = ConsumptionLogStatusEnum::SUCCESS;
+        $model->save();
     }
 }

@@ -9,6 +9,7 @@ enum ConsumptionLogStatusEnum : string implements HasLabel, HasColor
 {
     case PENDING = 'pending';
     case FAIL = 'fail';
+    case SUCCESS = 'success';
 
 
     public function getLabel(): ?string
@@ -19,6 +20,7 @@ enum ConsumptionLogStatusEnum : string implements HasLabel, HasColor
     public function getColor(): string
     {
         return match ($this) {
+            self::SUCCESS=> 'success',
             self::PENDING=> 'warning',
             self::FAIL => 'danger',
         };
