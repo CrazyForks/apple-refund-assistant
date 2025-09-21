@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ConsumptionLogs;
 
+use App\Enums\ConsumptionLogStatusEnum;
 use App\Enums\EnvironmentEnum;
 use App\Filament\Resources\ConsumptionLogs\Pages\ManageConsumptionLogs;
 use App\Models\ConsumptionLog;
@@ -28,6 +29,27 @@ class ConsumptionLogResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
     protected static ?int $navigationSort = -1;
 
+    public static function getNavigationLabel(): string
+    {
+        return __('Refund apply');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('Refund apply');
+    }
+
+
+    public static function getNavigationBadge(): ?string
+    {
+        return ConsumptionLog::query()->where('status', ConsumptionLogStatusEnum::PENDING)->count();
+
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'primary';
+    }
 
     public static function infolist(Schema $schema): Schema
     {

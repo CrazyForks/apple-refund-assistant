@@ -26,13 +26,14 @@ class AppResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
     protected static ?int $navigationSort = -1;
+
     public static function getModelLabel(): string
     {
-        return __('app.title');
+        return __('App');
     }
     public static function getNavigationLabel(): string
     {
-        return __('app.title');
+        return __('App');
     }
 
     public static function form(Schema $schema): Schema

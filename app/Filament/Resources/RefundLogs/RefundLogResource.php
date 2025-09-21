@@ -25,6 +25,16 @@ class RefundLogResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    public static function getNavigationLabel(): string
+    {
+        return __('Notification Refund');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('Notification Refund');
+    }
+
     public static function infolist(Schema $schema): Schema
     {
         return $schema

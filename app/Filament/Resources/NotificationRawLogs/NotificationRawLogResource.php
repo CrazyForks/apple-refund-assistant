@@ -30,6 +30,17 @@ class NotificationRawLogResource extends Resource
 
     protected static ?int $navigationSort = 99;
 
+    public static function getNavigationLabel(): string
+    {
+        return __('Notification Raw');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('Notification Raw');
+    }
+
+
     public static function infolist(Schema $schema): Schema
     {
         return $schema
