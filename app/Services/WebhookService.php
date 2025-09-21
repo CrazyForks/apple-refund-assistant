@@ -26,24 +26,24 @@ use Readdle\AppStoreServerAPI\ResponseBodyV2;
 
 class WebhookService
 {
-    protected AppDao $appRepository;
-    protected NotificationRawLogDao $rawLogRepository;
+    protected AppDao $appDao;
+    protected NotificationRawLogDao $rawLogDao;
     protected RefundLogDao $refundLogDao;
     protected ConsumptionLogDao $consumptionLogDao;
     protected TransactionLogDao $transactionLogDao;
     protected IapService $iapService;
 
     public function __construct(
-        AppDao                $appRepository,
-        NotificationRawLogDao $rawLogRepository,
+        AppDao                $appDao,
+        NotificationRawLogDao $rawLogDao,
         ConsumptionLogDao     $consumptionLogDao,
         RefundLogDao          $refundLogDao,
         TransactionLogDao     $transactionLogDao,
         IapService            $iapService,
     )
     {
-        $this->appRepository = $appRepository;
-        $this->rawLogRepository = $rawLogRepository;
+        $this->appDao = $appDao;
+        $this->rawLogDao = $rawLogDao;
         $this->transactionLogDao = $transactionLogDao;
         $this->consumptionLogDao = $consumptionLogDao;
         $this->refundLogDao = $refundLogDao;
@@ -60,7 +60,7 @@ class WebhookService
         $payload = $this->iapService->decodePayload($content);
 
         // 1. raw logs
-        $app = App::query()->findOrFail($appId);
+        $app = $this->appDao->find($appId);
         $raw = $this->insertRawLog($content, $app, $payload);
 
         // TODO handle repeat message
@@ -131,6 +131,6 @@ class WebhookService
             throw new \Exception("bundle_id don't match");
         }
 
-        return $this->rawLogRepository->storeRawLog($content, $app, $payload);
+        return $this->rawLogDao->storeRawLog($content, $app, $payload);
     }
 }
