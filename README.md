@@ -49,6 +49,7 @@ php artisan serve
 
 
 ## TODO
+[ ] 支持币种汇率, 在应用表增加美元比例 / 实时 API 计算, 不需要实时更新, 一个大概的值即可
 [ ] NotificationRawLog select field without request body, payload
 
 ## 许可证
