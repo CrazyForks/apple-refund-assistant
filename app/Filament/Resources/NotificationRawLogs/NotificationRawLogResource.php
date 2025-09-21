@@ -19,7 +19,10 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\QueryBuilder;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 use Phiki\Grammar\Grammar;
 
 class NotificationRawLogResource extends Resource
@@ -68,6 +71,8 @@ class NotificationRawLogResource extends Resource
                     ->searchable(),
                 TextColumn::make('environment')
                     ->searchable(),
+                TextColumn::make('bundle_id')
+                    ->searchable(),
                 TextColumn::make('notification_uuid')
                     ->searchable(),
                 TextColumn::make('notification_type')
@@ -94,7 +99,10 @@ class NotificationRawLogResource extends Resource
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->modifyQueryUsing(function (Builder $query) {
+                $query->select(['id', 'notification_uuid', 'notification_type', 'environment', 'bundle_id', 'subtype', 'created_at', 'updated_at']);
+            });
     }
 
     public static function getPages(): array
