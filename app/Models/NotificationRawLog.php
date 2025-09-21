@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\EnvironmentEnum;
+use App\Enums\NotificationTypeEnum;
 use Illuminate\Database\Eloquent\Model;
 use Kra8\Snowflake\HasShortflakePrimary;
 
@@ -39,5 +41,8 @@ class NotificationRawLog extends Model
 {
     use HasShortflakePrimary;
 
-    protected $fillable = ['notification_uuid', 'app_id'];
+    protected $casts = [
+        'environment' => EnvironmentEnum::class,
+        'notification_type' => NotificationTypeEnum::class,
+    ];
 }

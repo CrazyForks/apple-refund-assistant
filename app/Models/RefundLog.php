@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\EnvironmentEnum;
+use App\Enums\NotificationTypeEnum;
 use Illuminate\Database\Eloquent\Model;
 use Kra8\Snowflake\HasShortflakePrimary;
 
@@ -43,6 +45,9 @@ use Kra8\Snowflake\HasShortflakePrimary;
  */
 class RefundLog extends Model
 {
-    //
     use HasShortflakePrimary;
+
+    protected $casts = [
+        'environment' => EnvironmentEnum::class,
+    ];
 }

@@ -2,6 +2,7 @@
 
 namespace App\Dao;
 
+use App\Enums\NotificationTypeEnum;
 use App\Models\App;
 use App\Models\NotificationRawLog;
 use Readdle\AppStoreServerAPI\ResponseBodyV2;
@@ -13,7 +14,7 @@ class NotificationRawLogDao
         $raw = new NotificationRawLog();
         $raw->notification_uuid = $payload->getNotificationUUID();
         $raw->app_id = $app->id;
-        $raw->notification_type = $payload->getNotificationType();
+        $raw->notification_type = NotificationTypeEnum::tryFrom($payload->getNotificationType());
         $raw->subtype = $payload->getSubtype();
         $raw->environment = $payload->getAppMetadata()->getEnvironment();
         $raw->bundle_id = $payload->getAppMetadata()->getBundleId();
