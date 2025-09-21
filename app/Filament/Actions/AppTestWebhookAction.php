@@ -54,8 +54,11 @@ class AppTestWebhookAction
                 $app->forceFill($data);
 
                 try {
-                    $api = IapService::makeApi($app, Environment::SANDBOX);
-                    $resp = $api->requestTestNotification();
+                    /**
+                     * @var $api IapService
+                     */
+                    $api = app(IapService::class);
+                    $resp = $api->requestNotification($app->issuer_id, $app->bundle_id, $app->key_id, $app->p8_key, Environment::SANDBOX);
                     $app->test_notification_token = $resp->getTestNotificationToken();
                 } catch (\Exception $e) {
                     Log::error($e);

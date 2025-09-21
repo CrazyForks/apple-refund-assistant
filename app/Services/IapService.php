@@ -4,8 +4,12 @@ namespace App\Services;
 
 use App\Models\App;
 use Carbon\Carbon;
+use Illuminate\Contracts\Cache\Factory;
+use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Support\Facades\Cache;
+use Psr\SimpleCache\CacheInterface;
 use Readdle\AppStoreServerAPI\AppStoreServerAPI;
+use Readdle\AppStoreServerAPI\Exception\AppStoreServerAPIException;
 use Readdle\AppStoreServerAPI\Exception\AppStoreServerNotificationException;
 use Readdle\AppStoreServerAPI\Exception\WrongEnvironmentException;
 use Readdle\AppStoreServerAPI\ResponseBodyV2;
@@ -13,18 +17,33 @@ use Readdle\AppStoreServerAPI\Util\Helper;
 
 class IapService
 {
+    protected Repository $cache;
+
+    public function __construct(Repository $cache)
+    {
+        $this->cache = $cache;
+    }
+
     /**
      * @throws WrongEnvironmentException
      */
-    public static function makeApi(App $app, $env)
+    protected static function api(?string $issuerId, ?string $bundleId, ?string $keyId, ?string $p8Key, $env)
     {
         return new AppStoreServerAPI(
             $env,
-            $app->issuer_id ?? '',
-            $app->bundle_id ?? '',
-            $app->key_id ?? '',
-            $app->p8_key ?? '',
+            $issuerId ?? '',
+            $bundleId ?? '',
+            $keyId ?? '',
+            $p8Key ?? '',
         );
+    }
+
+    /**
+     * @throws AppStoreServerAPIException
+     */
+    public function requestNotification($issuerId, $bundleId, $keyId, $p8Key, $env): \Readdle\AppStoreServerAPI\Response\SendTestNotificationResponse
+    {
+        return self::api($issuerId, $bundleId, $keyId, $p8Key, $env)->requestTestNotification();
     }
 
 
@@ -41,7 +60,7 @@ class IapService
 
     protected function rootCertificate()
     {
-        return Cache::remember(
+        return $this->cache->remember(
             'apple_root_certificate',
             Carbon::now()->addDay(),
             function () {
