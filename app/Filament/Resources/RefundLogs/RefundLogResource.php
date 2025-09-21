@@ -1,30 +1,27 @@
 <?php
 
-namespace App\Filament\Resources\NotificationRawLogs;
+namespace App\Filament\Resources\RefundLogs;
 
-use App\Filament\Resources\NotificationRawLogs\Pages\ManageNotificationRawLogs;
-use App\Models\NotificationRawLog;
+use App\Filament\Resources\RefundLogs\Pages\ManageRefundLogs;
+use App\Models\RefundLog;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
-use Filament\Infolists\Components\CodeEntry;
 use Filament\Infolists\Components\TextEntry;
-use Filament\Resources\Pages\ListRecords;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Phiki\Grammar\Grammar;
 
-class NotificationRawLogResource extends Resource
+class RefundLogResource extends Resource
 {
-    protected static ?string $model = NotificationRawLog::class;
+    protected static ?string $model = RefundLog::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
@@ -32,24 +29,27 @@ class NotificationRawLogResource extends Resource
     {
         return $schema
             ->components([
-                TextEntry::make('notification_uuid'),
-                TextEntry::make('app_id')
-                    ->numeric(),
-                TextEntry::make('notification_type'),
-                TextEntry::make('environment')
-                    ->placeholder('-'),
+                TextEntry::make('id'),
+                TextEntry::make('app_id'),
                 TextEntry::make('bundle_id')
                     ->placeholder('-'),
-                TextEntry::make('subtype')
+                TextEntry::make('notification_uuid')
                     ->placeholder('-'),
-                CodeEntry::make('request_body')
-                    ->grammar(Grammar::Json)
-                    ->copyable()
-                    ->columnSpanFull(),
-                CodeEntry::make('payload')
-                    ->grammar(Grammar::Json)
-                    ->copyable()
-                    ->columnSpanFull(),
+                TextEntry::make('purchase_at')
+                    ->placeholder('-'),
+                TextEntry::make('transaction_id'),
+                TextEntry::make('original_transaction_id'),
+                TextEntry::make('amount')
+                    ->numeric(),
+                TextEntry::make('currency')
+                    ->placeholder('-'),
+                TextEntry::make('refund_at')
+                    ->dateTime()
+                    ->placeholder('-'),
+                TextEntry::make('refund_reason')
+                    ->placeholder('-'),
+                TextEntry::make('environment')
+                    ->placeholder('-'),
                 TextEntry::make('created_at')
                     ->dateTime()
                     ->placeholder('-'),
@@ -65,14 +65,19 @@ class NotificationRawLogResource extends Resource
             ->defaultSort('id', 'desc')
             ->columns([
                 TextColumn::make('id')
-                    ->searchable(),
+                    ->sortable(),
                 TextColumn::make('environment')
                     ->searchable(),
-                TextColumn::make('notification_uuid')
+                TextColumn::make('bundle_id'),
+                TextColumn::make('transaction_id')
                     ->searchable(),
-                TextColumn::make('notification_type')
-                    ->searchable(),
-                TextColumn::make('subtype')
+                TextColumn::make('amount')
+                    ->numeric(),
+                TextColumn::make('currency'),
+                TextColumn::make('refund_at')
+                    ->dateTime()
+                    ->sortable(),
+                TextColumn::make('refund_reason')
                     ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()
@@ -88,7 +93,7 @@ class NotificationRawLogResource extends Resource
             ])
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make(),
+                DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -100,7 +105,7 @@ class NotificationRawLogResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ManageNotificationRawLogs::route('/'),
+            'index' => ManageRefundLogs::route('/'),
         ];
     }
 }
