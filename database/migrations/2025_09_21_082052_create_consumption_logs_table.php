@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('refund_logs', function (Blueprint $table) {
+        Schema::create('consumption_logs', function (Blueprint $table) {
             $table->id();
 
             $table->string('app_account_token')->index()->nullable()->comment('office update this column');
@@ -21,16 +21,14 @@ return new class extends Migration
             $table->string('bundle_id')->nullable();
             $table->string('environment')->nullable();
 
-
-            $table->string('purchase_date')->nullable();
             $table->string('original_transaction_id')->index();
             $table->string('transaction_id')->index();
-            $table->decimal('price');
-            $table->string('currency')->nullable();
 
 
-            $table->timestamp('refund_date')->nullable();
-            $table->string('refund_reason')->nullable();
+            $table->string('consumption_request_reason')->nullable();
+            $table->timestamp('deadline_at')->nullable();
+            $table->string('status')->default(\App\Enums\ConsumptionLogStatusEnum::PENDING);
+            $table->string('status_msg')->nullable();
 
             $table->timestamps();
         });
@@ -41,6 +39,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('refund_logs');
+        Schema::dropIfExists('consumption_logs');
     }
 };

@@ -30,6 +30,8 @@
     "status_web_hooking": "未回调",
     "status_normal": "正常",
     "Environment": "环境",
+    "Deadline at": "截止时间",
+    "Consumption request reason": "取消原因",
     "refresh": "刷新",
     "apple_config_hits": "导航到密钥：从主菜单进入“用户与访问权限” > “集成” > “App Store Connect API”。<br/>App Store 服务器通知：<span style=\"color: dodgerblue; font-weight: bold;\">:url</span>"
 }

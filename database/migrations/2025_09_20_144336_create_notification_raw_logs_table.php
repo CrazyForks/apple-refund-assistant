@@ -14,12 +14,12 @@ return new class extends Migration
         Schema::create('notification_raw_logs', function (Blueprint $table) {
             $table->id();
 
-            $table->string('notification_uuid');
             $table->unsignedBigInteger('app_id');
-            $table->string('notification_type');
-            $table->string('environment')->nullable();
+            $table->string('notification_uuid')->nullable()->index();
+            $table->string('notification_type')->nullable();
             $table->string('bundle_id')->nullable();
-            $table->string('subtype')->nullable();
+            $table->string('environment')->nullable();
+
             $table->text('request_body')->nullable();
             $table->text('payload')->nullable();
 

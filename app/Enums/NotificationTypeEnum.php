@@ -15,6 +15,8 @@ enum NotificationTypeEnum : string implements HasLabel, HasColor
     case REFUND = 'REFUND';
     case TEST = 'TEST';
 
+    case CONSUMPTION_REQUEST = 'CONSUMPTION_REQUEST';
+
 
     public function getLabel(): ?string
     {
@@ -27,7 +29,7 @@ enum NotificationTypeEnum : string implements HasLabel, HasColor
             self::DID_RENEW, self::SUBSCRIBED, self::OFFER_REDEEMED, self::ONE_TIME_CHARGE => 'success',
             self::REFUND=> 'danger',
             self::TEST=> 'warning',
-            default => 'gray',
+            self::CONSUMPTION_REQUEST => 'info',
         };
     }
 }

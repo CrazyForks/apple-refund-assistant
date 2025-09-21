@@ -41,8 +41,6 @@ class NotificationRawLogResource extends Resource
                     ->placeholder('-'),
                 TextEntry::make('bundle_id')
                     ->placeholder('-'),
-                TextEntry::make('subtype')
-                    ->placeholder('-'),
                 CodeEntry::make('request_body')
                     ->grammar(Grammar::Json)
                     ->copyable()

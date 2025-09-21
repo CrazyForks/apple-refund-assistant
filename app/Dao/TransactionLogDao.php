@@ -19,9 +19,20 @@ class TransactionLogDao extends PayloadAttribute
         }
 
         $model = new TransactionLog();
-        $this->setPayloadFields($model, $app, $payload);
-        $this->setTransactionFields($model, $transInfo);
+        $model->notification_type = $payload->getNotificationType();
+        $model->app_id = $app->getKey();
+        $model->bundle_id = $payload->getAppMetadata()->getBundleId();
+        $model->environment = $payload->getAppMetadata()->getEnvironment();
+        $model->notification_type = $payload->getNotificationType();
+        $model->notification_uuid = $payload->getNotificationUUID();
 
+        $model->original_transaction_id = $transInfo->getOriginalTransactionId();
+        $model->transaction_id = $transInfo->getTransactionId();
+        $model->purchase_date = $this->fixTs($transInfo->getPurchaseDate());
+        $model->price = $this->formatPrice($transInfo->getPrice());
+        $model->currency = $transInfo->getCurrency();
+
+        $model->app_account_token = $transInfo->getAppAccountToken();
         $model->product_id = $transInfo->getProductId();
         $model->product_type = $transInfo->getType();
         $model->original_purchase_date = ($transInfo->getOriginalPurchaseDate() ?? 0) / 1000;

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\SafeEnumCast;
 use App\Enums\EnvironmentEnum;
 use App\Enums\NotificationTypeEnum;
 use Illuminate\Database\Eloquent\Model;
@@ -10,14 +11,14 @@ use Kra8\Snowflake\HasShortflakePrimary;
 
 
 
+
 /**
  * @property int $id
- * @property string $notification_uuid
  * @property int $app_id
- * @property NotificationTypeEnum $notification_type
- * @property EnvironmentEnum|null $environment
+ * @property string|null $notification_uuid
+ * @property $notification_type
  * @property string|null $bundle_id
- * @property string|null $subtype
+ * @property EnvironmentEnum|null $environment
  * @property string|null $request_body
  * @property string|null $payload
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -34,7 +35,6 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|NotificationRawLog whereNotificationUuid($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|NotificationRawLog wherePayload($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|NotificationRawLog whereRequestBody($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|NotificationRawLog whereSubtype($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|NotificationRawLog whereUpdatedAt($value)
  * @mixin \Eloquent
  */
@@ -44,6 +44,6 @@ class NotificationRawLog extends Model
 
     protected $casts = [
         'environment' => EnvironmentEnum::class,
-        'notification_type' => NotificationTypeEnum::class,
+        'notification_type' => [SafeEnumCast::class, NotificationTypeEnum::class],
     ];
 }

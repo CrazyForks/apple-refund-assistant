@@ -11,12 +11,17 @@ class NotificationRawLogDao extends PayloadAttribute
 {
     public function storeRawLog(string $content, App $app, ResponseBodyV2 $payload): NotificationRawLog
     {
-        $raw = new NotificationRawLog();
-        $this->setPayloadFields($raw, $app, $payload);
-        $raw->request_body = $content;
-        $raw->payload = json_encode($payload);
-        $raw->save();
+        $model = new NotificationRawLog();
+        $model->app_id = $app->getKey();
+        $model->bundle_id = $payload->getAppMetadata()->getBundleId();
+        $model->environment = $payload->getAppMetadata()->getEnvironment();
+        $model->notification_type = $payload->getNotificationType();
+        $model->notification_uuid = $payload->getNotificationUUID();
 
-        return $raw;
+        $model->request_body = $content;
+        $model->payload = json_encode($payload);
+        $model->save();
+
+        return $model;
     }
 }

@@ -13,8 +13,6 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @property string|null $apple_account_token
  * @property int $app_id
  * @property string|null $notification_uuid
- * @property string|null $notification_type
- * @property string|null $subtype
  * @property string|null $bundle_id
  * @property EnvironmentEnum|null $environment
  * @property string|null $purchase_date
@@ -36,14 +34,12 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog whereCurrency($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog whereEnvironment($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog whereNotificationType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog whereNotificationUuid($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog whereOriginalTransactionId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog wherePrice($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog wherePurchaseDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog whereRefundDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog whereRefundReason($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog whereSubtype($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog whereTransactionId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog whereUpdatedAt($value)
  * @mixin \Eloquent

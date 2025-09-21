@@ -11,11 +11,12 @@ use Kra8\Snowflake\HasShortflakePrimary;
 /**
  * @property int $id
  * @property int $app_id
- * @property string $notification_uuid
- * @property NotificationTypeEnum $notification_type
- * @property string|null $subtype
+ * @property string|null $notification_uuid
+ * @property NotificationTypeEnum|null $notification_type
+ * @property string|null $bundle_id
+ * @property EnvironmentEnum|null $environment
  * @property string $original_transaction_id
- * @property string $app_account_token
+ * @property string|null $app_account_token
  * @property string $transaction_id
  * @property string|null $product_id
  * @property string|null $product_type
@@ -24,8 +25,6 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @property string|null $expiration_date
  * @property string|null $price
  * @property string|null $currency
- * @property EnvironmentEnum|null $environment
- * @property string|null $bundle_id
  * @property string|null $in_app_ownership_type
  * @property int $quantity
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -51,7 +50,6 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionLog whereProductType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionLog wherePurchaseDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionLog whereQuantity($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionLog whereSubtype($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionLog whereTransactionId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionLog whereUpdatedAt($value)
  * @mixin \Eloquent

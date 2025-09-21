@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
 
             $table->unsignedBigInteger('app_id');
-
-            $table->string('notification_uuid');
-            $table->string('notification_type');
-            $table->string('subtype')->nullable();
+            $table->string('notification_uuid')->nullable()->index();
+            $table->string('notification_type')->nullable();
+            $table->string('bundle_id')->nullable();
+            $table->string('environment')->nullable();
 
             $table->string('original_transaction_id')->index();
             $table->decimal('app_account_token')->index()->nullable();
@@ -32,8 +32,6 @@ return new class extends Migration
             $table->timestamp('expiration_date')->nullable();
             $table->decimal('price')->nullable();
             $table->decimal('currency')->nullable();
-            $table->string('environment')->nullable();
-            $table->string('bundle_id')->nullable();
             $table->string('in_app_ownership_type')->nullable();
             $table->integer('quantity')->default(1);
 

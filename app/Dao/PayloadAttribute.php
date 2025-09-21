@@ -10,27 +10,16 @@ use Readdle\AppStoreServerAPI\TransactionInfo;
 abstract class PayloadAttribute
 {
 
-    protected function setPayloadFields(Model $model, App $app, ResponseBodyV2 $payload): void
+    protected function formatPrice(?int $price)
     {
-        $meta = $payload->getAppMetadata();
-        $model->forceFill([
-            'app_id' => $app->getKey(),
-            'notification_uuid' => $payload->getNotificationUUID(),
-            'notification_type' => $payload->getNotificationType(),
-            'subtype' => $payload->getSubtype(),
-            'bundle_id' => $meta->getBundleId(),
-            'environment' => $meta->getEnvironment(),
-        ]);
-    }
+        if (is_null($price)) {
+            return 0;
+        }
 
-    protected function setTransactionFields(Model $model, TransactionInfo $transInfo): void
+        return $price / 100;
+    }
+    protected function fixTs(int $ts)
     {
-        $model->forceFill([
-            'purchase_date' => $transInfo->getPurchaseDate() / 1000,
-            'original_transaction_id' => $transInfo->getOriginalTransactionId(),
-            'transaction_id' => $transInfo->getTransactionId(),
-            'price' => ($transInfo->getPrice() ?? 0) / 1000,
-            'currency' => $transInfo->getCurrency(),
-        ]);
+        return $ts / 1000;
     }
 }

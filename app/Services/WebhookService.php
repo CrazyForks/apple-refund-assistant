@@ -2,11 +2,13 @@
 
 namespace App\Services;
 
+use App\Dao\ConsumptionLogDao;
 use App\Dao\RefundLogDao;
 use App\Dao\TransactionLogDao;
 use App\Enums\AppStatusEnum;
 use App\Enums\NotificationTypeEnum;
 use App\Models\App;
+use App\Models\ConsumptionLog;
 use App\Models\NotificationRawLog;
 use App\Dao\AppDao;
 use App\Dao\NotificationRawLogDao;
@@ -27,12 +29,14 @@ class WebhookService
     protected AppDao $appRepository;
     protected NotificationRawLogDao $rawLogRepository;
     protected RefundLogDao $refundLogDao;
+    protected ConsumptionLogDao $consumptionLogDao;
     protected TransactionLogDao $transactionLogDao;
     protected IapService $iapService;
 
     public function __construct(
         AppDao                $appRepository,
         NotificationRawLogDao $rawLogRepository,
+        ConsumptionLogDao     $consumptionLogDao,
         RefundLogDao          $refundLogDao,
         TransactionLogDao     $transactionLogDao,
         IapService            $iapService,
@@ -41,6 +45,7 @@ class WebhookService
         $this->appRepository = $appRepository;
         $this->rawLogRepository = $rawLogRepository;
         $this->transactionLogDao = $transactionLogDao;
+        $this->consumptionLogDao = $consumptionLogDao;
         $this->refundLogDao = $refundLogDao;
         $this->iapService = $iapService;
     }
@@ -72,6 +77,9 @@ class WebhookService
             case NotificationTypeEnum::ONE_TIME_CHARGE:
                 $this->handleTransaction($app, $payload);
                 break;
+            case NotificationTypeEnum::CONSUMPTION_REQUEST:
+                $this->handleConsumption($app, $payload);
+                break;
             default:
                 Log::info("[{$payload->getNotificationUUID()}]{$payload->getNotificationType()}");
                 break;
@@ -79,6 +87,16 @@ class WebhookService
 
         return 'SUCCESS';
     }
+
+    /**
+     * @throws \Exception
+     */
+    protected function handleConsumption(App $app, ResponseBodyV2 $payload): ConsumptionLog
+    {
+        // TODO increment data to apps table
+        return $this->consumptionLogDao->storeLog($app, $payload);
+    }
+
 
     /**
      * @throws \Exception
