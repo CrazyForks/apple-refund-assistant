@@ -25,7 +25,7 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->unique(['notification_uuid', 'app_id']);
+            $table->index(['notification_uuid', 'app_id']);
         });
     }
 

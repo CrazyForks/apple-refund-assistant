@@ -4,7 +4,7 @@ namespace App\Filament\Actions;
 
 use App\Enums\AppStatusEnum;
 use App\Models\App;
-use App\Services\ApplePayService;
+use App\Services\IapService;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -54,7 +54,7 @@ class AppTestWebhookAction
                 $app->forceFill($data);
 
                 try {
-                    $api = ApplePayService::make($app, Environment::SANDBOX);
+                    $api = IapService::makeApi($app, Environment::SANDBOX);
                     $resp = $api->requestTestNotification();
                     $app->test_notification_token = $resp->getTestNotificationToken();
                 } catch (\Exception $e) {
