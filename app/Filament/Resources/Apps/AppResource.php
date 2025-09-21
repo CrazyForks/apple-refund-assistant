@@ -25,7 +25,7 @@ class AppResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'name';
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = -1;
     public static function getModelLabel(): string
     {
         return __('app.title');
@@ -50,7 +50,6 @@ class AppResource extends Resource
     {
         return $table
             ->defaultSort('id', 'desc')
-            ->paginated([10, 20, 50, 100])
             ->columns([
                 TextColumn::make('id'),
                 TextColumn::make('name')
@@ -72,6 +71,7 @@ class AppResource extends Resource
             ->filters([
                 //
             ])
+            ->headerActions([])
             ->recordActions([
                 EditAction::make(),
                 DeleteAction::make(),
