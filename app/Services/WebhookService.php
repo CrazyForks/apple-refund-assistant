@@ -7,6 +7,7 @@ use App\Dao\RefundLogDao;
 use App\Dao\TransactionLogDao;
 use App\Enums\AppStatusEnum;
 use App\Enums\NotificationTypeEnum;
+use App\Jobs\SendConsumptionInformationJob;
 use App\Models\App;
 use App\Models\ConsumptionLog;
 use App\Models\NotificationRawLog;
@@ -94,7 +95,9 @@ class WebhookService
     protected function handleConsumption(App $app, ResponseBodyV2 $payload): ConsumptionLog
     {
         // TODO increment data to apps table
-        return $this->consumptionLogDao->storeLog($app, $payload);
+        $log = $this->consumptionLogDao->storeLog($app, $payload);
+        SendConsumptionInformationJob::dispatch($log);
+        return $log;
     }
 
 
