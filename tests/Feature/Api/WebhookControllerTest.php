@@ -3,8 +3,13 @@
 namespace Tests\Feature\Api;
 
 use App\Enums\AppStatusEnum;
+use App\Enums\EnvironmentEnum;
+use App\Enums\NotificationTypeEnum;
 use App\Models\App;
+use App\Services\IapService;
+use Filament\Notifications\Notification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\AppleSignedPayload;
 use Tests\TestCase;
 
 class WebhookControllerTest extends TestCase
@@ -26,35 +31,27 @@ class WebhookControllerTest extends TestCase
             'issuer_id' => 'test_issuer_id',
         ]);
 
-        // 由于 ResponseBodyV2 是 final 类，我们需要创建一个能满足需求的数组
-        $mockPayloadData = [
+        $payload = [
             'notificationType' => 'TEST',
-            'notificationUUID' => 'test-uuid',
-            'appMetadata' => [
-                'bundleId' => 'com.example.test',
-            ],
+            'subtype' => null,
+            'notificationUUID' => 'uuid-123',
+            'version' => '2.0',
+            'signedDate' => 1690000000000,
+            // AppMetadata 需要的字段（至少包含 bundleId 等）
+            'bundleId' => 'com.example.test',
+            'bundleVersion' => '1.0.0',
+            // 其它 AppMetadata 字段
+            'environment' => EnvironmentEnum::SANDBOX->value,
         ];
-
-        // Mock IapService
-        $this->mock(\App\Services\IapService::class, function ($mock) use ($mockPayloadData) {
-            // 使用数组替代对象，这样可以避免类型问题
-            $mock->shouldReceive('decodePayload')->with('[]')->andReturn($mockPayloadData);
+        $signedPayload = AppleSignedPayload::buildResponseBodyV2FromArray(NotificationTypeEnum::TEST->value, $payload);
+        $this->mock(IapService::class, function ($mock) use ($signedPayload) {
+            $mock->shouldReceive('decodePayload')
+                ->andReturn($signedPayload);
         });
-
-        // Mock WebhookService 中的方法，跳过实际的类型检查
-        $this->mock(\App\Services\WebhookService::class, function ($mock) use ($app) {
-            $mock->shouldReceive('handleNotification')->andReturn('SUCCESS');
-            
-            // 确保应用状态被更新
-            $app->status = AppStatusEnum::NORMAL;
-            $app->save();
-        });
-
         // 模拟请求
         $response = $this->postJson("api/v1/apps/{$app->id}/webhook", []);
-
         // 验证结果
-        $response->assertStatus(200);
+        $response->assertSuccessful();
         $response->assertSeeText('SUCCESS');
 
         // 验证应用状态已更新
