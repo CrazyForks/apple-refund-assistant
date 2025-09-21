@@ -7,7 +7,7 @@ use App\Models\NotificationRawLog;
 use App\Models\RefundLog;
 use Readdle\AppStoreServerAPI\ResponseBodyV2;
 
-class RefundLogDao
+class RefundLogDao extends PayloadAttribute
 {
     /**
      * @throws \Exception
@@ -16,25 +16,16 @@ class RefundLogDao
     {
         $transInfo = $payload->getAppMetadata()->getTransactionInfo();
         if (is_null($transInfo)) {
-            throw new \Exception('invalid transaction inf');
+            throw new \Exception('invalid transaction info');
         }
 
-        $log = new RefundLog();
+        $model = new RefundLog();
+        $this->setPayloadFields($model, $app, $payload);
+        $this->setTransactionFields($model, $transInfo);
+        $model->refund_date = $transInfo->getRevocationDate() / 1000;
+        $model->refund_reason = "code[{$transInfo->getRevocationReason()}]";
+        $model->save();
 
-        $log->app_id = $app->id;
-        $log->bundle_id = $transInfo->getBundleId();
-        $log->purchase_at = $transInfo->getPurchaseDate() / 1000;
-
-        $log->notification_uuid = $payload->getNotificationUUID();
-        $log->original_transaction_id = $transInfo->getOriginalTransactionId();
-        $log->transaction_id = $transInfo->getTransactionId();
-        $log->currency = $transInfo->getCurrency();
-        $log->amount = ($transInfo->getPrice() ?? 0) / 1000;
-        $log->refund_at = $transInfo->getRevocationDate() / 1000;
-        $log->refund_reason = "code[{$transInfo->getRevocationReason()}]";
-        $log->environment = $transInfo->getEnvironment();
-        $log->save();
-
-        return $log;
+        return $model;
     }
 }

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Crypt;
 use Kra8\Snowflake\HasShortflakePrimary;
 
 
+
 /**
  * @property int $id
  * @property string $name
@@ -18,7 +19,7 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @property string|null $key_id
  * @property string|null $p8_key
  * @property string|null $test_notification_token
- * @property string $status
+ * @property AppStatusEnum $status
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App newModelQuery()

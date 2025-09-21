@@ -62,8 +62,8 @@
                             </span>
                             <span>
                                 Github
-                                <a href="https://github.com/seth-shi/payment-refund-assistant" target="_blank" class="inline-flex items-center space-x-1 font-medium underline underline-offset-4 text-[#f53003] dark:text-[#FF4433] ml-1">
-                                    <span>payment-refund-assistant</span>
+                                <a href="https://github.com/seth-shi/apple-refund-assistant" target="_blank" class="inline-flex items-center space-x-1 font-medium underline underline-offset-4 text-[#f53003] dark:text-[#FF4433] ml-1">
+                                    <span>apple-refund-assistant</span>
                                     <svg
                                         width="10"
                                         height="11"

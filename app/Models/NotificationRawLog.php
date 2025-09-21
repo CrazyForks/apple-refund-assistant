@@ -9,12 +9,13 @@ use Kra8\Snowflake\HasShortflakePrimary;
 
 
 
+
 /**
  * @property int $id
  * @property string $notification_uuid
  * @property int $app_id
- * @property string $notification_type
- * @property string|null $environment
+ * @property NotificationTypeEnum $notification_type
+ * @property EnvironmentEnum|null $environment
  * @property string|null $bundle_id
  * @property string|null $subtype
  * @property string|null $request_body

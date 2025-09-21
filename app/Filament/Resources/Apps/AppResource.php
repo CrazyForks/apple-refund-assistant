@@ -49,7 +49,6 @@ class AppResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->defaultSort('id', 'desc')
             ->columns([
                 TextColumn::make('id'),
                 TextColumn::make('name')
@@ -71,7 +70,6 @@ class AppResource extends Resource
             ->filters([
                 //
             ])
-            ->headerActions([])
             ->recordActions([
                 EditAction::make(),
                 DeleteAction::make(),

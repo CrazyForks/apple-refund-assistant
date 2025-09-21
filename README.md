@@ -40,8 +40,8 @@
 1. **克隆并配置**
 ```bash
 ## TODO 后续更新 Docker 方案
-git clone https://github.com/seth-shi/payment-refund-assistant
-cd payment-refund-assistant
+git clone https://github.com/seth-shi/apple-refund-assistant
+cd apple-refund-assistant
 # 使用你的凭据编辑 .env.project
 cp .env.example .env
 ## 安装依赖
@@ -52,6 +52,9 @@ php artisan app:init
 php artisan serve
 ```
 
+
+## TODO
+[ ] NotificationRawLog select field without request body, payload
 
 ## 许可证
 
