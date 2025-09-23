@@ -10,11 +10,13 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -43,6 +45,12 @@ class AppResource extends Resource
                 TextInput::make('name')
                     ->columnSpanFull()
                     ->required(),
+                Radio::make('sample_content_provided')
+                    ->options([
+                        1 => __('Yes'),
+                        0 => __('No'),
+                    ])
+                    ->default(false),
                 Textarea::make('description')->columnSpanFull(),
             ]);
     }
@@ -54,6 +62,8 @@ class AppResource extends Resource
                 TextColumn::make('id'),
                 TextColumn::make('name')
                     ->searchable(),
+                IconColumn::make('sample_content_provided')
+                    ->boolean(),
                 TextColumn::make('description')
                     ->searchable(),
                 TextColumn::make('bundle_id')

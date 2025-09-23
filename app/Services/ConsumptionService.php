@@ -59,11 +59,11 @@ class ConsumptionService
 
    private function playTime(?AppleUser $user): int
    {
-       if (is_null($user)) {
+       if (is_null($user?->play_seconds)) {
            return ConsumptionRequestBody::PLAY_TIME__UNDECLARED;
        }
 
-       $playMinutes = ($user->play_seconds ?? 0) / 60;
+       $playMinutes = ($user->play_seconds) / 60;
        return match (true) {
            $playMinutes > 16*24*60 => ConsumptionRequestBody::PLAY_TIME__OVER_16_DAYS,
            $playMinutes > 4*24*60 => ConsumptionRequestBody::PLAY_TIME__16_DAYS,
@@ -102,7 +102,7 @@ class ConsumptionService
             return ConsumptionRequestBody::LIFETIME_DOLLARS_REFUNDED__0;
         }
 
-        $dollars = $user->purchased_dollars ?? 0;
+        $dollars = $user->refunded_dollars ?? 0;
 
         // https://developer.apple.com/documentation/appstoreserverapi/lifetimedollarspurchased
         return match (true) {
