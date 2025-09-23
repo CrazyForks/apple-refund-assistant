@@ -23,20 +23,21 @@
 * 文档地址: [https://developer.apple.com/documentation/appstoreserverapi/consumptionrequest](https://developer.apple.com/documentation/appstoreserverapi/consumptionrequest)
 * 策略代码: [ConsumptionService.php](./app/Services/ConsumptionService.php) 
 * `users` 表字段可由其他系统更新
-| 字段 | 描述 | 数据表来源 | 计算规则   |
-|-----|-----|-----|-----|
-|  accountTenure |    用户注册天数   |  `users.register_at`   |  当前时间减去注册时间   |
-|  appAccountToken   | 账号 token    |  `users.app_account_token`    |  [需要客户端创建订单时传递](https://developer.apple.com/documentation/StoreKit/Transaction/appAccountToken) |
-|consumptionStatus|消费状况|`transactions.expiration_date`|对比当前时间,如果已到期返回消费完|
-|customerConsented|用户同意提供数据|无 |写死`true`|
-|deliveryStatus|是否成功交付了一个功能正常的内购。|无 |写死`0`(正常交付)|
-|lifetimeDollarsPurchased|内购总金额|`users.purchased_dollars` |根据苹果交易事件累加这个字段,你也可以自行累加|
-|lifetimeDollarsRefunded|退款总金额|`users.refunded_dollars` |根据苹果退款事件累加这个字段,你也可以自行累加|
-|platform|平台|无 |写死`1`(apple)|
-|playTime|客户使用应用时间的值| `users.play_seconds`|需要你的系统支持更新这个字段,否则是`0`|
-|refundPreference|退款请求的期望结果| `transactions.expiration_date`|对比当前时间,如果已到期希望拒绝退款|
-|sampleContentProvided|是否提供试用| `apps.sample_content_provided`|创建应用时配置应用|
-|userStatus|用户状态| 无|写死是`1`(正常用户)|
+
+| 字段                       | 描述                | 数据表来源                          | 计算规则                                                                                           |
+|--------------------------|-------------------|--------------------------------|------------------------------------------------------------------------------------------------|
+| accountTenure            | 用户注册天数            | `users.register_at`            | 当前时间减去注册时间                                                                                     |
+| appAccountToken          | 账号 token          | `users.app_account_token`      | [需要客户端创建订单时传递](https://developer.apple.com/documentation/StoreKit/Transaction/appAccountToken) |
+| consumptionStatus        | 消费状况              | `transactions.expiration_date` | 对比当前时间,如果已到期返回消费完                                                                              |
+| customerConsented        | 用户同意提供数据          | 无                              | 写死`true`                                                                                       |
+| deliveryStatus           | 是否成功交付了一个功能正常的内购。 | 无                              | 写死`0`(正常交付)                                                                                    |
+| lifetimeDollarsPurchased | 内购总金额             | `users.purchased_dollars`      | 根据苹果交易事件累加这个字段,你也可以自行累加                                                                        |
+| lifetimeDollarsRefunded  | 退款总金额             | `users.refunded_dollars`       | 根据苹果退款事件累加这个字段,你也可以自行累加                                                                        |
+| platform                 | 平台                | 无                              | 写死`1`(apple)                                                                                   |
+| playTime                 | 客户使用应用时间的值        | `users.play_seconds`           | 需要你的系统支持更新这个字段,否则是`0`                                                                          |
+| refundPreference         | 退款请求的期望结果         | `transactions.expiration_date` | 对比当前时间,如果已到期希望拒绝退款                                                                             |
+| sampleContentProvided    | 是否提供试用            | `apps.sample_content_provided` | 创建应用时配置应用                                                                                      |
+| userStatus               | 用户状态              | 无                              | 写死是`1`(正常用户)                                                                                   |
 
 
 
