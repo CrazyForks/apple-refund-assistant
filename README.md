@@ -34,17 +34,12 @@
 
 1. **克隆并配置**
 ```bash
-## TODO 后续更新 Docker 方案
 git clone https://github.com/seth-shi/apple-refund-assistant
 cd apple-refund-assistant
 # 使用你的凭据编辑 .env.project
 cp .env.example .env
-## 安装依赖
-composer install
-## 初始化数据表 && 填充默认数据
-php artisan app:init
-## 启动服务
-php artisan serve
+## 构建镜像并部署
+./deploy.sh
 ```
 
 
