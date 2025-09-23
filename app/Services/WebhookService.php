@@ -64,6 +64,8 @@ class WebhookService
         $app = $this->appDao->find($appId);
         $raw = $this->insertRawLog($content, $app, $payload);
 
+        // TODO price to dollar for consumption
+
         // TODO handle repeat message
         switch (NotificationTypeEnum::tryFrom($payload->getNotificationType())) {
             case NotificationTypeEnum::TEST:

@@ -22,7 +22,7 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @property string $transaction_id
  * @property string|null $consumption_request_reason
  * @property string|null $deadline_at
- * @property string $status
+ * @property ConsumptionLogStatusEnum $status
  * @property string|null $status_msg
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

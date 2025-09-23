@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('key_id')->nullable();
             $table->text('p8_key')->nullable()->comment('encrypted');
             $table->string('test_notification_token')->nullable();
+            $table->boolean('sample_content_provided')->default(false)->comment('provided sample content');
             $table->string('status')->default(\App\Enums\AppStatusEnum::UN_VERIFIED->value);
 
             $table->timestamps();

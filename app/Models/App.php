@@ -22,6 +22,7 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @property AppStatusEnum $status
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int|null $sample_content_provided
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App query()
@@ -33,6 +34,7 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App whereKeyId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App whereP8Key($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|App whereSampleContentProvided($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App whereTestNotificationToken($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App whereUpdatedAt($value)
