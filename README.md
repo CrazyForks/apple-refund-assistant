@@ -19,10 +19,11 @@
 |  队列   | sync | database/redis  |
 |  缓存   | file | redis  |
 |   session | file |  redis   |
+
 - **12 个消费字段** - 计算所有必需的 Apple 字段
-* 文档地址: [https://developer.apple.com/documentation/appstoreserverapi/consumptionrequest](https://developer.apple.com/documentation/appstoreserverapi/consumptionrequest)
-* 策略代码: [ConsumptionService.php](./app/Services/ConsumptionService.php) 
-* `users` 表字段可由其他系统更新
+  * 文档地址: [https://developer.apple.com/documentation/appstoreserverapi/consumptionrequest](https://developer.apple.com/documentation/appstoreserverapi/consumptionrequest)
+  * 策略代码: [ConsumptionService.php](./app/Services/ConsumptionService.php) 
+  * `users` 表字段可由其他系统更新
 
 | 字段                       | 描述                | 数据表来源                          | 计算规则                                                                                           |
 |--------------------------|-------------------|--------------------------------|------------------------------------------------------------------------------------------------|
