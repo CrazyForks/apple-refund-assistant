@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\WebhookService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Readdle\AppStoreServerAPI\Exception\AppStoreServerNotificationException;
 
 class WebhookController extends Controller
 {
@@ -15,6 +16,10 @@ class WebhookController extends Controller
         $this->hookService = $service;
     }
     //
+
+    /**
+     * @throws AppStoreServerNotificationException
+     */
     public function store(Request $request, int $id)
     {
         $resp = $this->hookService->handleNotification($request->getContent(), $id);

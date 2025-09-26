@@ -24,6 +24,14 @@ return new class extends Migration
             $table->boolean('sample_content_provided')->default(false)->comment('provided sample content');
             $table->string('status')->default(\App\Enums\AppStatusEnum::UN_VERIFIED->value);
 
+
+            $table->decimal('transaction_dollars')->default(0);
+            $table->decimal('refund_dollars')->default(0);
+            $table->decimal('consumption_dollars')->default(0);
+            $table->bigInteger('transaction_count')->default(0);
+            $table->bigInteger('refund_count')->default(0);
+            $table->bigInteger('consumption_count')->default(0);
+
             $table->timestamps();
         });
     }

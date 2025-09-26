@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Dao\AppDao;
 use App\Dao\ConsumptionLogDao;
+use App\Dao\NotificationRawLogDao;
 use App\Dao\RefundLogDao;
 use App\Dao\TransactionLogDao;
 use App\Enums\AppStatusEnum;
@@ -11,18 +13,10 @@ use App\Jobs\SendConsumptionInformationJob;
 use App\Models\App;
 use App\Models\ConsumptionLog;
 use App\Models\NotificationRawLog;
-use App\Dao\AppDao;
-use App\Dao\NotificationRawLogDao;
 use App\Models\RefundLog;
 use App\Models\TransactionLog;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use Readdle\AppStoreServerAPI\Environment;
 use Readdle\AppStoreServerAPI\Exception\AppStoreServerNotificationException;
-use Readdle\AppStoreServerAPI\Exception\WrongEnvironmentException;
 use Readdle\AppStoreServerAPI\ResponseBodyV2;
 
 class WebhookService
@@ -33,6 +27,7 @@ class WebhookService
     protected ConsumptionLogDao $consumptionLogDao;
     protected TransactionLogDao $transactionLogDao;
     protected IapService $iapService;
+    protected AmountPriceService $priceService;
 
     public function __construct(
         AppDao                $appDao,
@@ -41,6 +36,7 @@ class WebhookService
         RefundLogDao          $refundLogDao,
         TransactionLogDao     $transactionLogDao,
         IapService            $iapService,
+        AmountPriceService    $priceService,
     )
     {
         $this->appDao = $appDao;
@@ -49,6 +45,7 @@ class WebhookService
         $this->consumptionLogDao = $consumptionLogDao;
         $this->refundLogDao = $refundLogDao;
         $this->iapService = $iapService;
+        $this->priceService = $priceService;
     }
 
 
@@ -63,8 +60,6 @@ class WebhookService
         // 1. raw logs
         $app = $this->appDao->find($appId);
         $raw = $this->insertRawLog($content, $app, $payload);
-
-        // TODO price to dollar for consumption
 
         // TODO handle repeat message
         switch (NotificationTypeEnum::tryFrom($payload->getNotificationType())) {
@@ -96,9 +91,13 @@ class WebhookService
      */
     protected function handleConsumption(App $app, ResponseBodyV2 $payload): ConsumptionLog
     {
-        // TODO increment data to apps table
+        $dollar = $this->getTransactionDollar($payload);
+        $this->appDao->incrementConsumption($app->id, $dollar);
+
         $log = $this->consumptionLogDao->storeLog($app, $payload);
+
         SendConsumptionInformationJob::dispatch($log);
+
         return $log;
     }
 
@@ -108,7 +107,10 @@ class WebhookService
      */
     protected function handleTransaction(App $app, ResponseBodyV2 $payload): TransactionLog
     {
-        // TODO increment data to apps table
+        $dollar = $this->getTransactionDollar($payload);
+        $this->appDao->incrementTransaction($app->id, $dollar);
+
+
         return $this->transactionLogDao->storeLog($app, $payload);
     }
 
@@ -117,7 +119,9 @@ class WebhookService
      */
     protected function handleRefund(App $app, ResponseBodyV2 $payload): RefundLog
     {
-        // TODO increment data to apps table
+        $dollar = $this->getTransactionDollar($payload);
+        $this->appDao->incrementRefund($app->id, $dollar);
+
         return $this->refundLogDao->storeLog($app, $payload);
     }
 
@@ -137,5 +141,12 @@ class WebhookService
         }
 
         return $this->rawLogDao->storeRawLog($content, $app, $payload);
+    }
+
+
+    protected function getTransactionDollar(ResponseBodyV2 $payload): float
+    {
+        $transaction = $payload->getAppMetadata()->getTransactionInfo();
+        return $this->priceService->toDollar($transaction->getCurrency(), $transaction->getPrice());
     }
 }

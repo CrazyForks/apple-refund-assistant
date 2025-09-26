@@ -75,3 +75,6 @@ cp .env.example .env
 
 ## 未来计划
 - 有其它想法或对合作感兴趣？请在 GitHub 上提交 issue - 我们非常期待您的反馈！
+
+## 感谢
+* [Rates By Exchange Rate API](https://www.exchangerate-api.com)
