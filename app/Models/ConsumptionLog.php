@@ -16,13 +16,13 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @property int $app_id
  * @property string|null $notification_uuid
  * @property string|null $bundle_id
- * @property EnvironmentEnum|null $environment
+ * @property $environment
  * @property string $original_transaction_id
  * @property string|null $app_account_token
  * @property string $transaction_id
  * @property string|null $consumption_request_reason
  * @property string|null $deadline_at
- * @property ConsumptionLogStatusEnum $status
+ * @property $status
  * @property string|null $status_msg
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -51,7 +51,7 @@ class ConsumptionLog extends Model
     use HasShortflakePrimary;
 
     protected $casts = [
-        'environment' => EnvironmentEnum::class,
-        'status' => ConsumptionLogStatusEnum::class,
+        'environment' => [SafeEnumCast::class, EnvironmentEnum::class],
+        'status' => [SafeEnumCast::class, ConsumptionLogStatusEnum::class],
     ];
 }

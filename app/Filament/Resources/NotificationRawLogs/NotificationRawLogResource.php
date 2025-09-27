@@ -28,7 +28,7 @@ class NotificationRawLogResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?int $navigationSort = 99;
+    protected static ?int $navigationSort = 90;
 
     public static function getNavigationLabel(): string
     {

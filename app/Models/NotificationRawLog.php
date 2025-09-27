@@ -18,7 +18,7 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @property string|null $notification_uuid
  * @property $notification_type
  * @property string|null $bundle_id
- * @property EnvironmentEnum|null $environment
+ * @property $environment
  * @property string|null $request_body
  * @property string|null $payload
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -43,7 +43,7 @@ class NotificationRawLog extends Model
     use HasShortflakePrimary;
 
     protected $casts = [
-        'environment' => EnvironmentEnum::class,
+        'environment' => [SafeEnumCast::class, EnvironmentEnum::class],
         'notification_type' => [SafeEnumCast::class, NotificationTypeEnum::class],
     ];
 }

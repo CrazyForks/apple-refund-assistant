@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\SafeEnumCast;
 use App\Enums\EnvironmentEnum;
 use App\Enums\NotificationTypeEnum;
 use Illuminate\Database\Eloquent\Model;
@@ -12,9 +13,9 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @property int $id
  * @property int $app_id
  * @property string|null $notification_uuid
- * @property NotificationTypeEnum|null $notification_type
+ * @property $notification_type
  * @property string|null $bundle_id
- * @property EnvironmentEnum|null $environment
+ * @property $environment
  * @property string $original_transaction_id
  * @property string|null $app_account_token
  * @property string $transaction_id
@@ -59,7 +60,7 @@ class TransactionLog extends Model
     use HasShortflakePrimary;
 
     protected $casts = [
-        'environment' => EnvironmentEnum::class,
-        'notification_type' => NotificationTypeEnum::class,
+        'environment' => [SafeEnumCast::class, EnvironmentEnum::class],
+        'notification_type' => [SafeEnumCast::class, NotificationTypeEnum::class],
     ];
 }
