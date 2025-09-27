@@ -25,6 +25,7 @@ class UserResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
     protected static ?int $navigationSort = 100;
     protected static bool $isScopedToTenant = false;
+
     public static function getNavigationLabel(): string
     {
         return __('Admin');
