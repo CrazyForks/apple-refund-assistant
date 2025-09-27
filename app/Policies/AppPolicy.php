@@ -13,7 +13,7 @@ class AppPolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->isAdmin();
     }
 
     /**
@@ -21,7 +21,7 @@ class AppPolicy
      */
     public function view(User $user, App $app): bool
     {
-        return $user->isAdmin() || $user->id === $app->owner_id;
+        return $user->isAdmin() || $app->owner_id === $user->id;
     }
 
     /**
@@ -37,7 +37,7 @@ class AppPolicy
      */
     public function update(User $user, App $app): bool
     {
-        return $user->isAdmin() || $user->id === $app->owner_id;
+        return $user->isAdmin() || $app->owner_id === $user->id;
     }
 
     /**
@@ -45,7 +45,7 @@ class AppPolicy
      */
     public function delete(User $user, App $app): bool
     {
-        return $user->isAdmin() || $user->id === $app->owner_id;
+        return $user->isAdmin() || $app->owner_id === $user->id;
     }
 
     /**
@@ -53,7 +53,7 @@ class AppPolicy
      */
     public function restore(User $user, App $app): bool
     {
-        return $user->isAdmin() || $user->id === $app->owner_id;
+        return $user->isAdmin() || $app->owner_id === $user->id;
     }
 
     /**
@@ -61,6 +61,6 @@ class AppPolicy
      */
     public function forceDelete(User $user, App $app): bool
     {
-        return $user->isAdmin() || $user->id === $app->owner_id;
+        return $user->isAdmin() || $app->owner_id === $user->id;
     }
 }
