@@ -6,8 +6,11 @@ namespace App\Models;
 use App\Casts\SafeEnumCast;
 use App\Enums\UserRoleEnum;
 use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasDefaultTenant;
+use Filament\Models\Contracts\HasTenants;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
@@ -44,7 +47,7 @@ use Illuminate\Support\Collection;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUpdatedAt($value)
  * @mixin \Eloquent
  */
-class User extends Authenticatable implements FilamentUser
+class User extends Authenticatable implements FilamentUser, HasTenants, HasDefaultTenant
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
@@ -94,5 +97,28 @@ class User extends Authenticatable implements FilamentUser
     public function canAccessPanel(Panel $panel): bool
     {
         return $this->activate;
+    }
+
+    public function getTenants(Panel $panel): array|Collection
+    {
+        $query = App::query()->withoutGlobalScopes();
+        if (! $this->isAdmin()) {
+            $query->where('owner_id', $this->getKey());
+        }
+        return $query->get();
+    }
+
+    public function canAccessTenant(Model $tenant): bool
+    {
+        return $this->isAdmin() || $tenant->getAttribute('owner_id') === $this->getKey();
+    }
+
+    public function getDefaultTenant(Panel $panel): ?Model
+    {
+        if ($this->default_app_id) {
+            return App::find($this->default_app_id);
+        }
+
+        return null;
     }
 }

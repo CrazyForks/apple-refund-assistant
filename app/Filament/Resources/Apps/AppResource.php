@@ -2,20 +2,23 @@
 
 namespace App\Filament\Resources\Apps;
 
-use App\Filament\Actions\AppTestWebhookAction;
+use App\Enums\AppStatusEnum;
+use App\Enums\BoolEnum;
 use App\Filament\Resources\Apps\Pages\ManageApps;
+use App\Filament\Tables\Actions\AppTestWebhookAction;
+use App\Filament\Tables\Actions\SetDefaultAppAction;
 use App\Models\App;
 use App\Models\User;
 use BackedEnum;
-use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -35,11 +38,13 @@ class AppResource extends Resource
 
     protected static ?int $navigationSort = 99;
 
+    protected static bool $isScopedToTenant = false;
 
     public static function getModelLabel(): string
     {
         return __('App');
     }
+
     public static function getNavigationLabel(): string
     {
         return __('App');
@@ -49,7 +54,7 @@ class AppResource extends Resource
     {
         $currentUserId = Auth::id();
         $isAdmin = Auth::user()?->isAdmin() || false;
-        $ownerField =  Select::make('owner_id')
+        $ownerField = Select::make('owner_id')
             ->label(__('Owner id'))
             ->relationship('owner', 'name')
             ->options(User::all()->pluck('name', 'id'))
@@ -59,7 +64,7 @@ class AppResource extends Resource
         if (!$isAdmin) {
             $ownerField = Hidden::make('owner_id')
                 ->label(__('Owner id'))
-                ->default(fn () => $currentUserId);
+                ->default(fn() => $currentUserId);
         }
 
         return $schema
@@ -67,28 +72,16 @@ class AppResource extends Resource
                 TextInput::make('name')
                     ->columnSpanFull()
                     ->required(),
-                Radio::make('sample_content_provided')
-                    ->options([
-                        1 => __('Yes'),
-                        0 => __('No'),
-                    ])
-                    ->default(false),
                 Textarea::make('description')->columnSpanFull(),
+                Radio::make('sample_content_provided')
+                    ->inline()
+                    ->options(BoolEnum::class)
+                    ->default(false),
+                TextEntry::make('status')
+                    ->badge()
+                    ->columnSpanFull(),
                 $ownerField,
             ]);
-    }
-
-    public static function getEloquentQuery(): Builder
-    {
-        // 获取基准查询构建器
-        $query = parent::getEloquentQuery();
-
-        $user = Auth::user();
-        if (!$user || $user->isAdmin()) {
-            return $query;
-        }
-
-        return $query->where('owner_id', $user->id);
     }
 
     public static function table(Table $table): Table
@@ -106,10 +99,8 @@ class AppResource extends Resource
                     ->searchable(),
                 TextColumn::make('status')
                     ->badge(),
-                // 2. 所有者列 (仅管理员可见)
-                TextColumn::make('owner.name') // 显示所有者（User）的名称
-                ->label(__('Owner'))
-                    ->visible(Auth::user()->isAdmin()),
+                TextColumn::make('owner.name')
+                    ->label(__('Owner')),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable(),
@@ -125,6 +116,7 @@ class AppResource extends Resource
                 EditAction::make(),
                 DeleteAction::make(),
                 AppTestWebhookAction::make(),
+                SetDefaultAppAction::make(),
             ]);
     }
 

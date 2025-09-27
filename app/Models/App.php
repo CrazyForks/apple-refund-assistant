@@ -5,6 +5,10 @@ namespace App\Models;
 use App\Casts\SafeEnumCast;
 use App\Enums\AppStatusEnum;
 use App\Enums\BoolEnum;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Models\Contracts\HasAvatar;
+use Filament\Models\Contracts\HasCurrentTenantLabel;
+use Filament\Models\Contracts\HasName;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Crypt;
@@ -57,7 +61,7 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App whereUpdatedAt($value)
  * @mixin \Eloquent
  */
-class App extends Model
+class App extends Model implements HasName, HasCurrentTenantLabel, HasAvatar
 {
     use HasShortflakePrimary;
 
@@ -78,6 +82,26 @@ class App extends Model
     public function owner(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class, 'owner_id');
+    }
+
+    public function getCurrentTenantLabel(): string
+    {
+        return $this->status?->getLabel() ?? '-';
+    }
+
+    public function getFilamentName(): string
+    {
+        return $this->name;
+    }
+
+    public function getFilamentAvatarUrl(): ?string
+    {
+        $ok = $this->status === AppStatusEnum::NORMAL;
+        if ($ok) {
+            return '/assets/icon/status_ok.png';
+        }
+
+        return '/assets/icon/status_fail.png';
     }
 
 }

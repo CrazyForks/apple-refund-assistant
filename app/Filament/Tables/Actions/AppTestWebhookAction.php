@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Actions;
+namespace App\Filament\Tables\Actions;
 
 use App\Enums\AppStatusEnum;
 use App\Models\App;
@@ -16,7 +16,7 @@ use Readdle\AppStoreServerAPI\Environment;
 
 class AppTestWebhookAction
 {
-    public static function make()
+    public static function make(): Action
     {
         return Action::make(__('config_webhook'))
             ->icon('heroicon-m-paper-airplane')
@@ -28,7 +28,7 @@ class AppTestWebhookAction
             })
             ->fillForm(fn (App $record): array => $record->toArray())
             ->schema([
-                Grid::make(2)
+                Grid::make()
                     ->schema([
                         Section::make('Info')
                             ->schema([

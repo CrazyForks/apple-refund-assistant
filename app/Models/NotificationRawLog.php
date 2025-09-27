@@ -6,6 +6,7 @@ use App\Casts\SafeEnumCast;
 use App\Enums\EnvironmentEnum;
 use App\Enums\NotificationTypeEnum;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Kra8\Snowflake\HasShortflakePrimary;
 
 
@@ -46,4 +47,9 @@ class NotificationRawLog extends Model
         'environment' => [SafeEnumCast::class, EnvironmentEnum::class],
         'notification_type' => [SafeEnumCast::class, NotificationTypeEnum::class],
     ];
+
+    public function app(): BelongsTo
+    {
+        return $this->belongsTo(App::class, 'app_id');
+    }
 }

@@ -43,7 +43,6 @@ class ConsumptionLogResource extends Resource
     public static function getNavigationBadge(): ?string
     {
         return ConsumptionLog::query()->where('status', ConsumptionLogStatusEnum::PENDING)->count();
-
     }
 
     public static function getNavigationBadgeColor(): ?string
