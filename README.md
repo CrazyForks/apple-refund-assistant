@@ -69,6 +69,7 @@ cp .env.example .env
 
 ## TODO
 - [ ] NotificationRawLog select field without request body, payload
+- [ ] 使用更安全的金额转换库
 
 ## 许可证
 
