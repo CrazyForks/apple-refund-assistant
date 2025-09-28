@@ -69,12 +69,12 @@ cp .env.example .env
 
 ## TODO
 - [ ] NotificationRawLog select field without request body, payload
+- [ ] 用户构建创建从 apply notification
 - [ ] 使用更安全的金额转换库
 
 ## 许可证
 
 根据 Apache License 2.0 授权，详见 [LICENSE](./LICENSE)。
-
 ## 支持
 
 如有问题或疑问，请在 GitHub 上提交 issue。
