@@ -44,7 +44,6 @@ class TransactionLogResource extends Resource
         return $schema
             ->components([
                 TextEntry::make('id'),
-                TextEntry::make('app_id'),
                 TextEntry::make('notification_uuid'),
                 TextEntry::make('notification_type')
                     ->badge(),

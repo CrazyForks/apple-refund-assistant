@@ -46,7 +46,6 @@ class NotificationRawLogResource extends Resource
         return $schema
             ->components([
                 TextEntry::make('notification_uuid'),
-                TextEntry::make('app_id'),
                 TextEntry::make('notification_type'),
                 TextEntry::make('environment')
                     ->placeholder('-'),
@@ -84,7 +83,6 @@ class NotificationRawLogResource extends Resource
                     ->searchable(),
                 TextColumn::make('notification_uuid')
                     ->searchable(),
-
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

@@ -40,7 +40,6 @@ class RefundLogResource extends Resource
         return $schema
             ->components([
                 TextEntry::make('id'),
-                TextEntry::make('app_id'),
                 TextEntry::make('bundle_id')
                     ->placeholder('-'),
                 TextEntry::make('notification_uuid')

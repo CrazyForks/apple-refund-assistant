@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Kra8\Snowflake\HasShortflakePrimary;
 
 /**
@@ -33,4 +34,9 @@ class AppleUser extends Model
 {
     use HasShortflakePrimary;
 
+    protected $guarded = [];
+    public function app(): BelongsTo
+    {
+        return $this->belongsTo(App::class, 'app_id');
+    }
 }

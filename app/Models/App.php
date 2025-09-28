@@ -79,6 +79,11 @@ class App extends Model implements HasName, HasCurrentTenantLabel, HasAvatar
         );
     }
 
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->resolveRouteBindingQuery($this, intval($value), $field)->first();
+    }
+
     public function owner(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class, 'owner_id');
