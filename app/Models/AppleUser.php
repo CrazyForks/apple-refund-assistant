@@ -16,6 +16,7 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @property string|null $register_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\App|null $app
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AppleUser newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AppleUser newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AppleUser query()

@@ -26,6 +26,7 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @property string|null $refund_reason
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\App|null $app
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog query()

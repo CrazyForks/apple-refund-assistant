@@ -24,6 +24,7 @@ return new class extends Migration
             $table->boolean('sample_content_provided')->default(false)->comment('provided sample content');
             $table->string('status')->default(\App\Enums\AppStatusEnum::UN_VERIFIED->value);
 
+            $table->string('notification_url')->nullable();
 
             $table->decimal('transaction_dollars')->default(0);
             $table->decimal('refund_dollars')->default(0);

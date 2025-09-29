@@ -36,7 +36,9 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @property int $refund_count
  * @property int $consumption_count
  * @property int|null $owner_id
+ * @property string|null $notification_url
  * @property $activate
+ * @property-read \App\Models\User|null $owner
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App query()
@@ -49,6 +51,7 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App whereIssuerId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App whereKeyId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|App whereNotificationUrl($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App whereOwnerId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App whereP8Key($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App whereRefundCount($value)

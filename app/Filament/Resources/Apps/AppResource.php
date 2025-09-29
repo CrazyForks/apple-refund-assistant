@@ -73,6 +73,9 @@ class AppResource extends Resource
                     ->columnSpanFull()
                     ->required(),
                 Textarea::make('description')->columnSpanFull(),
+                TextInput::make('notification_url')
+                    ->url()
+                    ->columnSpanFull(),
                 Radio::make('sample_content_provided')
                     ->inline()
                     ->options(BoolEnum::class)
@@ -101,6 +104,8 @@ class AppResource extends Resource
                     ->badge(),
                 TextColumn::make('owner.name')
                     ->label(__('Owner')),
+                IconColumn::make('notification_url')
+                    ->boolean(fn ($record) => !empty($record->notification_url)),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable(),

@@ -31,6 +31,7 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @property int $quantity
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\App|null $app
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionLog newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionLog newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionLog query()

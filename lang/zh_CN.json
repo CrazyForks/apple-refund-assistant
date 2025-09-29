@@ -45,6 +45,7 @@
     "Created at": "创建时间",
     "Updated at": "修改时间",
     "config_webhook": "配置",
+    "Notification url": "通知 URL",
     "config_webhook_status": "查看回调状态",
     "status_unverified": "未验证",
     "status_web_hooking": "未回调",

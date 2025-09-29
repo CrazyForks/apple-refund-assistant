@@ -27,6 +27,7 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @property string|null $status_msg
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\App|null $app
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConsumptionLog newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConsumptionLog newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConsumptionLog query()
