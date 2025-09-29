@@ -23,6 +23,9 @@ return new class extends Migration
             $table->text('request_body')->nullable();
             $table->text('payload')->nullable();
 
+            $table->boolean('forward_success')->nullable();
+            $table->string('forward_msg')->nullable();
+
             $table->timestamps();
 
             $table->index(['notification_uuid', 'app_id']);

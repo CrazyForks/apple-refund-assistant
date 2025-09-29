@@ -105,7 +105,7 @@ class AppResource extends Resource
                 TextColumn::make('owner.name')
                     ->label(__('Owner')),
                 IconColumn::make('notification_url')
-                    ->boolean(fn ($record) => !empty($record->notification_url)),
+                    ->boolean(fn ($state) => !empty($state)),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable(),

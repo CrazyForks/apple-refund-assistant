@@ -10,11 +10,13 @@ use App\Dao\TransactionLogDao;
 use App\Enums\AppStatusEnum;
 use App\Enums\NotificationTypeEnum;
 use App\Jobs\SendConsumptionInformationJob;
+use App\Jobs\SendRequestToAppNotificationUrlJob;
 use App\Models\App;
 use App\Models\ConsumptionLog;
 use App\Models\NotificationRawLog;
 use App\Models\RefundLog;
 use App\Models\TransactionLog;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Readdle\AppStoreServerAPI\Exception\AppStoreServerNotificationException;
 use Readdle\AppStoreServerAPI\ResponseBodyV2;
@@ -53,7 +55,7 @@ class WebhookService
      * @throws AppStoreServerNotificationException
      * @throws \Exception
      */
-    public function handleNotification(string $content, int $appId): string
+    public function handleNotification(string $content, int $appId): Model
     {
         $payload = $this->iapService->decodePayload($content);
 
@@ -83,7 +85,9 @@ class WebhookService
                 break;
         }
 
-        return 'SUCCESS';
+        dispatch(new SendRequestToAppNotificationUrlJob($raw, $app));
+
+        return $raw;
     }
 
     /**

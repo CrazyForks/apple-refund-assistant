@@ -24,6 +24,8 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @property string|null $payload
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int|null $forward_success
+ * @property string|null $forward_msg
  * @property-read \App\Models\App|null $app
  * @method static \Illuminate\Database\Eloquent\Builder<static>|NotificationRawLog newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|NotificationRawLog newQuery()
@@ -32,6 +34,8 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|NotificationRawLog whereBundleId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|NotificationRawLog whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|NotificationRawLog whereEnvironment($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|NotificationRawLog whereForwardMsg($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|NotificationRawLog whereForwardSuccess($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|NotificationRawLog whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|NotificationRawLog whereNotificationType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|NotificationRawLog whereNotificationUuid($value)

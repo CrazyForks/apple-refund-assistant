@@ -16,6 +16,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -83,6 +84,10 @@ class NotificationRawLogResource extends Resource
                     ->searchable(),
                 TextColumn::make('notification_uuid')
                     ->searchable(),
+                IconColumn::make('forward_success')
+                    ->tooltip(fn (NotificationRawLog $record): ?string => $record->forward_msg)
+                    ->color(fn (int $state): string => $state > 0 ? 'success' : 'danger')
+                    ->icon(fn (int $state): ?string => $state > 0 ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle'),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
