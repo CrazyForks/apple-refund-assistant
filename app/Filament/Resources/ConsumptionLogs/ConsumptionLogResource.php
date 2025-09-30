@@ -2,19 +2,13 @@
 
 namespace App\Filament\Resources\ConsumptionLogs;
 
-use App\Enums\ConsumptionLogStatusEnum;
-use App\Enums\EnvironmentEnum;
 use App\Filament\Resources\ConsumptionLogs\Pages\ManageConsumptionLogs;
 use App\Models\ConsumptionLog;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
+use Filament\Facades\Filament;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -42,7 +36,7 @@ class ConsumptionLogResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return ConsumptionLog::query()->where('status', ConsumptionLogStatusEnum::PENDING)->count();
+        return Filament::getTenant()->pending_consumption_count ?? 0;
     }
 
     public static function getNavigationBadgeColor(): ?string

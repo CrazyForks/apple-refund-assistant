@@ -32,6 +32,7 @@ return new class extends Migration
             $table->bigInteger('transaction_count')->default(0);
             $table->bigInteger('refund_count')->default(0);
             $table->bigInteger('consumption_count')->default(0);
+            $table->bigInteger('pending_consumption_count')->default(0);
             $table->bigInteger('owner_id')->nullable();
 
             $table->timestamps();

@@ -41,6 +41,8 @@ class AppleUserResource extends Resource
     {
         return $schema
             ->components([
+                TextInput::make('app_account_token')
+                    ->required(),
                 TextInput::make('purchased_dollars')
                     ->required()
                     ->numeric()
@@ -61,6 +63,7 @@ class AppleUserResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('app_account_token'),
                 TextColumn::make('purchased_dollars')
                     ->numeric()
                     ->sortable(),

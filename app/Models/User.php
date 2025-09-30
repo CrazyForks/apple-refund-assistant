@@ -74,6 +74,10 @@ class User extends Authenticatable implements FilamentUser, HasTenants, HasDefau
         'remember_token',
     ];
 
+    protected ?Collection $myApps = null;
+    protected ?App $defaultApp = null;
+    protected bool $defaultAppLoaded = false;
+
     /**
      * Get the attributes that should be cast.
      *
@@ -99,13 +103,18 @@ class User extends Authenticatable implements FilamentUser, HasTenants, HasDefau
         return $this->activate;
     }
 
+
     public function getTenants(Panel $panel): array|Collection
     {
-        $query = App::query()->withoutGlobalScopes();
-        if (! $this->isAdmin()) {
-            $query->where('owner_id', $this->getKey());
+        if (is_null($this->myApps)) {
+            $query = App::query()->withoutGlobalScopes();
+            if (! $this->isAdmin()) {
+                $query->where('owner_id', $this->getKey());
+            }
+            $this->myApps = $query->get();
         }
-        return $query->get();
+
+        return $this->myApps ?? [];
     }
 
     public function canAccessTenant(Model $tenant): bool
@@ -115,10 +124,14 @@ class User extends Authenticatable implements FilamentUser, HasTenants, HasDefau
 
     public function getDefaultTenant(Panel $panel): ?Model
     {
-        if ($this->default_app_id) {
-            return App::find($this->default_app_id);
+        if (! $this->defaultAppLoaded) {
+            dump($this->defaultAppLoaded);
+            $this->defaultAppLoaded = true;
+            if ($this->default_app_id) {
+                $this->defaultApp = App::findOrNew($this->default_app_id);
+            }
         }
 
-        return null;
+        return $this->defaultApp;
     }
 }
