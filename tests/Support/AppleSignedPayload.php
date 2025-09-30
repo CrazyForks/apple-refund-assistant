@@ -45,6 +45,15 @@ class AppleSignedPayload
         if (!class_exists(AppMetadata::class)) {
             throw new RuntimeException('AppMetadata class not found');
         }
+        if (isset($meta['transactionInfo']) && is_array($meta['transactionInfo'])) {
+            $meta['transactionInfo'] = \Readdle\AppStoreServerAPI\TransactionInfo::createFromRawTransactionInfo($meta['transactionInfo']);
+        }
+        if (isset($meta['renewalInfo']) && is_array($meta['renewalInfo'])) {
+            if (class_exists('Readdle\\AppStoreServerAPI\\RenewalInfo')) {
+                $meta['renewalInfo'] = \Readdle\AppStoreServerAPI\RenewalInfo::createFromRawRenewalInfo($meta['renewalInfo']);
+            }
+        }
+
         $appMetadata = AppMetadata::createFromRawData($meta);
 
         // ResponseBodyV2 的私有属性列表

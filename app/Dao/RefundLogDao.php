@@ -31,7 +31,7 @@ class RefundLogDao extends PayloadAttribute
         $model->price = $this->formatPrice($transInfo->getPrice());
         $model->currency = $transInfo->getCurrency();
 
-        $model->apple_account_token = $transInfo->getAppAccountToken();
+        $model->app_account_token = $transInfo->getAppAccountToken();
         $model->refund_date = $transInfo->getRevocationDate() / 1000;
         $model->refund_reason = "code[{$transInfo->getRevocationReason()}]";
         $model->save();

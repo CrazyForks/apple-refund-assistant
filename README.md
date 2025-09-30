@@ -20,7 +20,7 @@
 |  缓存   | file | redis  |
 |   session | file |  redis   |
 - **webhook** 接口 **100%** 测试覆盖率
-    - [ ] 覆盖率完成
+    - [x] 覆盖率完成(Services\WebhookService)
 - **密钥自持** -私钥仅保存在你的数据库`apps`表中(会进行对称加密,密钥由你的应用生成)
 - **12 个消费字段** - 计算所有必需的 Apple 字段
 - 支持服务器消息转发
