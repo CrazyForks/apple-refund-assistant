@@ -61,6 +61,29 @@
                         });
                     });
                     
+                    // Listen for copy to clipboard event
+                    Livewire.on('copy-to-clipboard', (event) => {
+                        const content = event.content;
+                        navigator.clipboard.writeText(content).then(() => {
+                            // Show success notification
+                            window.$wireui?.notify({
+                                title: '复制成功',
+                                description: '配置内容已复制到剪贴板',
+                                icon: 'success'
+                            });
+                            
+                            // Fallback for Filament notification
+                            if (window.Filament) {
+                                new window.FilamentNotification()
+                                    .title('复制成功')
+                                    .success()
+                                    .send();
+                            }
+                        }).catch(err => {
+                            console.error('Failed to copy:', err);
+                        });
+                    });
+                    
                     // Listen for installation start event
                     Livewire.on('start-installation', () => {
                         // Start executing steps

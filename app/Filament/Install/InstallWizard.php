@@ -10,6 +10,7 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Html;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Wizard;
@@ -17,6 +18,7 @@ use Filament\Schemas\Components\Wizard\Step;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Width;
 use Filament\Notifications\Notification;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Encryption\Encrypter;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -28,19 +30,21 @@ class InstallWizard extends Page implements HasForms
     use InteractsWithForms;
 
     protected string $view = 'filament.pages.install-wizard';
-    
+
     public ?array $data = [];
     public bool $isCompleted = false;
     public bool $isDatabaseTested = false;
+    public string $databaseTestMessage = '';
     public bool $isInstalling = false;
     public int $installStep = 0;
     public string $installStepMessage = '';
+    public array $commandLogs = [];
     public array $installSteps = [
-        1 => '写入 .env 配置文件',
-        2 => '清除配置缓存',
+        1 => '设置运行时配置',
+        2 => '清除所有缓存',
         3 => '执行数据库迁移',
         4 => '创建管理员账户',
-        5 => '完成安装设置',
+        5 => '写入配置文件并优化缓存',
     ];
 
     public function mount(): void
@@ -50,22 +54,18 @@ class InstallWizard extends Page implements HasForms
             return;
         }
 
+        // Load saved configuration from session or use defaults
+        $savedConfig = session('install_wizard_config', []);
+
         // Use existing APP_KEY if available, otherwise generate a new one
-        $existingKey = config('app.key');
-        if (empty($existingKey) || $existingKey === 'base64:' || strlen($existingKey) < 20) {
-            $key = 'base64:'.base64_encode(
-                Encrypter::generateKey(config('app.cipher'))
-            );
-        } else {
-            $key = $existingKey;
-        }
-        
-        $this->form->fill([
+        $key = $savedConfig['app_key'] ?? 'base64:' . base64_encode(Encrypter::generateKey(config('app.cipher')));
+        $defaultConfig = [
             'app_name' => 'Apple Refund Assistant',
             'app_url' => request()->getSchemeAndHttpHost(),
             'app_env' => 'production',
             'app_debug' => false,
             'app_key' => $key,
+            'app_timezone' => 'Asia/Shanghai',
 
             'db_connection' => 'sqlite',
             'db_host' => '127.0.0.1',
@@ -73,13 +73,41 @@ class InstallWizard extends Page implements HasForms
             'db_database' => 'database/database.sqlite',
             'db_username' => 'root',
             'db_password' => '',
+        ];
 
-            'queue_connection' => 'sync',
+        // Merge saved config with defaults
+        $config = array_merge($defaultConfig, $savedConfig);
 
-            'redis_host' => '127.0.0.1',
-            'redis_port' => '6379',
-            'redis_password' => '',
-            'redis_database' => '0',
+        $this->form->fill($config);
+
+        // Restore test status from session
+        $this->isDatabaseTested = session('install_wizard_db_tested', false);
+        $this->databaseTestMessage = session('install_wizard_db_message', '');
+    }
+
+    protected function saveConfigToSession(): void
+    {
+         // Get current form data
+         $formData = $this->form->getState();
+
+         // Merge with existing session data to preserve all configurations
+         $existingConfig = session('install_wizard_config', []);
+         $allConfig = array_merge($existingConfig, $formData);
+
+         // Ensure app_key is always saved (it's dehydrated=false so not in form data)
+         if (isset($this->data['app_key'])) {
+             $allConfig['app_key'] = $this->data['app_key'];
+         }
+
+         // Save all configuration to session
+         session(['install_wizard_config' => $allConfig]);
+    }
+
+    protected function saveTestStatusToSession(): void
+    {
+        session([
+            'install_wizard_db_tested' => $this->isDatabaseTested,
+            'install_wizard_db_message' => $this->databaseTestMessage,
         ]);
     }
 
@@ -88,21 +116,63 @@ class InstallWizard extends Page implements HasForms
         return $schema
             ->components([
                 Wizard::make([
+                    Step::make('环境检查')
+                        ->icon('heroicon-o-shield-check')
+                        ->description('检查系统环境和权限')
+                        ->components([
+                            Section::make('系统环境检查')
+                                ->description('确保系统满足安装要求')
+                                ->schema([
+                                    TextEntry::make('storage_permissions')
+                                        ->label('存储目录权限')
+                                        ->placeholder(function () {
+                                            $paths = [
+                                                'storage' => storage_path(),
+                                                'bootstrap/cache' => base_path('bootstrap/cache'),
+                                            ];
+                                            $results = [];
+                                            foreach ($paths as $name => $path) {
+                                                if (!is_dir($path)) {
+                                                    $results[] = "❌ {$name}: 目录不存在";
+                                                } elseif (!is_writable($path)) {
+                                                    $results[] = "❌ {$name}: 无写入权限";
+                                                } else {
+                                                    $results[] = "✅ {$name}: 权限正常";
+                                                }
+                                            }
+                                            return Html::make(implode("<br>", $results));
+                                        }),
+                                ])
+                                ->footerActions([
+                                    Action::make('refreshCheck')
+                                        ->label('重新检查')
+                                        ->icon('heroicon-o-arrow-path')
+                                        ->color('gray')
+                                        ->action(function () {
+                                            // Force refresh the page to re-run checks
+                                            $this->js('window.location.reload()');
+                                        }),
+                                ]),
+                        ]),
+
                     Step::make('应用配置')
                         ->icon('heroicon-o-cog-6-tooth')
                         ->description('配置应用基本信息')
+                        ->afterValidation(function () {
+                            $this->saveConfigToSession();
+                        })
                         ->components([
                             Section::make('基本信息')
-            ->schema([
-                TextInput::make('app_name')
-                    ->label('应用名称')
+                                ->schema([
+                                    TextInput::make('app_name')
+                                        ->label('应用名称')
                                         ->required()
                                         ->maxLength(255),
 
-                TextInput::make('app_url')
+                                    TextInput::make('app_url')
                                         ->label('应用 URL')
-                    ->required()
-                    ->url(),
+                                        ->required()
+                                        ->url(),
 
                                     Select::make('app_env')
                                         ->label('运行环境')
@@ -121,6 +191,31 @@ class InstallWizard extends Page implements HasForms
                                         ->boolean()
                                         ->helperText('生产环境建议关闭调试模式'),
 
+                                    Select::make('app_timezone')
+                                        ->label('应用时区')
+                                        ->required()
+                                        ->native(false)
+                                        ->searchable()
+                                        ->options([
+                                            'Asia/Shanghai' => '中国标准时间 (Asia/Shanghai)',
+                                            'Asia/Hong_Kong' => '香港时间 (Asia/Hong_Kong)',
+                                            'Asia/Taipei' => '台北时间 (Asia/Taipei)',
+                                            'Asia/Tokyo' => '东京时间 (Asia/Tokyo)',
+                                            'Asia/Seoul' => '首尔时间 (Asia/Seoul)',
+                                            'Asia/Singapore' => '新加坡时间 (Asia/Singapore)',
+                                            'Asia/Bangkok' => '曼谷时间 (Asia/Bangkok)',
+                                            'Asia/Kuala_Lumpur' => '吉隆坡时间 (Asia/Kuala_Lumpur)',
+                                            'Asia/Jakarta' => '雅加达时间 (Asia/Jakarta)',
+                                            'UTC' => '协调世界时 (UTC)',
+                                            'America/New_York' => '纽约时间 (America/New_York)',
+                                            'America/Los_Angeles' => '洛杉矶时间 (America/Los_Angeles)',
+                                            'Europe/London' => '伦敦时间 (Europe/London)',
+                                            'Europe/Paris' => '巴黎时间 (Europe/Paris)',
+                                            'Europe/Berlin' => '柏林时间 (Europe/Berlin)',
+                                            'Australia/Sydney' => '悉尼时间 (Australia/Sydney)',
+                                        ])
+                                        ->helperText('选择应用使用的时区，影响日志时间和定时任务'),
+
                                     TextInput::make('app_key')
                                         ->label('应用密钥 (APP_KEY)')
                                         ->placeholder('将自动生成')
@@ -134,6 +229,9 @@ class InstallWizard extends Page implements HasForms
                         ->icon('heroicon-o-circle-stack')
                         ->description('配置数据库连接')
                         ->afterValidation(function () {
+                            // Save database config to session
+                            $this->saveConfigToSession();
+
                             if (!$this->isDatabaseTested) {
                                 Notification::make()
                                     ->title('请先测试数据库连接')
@@ -141,12 +239,18 @@ class InstallWizard extends Page implements HasForms
                                     ->warning()
                                     ->persistent()
                                     ->send();
-                                
+
                                 $this->halt();
                             }
                         })
                         ->components([
                             Section::make('数据库设置')
+                                ->description(function (Get $get) {
+                                    if ($get('db_connection') === 'sqlite') {
+                                        return '⚠️ 重要提醒：如果指定的 SQLite 数据库文件已存在，安装过程可能会覆盖现有数据。请务必先备份好重要的数据库文件！';
+                                    }
+                                    return null;
+                                })
                                 ->schema([
                                     Select::make('db_connection')
                                         ->label('数据库类型')
@@ -158,115 +262,108 @@ class InstallWizard extends Page implements HasForms
                                         ])
                                         ->reactive()
                                         ->afterStateUpdated(function ($state, callable $set) {
+                                            // Reset database test status when connection type changes
+                                            $this->isDatabaseTested = false;
+                                            $this->databaseTestMessage = '';
+                                            $this->saveTestStatusToSession();
+
                                             if ($state === 'sqlite') {
                                                 $set('db_database', 'database/database.sqlite');
                                             }
+
                                         }),
 
                                     TextInput::make('db_host')
                                         ->label('数据库主机')
                                         ->required(fn(Get $get) => $get('db_connection') === 'mysql')
-                                        ->visible(fn(Get $get) => $get('db_connection') === 'mysql'),
+                                        ->visible(fn(Get $get) => $get('db_connection') === 'mysql')
+                                        ->live(onBlur: true)
+                                        ->afterStateUpdated(function () {
+                                            $this->isDatabaseTested = false;
+                                            $this->databaseTestMessage = '';
+                                            $this->saveTestStatusToSession();
+                                        }),
 
                                     TextInput::make('db_port')
                                         ->label('数据库端口')
                                         ->required(fn(Get $get) => $get('db_connection') === 'mysql')
-                                        ->visible(fn(Get $get) => $get('db_connection') === 'mysql'),
+                                        ->visible(fn(Get $get) => $get('db_connection') === 'mysql')
+                                        ->live(onBlur: true)
+                                        ->afterStateUpdated(function () {
+                                            $this->isDatabaseTested = false;
+                                            $this->databaseTestMessage = '';
+                                            $this->saveTestStatusToSession();
+                                        }),
 
                                     TextInput::make('db_database')
                                         ->label(fn(Get $get) => $get('db_connection') === 'sqlite' ? '数据库文件路径' : '数据库名称')
                                         ->required()
-                                        ->helperText(fn(Get $get) => $get('db_connection') === 'sqlite' ? '相对于项目根目录' : ''),
+                                        ->helperText(function (Get $get) {
+                                            if ($get('db_connection') === 'sqlite') {
+                                                return '相对于项目根目录。⚠️ 如果文件已存在，请先备份好现有数据库文件！';
+                                            }
+                                            return '';
+                                        })
+                                        ->live(onBlur: true)
+                                        ->afterStateUpdated(function () {
+                                            $this->isDatabaseTested = false;
+                                            $this->databaseTestMessage = '';
+                                            $this->saveTestStatusToSession();
+                                        }),
 
                                     TextInput::make('db_username')
                                         ->label('数据库用户名')
                                         ->required(fn(Get $get) => $get('db_connection') === 'mysql')
-                                        ->visible(fn(Get $get) => $get('db_connection') === 'mysql'),
+                                        ->visible(fn(Get $get) => $get('db_connection') === 'mysql')
+                                        ->live(onBlur: true)
+                                        ->afterStateUpdated(function () {
+                                            $this->isDatabaseTested = false;
+                                            $this->databaseTestMessage = '';
+                                            $this->saveTestStatusToSession();
+                                        }),
 
                                     TextInput::make('db_password')
                                         ->label('数据库密码')
                                         ->password()
                                         ->revealable()
-                                        ->visible(fn(Get $get) => $get('db_connection') === 'mysql'),
+                                        ->visible(fn(Get $get) => $get('db_connection') === 'mysql')
+                                        ->live(onBlur: true)
+                                        ->afterStateUpdated(function () {
+                                            $this->isDatabaseTested = false;
+                                            $this->databaseTestMessage = '';
+                                            $this->saveTestStatusToSession();
+                                        }),
                                 ])->columns(2),
 
                             Section::make('连接测试')
                                 ->schema([
                                     TextEntry::make('db_test_status')
-                                        ->label('测试状态')
-                                        ->placeholder(function () {
+                                        ->label(function () {
+                                            if ($this->databaseTestMessage) {
+                                                return $this->databaseTestMessage;
+                                            }
                                             if ($this->isDatabaseTested) {
                                                 return '✅ 数据库连接已测试通过';
                                             }
                                             return '⚠️ 请点击下方按钮测试数据库连接（必须测试通过才能进入下一步）';
                                         })
-                                        ->color(fn () => $this->isDatabaseTested ? 'success' : 'warning'),
+                                        ->color(function () {
+                                            if ($this->isDatabaseTested) {
+                                                return 'success';
+                                            }
+                                            if ($this->databaseTestMessage && !$this->isDatabaseTested) {
+                                                return 'danger';
+                                            }
+                                            return 'warning';
+                                        }),
                                 ])
                                 ->footerActions([
                                     Action::make('testDatabaseConnection')
                                         ->label('测试数据库连接')
                                         ->icon('heroicon-o-signal')
-                                        ->color(fn () => $this->isDatabaseTested ? 'success' : 'primary')
+                                        ->color(fn() => $this->isDatabaseTested ? 'success' : 'primary')
                                         ->action(function () {
                                             $this->testDatabaseConnection();
-                                        }),
-                                ])
-                                ->description(function () {
-                                    if (!$this->isDatabaseTested) {
-                                        return '⚠️ 必须先测试数据库连接才能继续';
-                                    }
-                                    return null;
-                                }),
-                        ]),
-
-                    Wizard\Step::make('队列配置')
-                        ->icon('heroicon-o-queue-list')
-                        ->description('选择队列驱动')
-                        ->components([
-                            Section::make('队列驱动')
-                                ->description('缓存和会话驱动固定使用 File')
-                                ->schema([
-                                    Select::make('queue_connection')
-                                        ->label('队列驱动')
-                                        ->required()
-                                        ->native(false)
-                                        ->options([
-                                            'null' => 'Null (不处理)',
-                                            'sync' => 'Sync (同步处理)',
-                                            'redis' => 'Redis',
-                                        ])
-                                        ->helperText('Null: 任务不会被执行；Sync: 同步立即执行；Redis: 使用 Redis 队列')
-                                        ->reactive()
-                                        ->columnSpanFull(),
-                                ]),
-
-                            Section::make('Redis 配置')
-                                ->schema([
-                                    TextInput::make('redis_host')
-                                        ->label('Redis 主机')
-                                        ->required(),
-
-                                    TextInput::make('redis_port')
-                                        ->label('Redis 端口')
-                                        ->required(),
-
-                                    TextInput::make('redis_password')
-                                        ->label('Redis 密码')
-                                        ->password()
-                                        ->revealable(),
-
-                                    TextInput::make('redis_database')
-                                        ->label('Redis 数据库索引')
-                                        ->required()
-                                        ->numeric(),
-                                ])->columns(2)
-                                ->visible(fn(Get $get) => $get('queue_connection') === 'redis')
-                                ->footerActions([
-                                    Action::make('testRedisConnection')
-                                        ->label('测试 Redis 连接')
-                                        ->icon('heroicon-o-signal')
-                                        ->action(function () {
-                                            $this->testRedisConnection();
                                         }),
                                 ]),
                         ]),
@@ -277,6 +374,15 @@ class InstallWizard extends Page implements HasForms
                         ->components([
                             Section::make('.env 文件预览')
                                 ->description('保存好配置')
+                                ->headerActions([
+                                    Action::make('copyEnvContent')
+                                        ->label('复制配置')
+                                        ->icon('heroicon-o-clipboard-document')
+                                        ->color('gray')
+                                        ->action(function (Get $get) {
+                                            $this->dispatch('copy-to-clipboard', content: $this->generateEnvPreview($get));
+                                        }),
+                                ])
                                 ->schema([
                                     Textarea::make('env_preview')
                                         ->label('')
@@ -303,23 +409,23 @@ class InstallWizard extends Page implements HasForms
                                         ->columnSpanFull(),
                                 ])
                                 ->visible(fn() => !$this->isInstalling && !$this->isCompleted),
-                            
+
                             Section::make('安装步骤')
                                 ->description('点击下方"开始安装"按钮后，系统将自动执行以下步骤')
                                 ->schema([
                                     TextEntry::make('install_steps_preview')
                                         ->label('')
                                         ->placeholder(
-                                            '1️⃣ 写入 .env 配置文件' . "\n" .
-                                            '2️⃣ 清除配置缓存' . "\n" .
+                                            '1️⃣ 设置运行时配置' . "\n" .
+                                            '2️⃣ 清除所有缓存' . "\n" .
                                             '3️⃣ 执行数据库迁移' . "\n" .
                                             '4️⃣ 创建管理员账户' . "\n" .
-                                            '5️⃣ 完成安装设置'
+                                            '5️⃣ 写入配置文件并优化缓存'
                                         )
                                         ->columnSpanFull(),
                                 ])
                                 ->visible(fn() => !$this->isInstalling && !$this->isCompleted),
-                            
+
                             Section::make('安装进度')
                                 ->description(fn() => $this->isCompleted ? '✅ 安装已完成！' : '正在安装中，请稍候...')
                                 ->schema([
@@ -327,11 +433,11 @@ class InstallWizard extends Page implements HasForms
                                         ->label('')
                                         ->placeholder(function () {
                                             if ($this->isCompleted) {
-                                                return '🎉 系统安装成功！' . "\n\n" . 
-                                                       '管理员账户：admin@dev.com / admin' . "\n\n" .
-                                                       '即将跳转到登录页面...';
+                                                return '🎉 系统安装成功！' . "\n\n" .
+                                                    '管理员账户：admin@dev.com / admin' . "\n\n" .
+                                                    '即将跳转到登录页面...';
                                             }
-                                            
+
                                             $progress = '';
                                             foreach ($this->installSteps as $step => $message) {
                                                 if ($step < $this->installStep) {
@@ -348,6 +454,39 @@ class InstallWizard extends Page implements HasForms
                                         ->extraAttributes(['class' => 'text-lg']),
                                 ])
                                 ->visible(fn() => $this->isInstalling || $this->isCompleted),
+
+                            Section::make('命令执行日志')
+                                ->description('实时显示安装过程中的命令执行详情')
+                                ->schema([
+                                    Textarea::make('command_logs')
+                                        ->label('')
+                                        ->disabled()
+                                        ->extraInputAttributes([
+                                            'class' => 'font-mono text-sm bg-gray-50',
+                                            'style' => 'resize: vertical; min-height: 200px;',
+                                            'readonly' => true
+                                        ])
+                                        ->placeholder(function () {
+                                            if (empty($this->commandLogs)) {
+                                                return '等待命令执行...';
+                                            }
+
+                                            $logs = '';
+                                            foreach ($this->commandLogs as $log) {
+                                                $color = match($log['type']) {
+                                                    'success' => '🟢',
+                                                    'error' => '🔴',
+                                                    'warning' => '🟡',
+                                                    default => '🔵'
+                                                };
+                                                $logs .= "[{$log['timestamp']}] {$color} {$log['message']}\n";
+                                            }
+                                            return $logs;
+                                        })
+                                        ->rows(10)
+                                        ->columnSpanFull(),
+                                ])
+                                ->visible(fn() => $this->isInstalling || (!empty($this->commandLogs) && $this->isCompleted)),
                         ]),
                 ])
                     ->submitAction(view('filament.pages.install-wizard-submit-button'))
@@ -362,18 +501,18 @@ class InstallWizard extends Page implements HasForms
         try {
             // 只获取表单数据，不进行验证
             $data = $this->data;
-            
+
             if (!isset($data['db_connection'])) {
                 throw new \Exception('请先选择数据库类型');
             }
-            
+
             $connection = $data['db_connection'];
 
             if ($connection === 'sqlite') {
                 if (!isset($data['db_database']) || empty($data['db_database'])) {
                     throw new \Exception('请填写数据库文件路径');
                 }
-                
+
                 $dbPath = base_path($data['db_database']);
                 $dbDir = dirname($dbPath);
 
@@ -384,7 +523,7 @@ class InstallWizard extends Page implements HasForms
                 if (!File::exists($dbPath)) {
                     File::put($dbPath, '');
                 }
-                
+
                 config(['database.connections.sqlite.database' => $dbPath]);
                 DB::purge('sqlite');
                 DB::connection('sqlite')->getPdo();
@@ -395,7 +534,7 @@ class InstallWizard extends Page implements HasForms
                 if (!isset($data['db_database']) || empty($data['db_database'])) {
                     throw new \Exception('请填写数据库名称');
                 }
-                
+
                 // 设置 MySQL 连接配置
                 config([
                     'database.connections.mysql.host' => $data['db_host'],
@@ -409,74 +548,27 @@ class InstallWizard extends Page implements HasForms
 
                 // 清除连接缓存
                 DB::purge('mysql');
-                
+
                 // 尝试连接并执行一个简单查询来确保连接有效
                 $pdo = DB::connection('mysql')->getPdo();
                 DB::connection('mysql')->select('SELECT 1');
             }
 
             $this->isDatabaseTested = true;
-
-            Notification::make()
-                ->title('数据库连接成功')
-                ->body('数据库连接测试通过，可以继续下一步')
-                ->success()
-                ->send();
+            $this->databaseTestMessage = '✅ 数据库连接测试成功，可以继续下一步';
+            $this->saveTestStatusToSession();
 
         } catch (\Exception $e) {
             $this->isDatabaseTested = false;
-            
-            Notification::make()
-                ->title('数据库连接失败')
-                ->body($e->getMessage())
-                ->danger()
-                ->persistent()
-                ->send();
-        }
-    }
-
-    public function testRedisConnection(): void
-    {
-        try {
-            // 只获取表单数据，不进行验证
-            $data = $this->data;
-            
-            if (!isset($data['redis_host']) || empty($data['redis_host'])) {
-                throw new \Exception('请填写 Redis 主机地址');
-            }
-            if (!isset($data['redis_port']) || empty($data['redis_port'])) {
-                throw new \Exception('请填写 Redis 端口');
-            }
-            
-            config([
-                'database.redis.default.host' => $data['redis_host'],
-                'database.redis.default.port' => $data['redis_port'],
-                'database.redis.default.password' => $data['redis_password'] ?: null,
-                'database.redis.default.database' => $data['redis_database'] ?? '0',
-            ]);
-
-            RedisFacade::connection()->ping();
-
-            Notification::make()
-                ->title('Redis 连接成功')
-                ->body('Redis 连接测试通过')
-                ->success()
-                ->send();
-
-        } catch (\Exception $e) {
-            Notification::make()
-                ->title('Redis 连接失败')
-                ->body($e->getMessage())
-                ->danger()
-                ->persistent()
-                ->send();
+            $this->databaseTestMessage = '❌ 数据库连接失败：' . $e->getMessage();
+            $this->saveTestStatusToSession();
         }
     }
 
     protected function generateEnvPreview($get): string
     {
         $lines = [];
-        
+
         // Application
         $lines[] = '# Application Configuration';
         $lines[] = 'APP_NAME="' . $get('app_name') . '"';
@@ -484,13 +576,14 @@ class InstallWizard extends Page implements HasForms
         $lines[] = 'APP_KEY=' . $get('app_key');
         $lines[] = 'APP_DEBUG=' . ($get('app_debug') ? 'true' : 'false');
         $lines[] = 'APP_URL=' . $get('app_url');
+        $lines[] = 'APP_TIMEZONE=' . $get('app_timezone');
         $lines[] = 'APP_INSTALLED=true';
         $lines[] = '';
-        
+
         // Database
         $lines[] = '# Database Configuration';
         $lines[] = 'DB_CONNECTION=' . $get('db_connection');
-        
+
         if ($get('db_connection') === 'mysql') {
             $lines[] = 'DB_HOST=' . $get('db_host');
             $lines[] = 'DB_PORT=' . $get('db_port');
@@ -501,24 +594,14 @@ class InstallWizard extends Page implements HasForms
             $lines[] = 'DB_DATABASE=' . $get('db_database');
         }
         $lines[] = '';
-        
+
         // Cache & Session & Queue
         $lines[] = '# Cache, Session & Queue Configuration';
         $lines[] = 'CACHE_DRIVER=file';
         $lines[] = 'SESSION_DRIVER=file';
-        $lines[] = 'QUEUE_CONNECTION=' . $get('queue_connection');
+        $lines[] = 'QUEUE_CONNECTION=sync';
         $lines[] = '';
-        
-        // Redis (if needed)
-        if ($get('queue_connection') === 'redis') {
-            $lines[] = '# Redis Configuration';
-            $lines[] = 'REDIS_HOST=' . $get('redis_host');
-            $lines[] = 'REDIS_PORT=' . $get('redis_port');
-            $lines[] = 'REDIS_PASSWORD=' . ($get('redis_password') ? '"' . $get('redis_password') . '"' : '');
-            $lines[] = 'REDIS_DB=' . $get('redis_database');
-            $lines[] = '';
-        }
-        
+
         return implode("\n", $lines);
     }
 
@@ -527,9 +610,137 @@ class InstallWizard extends Page implements HasForms
         // Start installation process
         $this->isInstalling = true;
         $this->installStep = 0;
-        
+        $this->commandLogs = []; // Reset command logs
+
         // Trigger the first step
         $this->dispatch('start-installation');
+    }
+
+    protected function executeCommand(string $command, array $parameters = []): array
+    {
+        $startTime = microtime(true);
+        $this->addCommandLog("执行命令: php artisan {$command} " . implode(' ', $parameters), 'info');
+
+        // TODO SET ENV TO ARTISAN COMMAND
+        try {
+            $exitCode = Artisan::call($command, $parameters);
+            $output = Artisan::output();
+            $duration = round((microtime(true) - $startTime) * 1000, 2);
+
+            if ($exitCode === 0) {
+                $this->addCommandLog("✅ 命令执行成功 (耗时: {$duration}ms)", 'success');
+                if (!empty(trim($output))) {
+                    $this->addCommandLog("输出: " . trim($output), 'info');
+                }
+            } else {
+                $this->addCommandLog("❌ 命令执行失败 (退出码: {$exitCode})", 'error');
+                if (!empty(trim($output))) {
+                    $this->addCommandLog("错误输出: " . trim($output), 'error');
+                }
+            }
+
+            return [
+                'success' => $exitCode === 0,
+                'output' => $output,
+                'exit_code' => $exitCode,
+                'duration' => $duration
+            ];
+        } catch (\Exception $e) {
+            $duration = round((microtime(true) - $startTime) * 1000, 2);
+            $this->addCommandLog("❌ 命令执行异常: " . $e->getMessage(), 'error');
+            $this->addCommandLog("耗时: {$duration}ms", 'error');
+
+            return [
+                'success' => false,
+                'output' => $e->getMessage(),
+                'exit_code' => 1,
+                'duration' => $duration
+            ];
+        }
+    }
+
+    protected function addCommandLog(string $message, string $type = 'info'): void
+    {
+        $this->commandLogs[] = [
+            'timestamp' => now()->format('H:i:s'),
+            'message' => $message,
+            'type' => $type
+        ];
+
+        // Keep only last 50 log entries to prevent memory issues
+        if (count($this->commandLogs) > 50) {
+            $this->commandLogs = array_slice($this->commandLogs, -50);
+        }
+    }
+
+    protected function setEnvironmentVariables(array $data, string $appKey): void
+    {
+        $this->addCommandLog("设置运行时配置...", 'info');
+
+        // Set application configuration using Laravel's config() method
+        config([
+            'app.name' => $data['app_name'],
+            'app.env' => $data['app_env'],
+            'app.key' => $appKey,
+            'app.debug' => $data['app_debug'],
+            'app.url' => $data['app_url'],
+            'app.timezone' => $data['app_timezone'],
+        ]);
+
+        // Set database configuration
+        if ($data['db_connection'] === 'mysql') {
+            config([
+                'database.default' => 'mysql',
+                'database.connections.mysql.host' => $data['db_host'],
+                'database.connections.mysql.port' => $data['db_port'],
+                'database.connections.mysql.database' => $data['db_database'],
+                'database.connections.mysql.username' => $data['db_username'],
+                'database.connections.mysql.password' => $data['db_password'],
+                'database.connections.mysql.charset' => 'utf8mb4',
+                'database.connections.mysql.collation' => 'utf8mb4_unicode_ci',
+            ]);
+        } else {
+            $dbPath = base_path($data['db_database']);
+            config([
+                'database.default' => 'sqlite',
+                'database.connections.sqlite.database' => $dbPath,
+            ]);
+        }
+
+        // Set cache and session drivers
+        config([
+            'cache.default' => 'file',
+            'session.driver' => 'file',
+            'queue.default' => 'sync',
+        ]);
+
+        // Also set environment variables for .env file generation later
+        putenv("APP_NAME={$data['app_name']}");
+        putenv("APP_ENV={$data['app_env']}");
+        putenv("APP_KEY={$appKey}");
+        putenv("APP_DEBUG=" . ($data['app_debug'] ? 'true' : 'false'));
+        putenv("APP_URL={$data['app_url']}");
+        putenv("APP_TIMEZONE={$data['app_timezone']}");
+        putenv("DB_CONNECTION={$data['db_connection']}");
+
+        if ($data['db_connection'] === 'mysql') {
+            putenv("DB_HOST={$data['db_host']}");
+            putenv("DB_PORT={$data['db_port']}");
+            putenv("DB_DATABASE={$data['db_database']}");
+            putenv("DB_USERNAME={$data['db_username']}");
+            putenv("DB_PASSWORD={$data['db_password']}");
+        } else {
+            putenv("DB_DATABASE={$data['db_database']}");
+        }
+
+        putenv("CACHE_DRIVER=file");
+        putenv("SESSION_DRIVER=file");
+        putenv("QUEUE_CONNECTION=sync");
+
+        $this->addCommandLog("✅ 运行时配置设置完成", 'success');
+        $this->addCommandLog("APP_KEY: " . substr($appKey, 0, 20) . "...", 'info');
+        $this->addCommandLog("DB_CONNECTION: {$data['db_connection']}", 'info');
+        $this->addCommandLog("配置已通过 config() 方法设置，Artisan 命令可以访问", 'info');
     }
 
     public function executeNextStep(): void
@@ -543,7 +754,7 @@ class InstallWizard extends Page implements HasForms
                 // All steps completed
                 $this->isCompleted = true;
                 $this->isInstalling = false;
-                
+
                 // Redirect after a short delay
                 $this->dispatch('installation-completed');
                 return;
@@ -553,39 +764,59 @@ class InstallWizard extends Page implements HasForms
             $this->installStepMessage = $this->installSteps[$nextStep];
 
             switch ($nextStep) {
-                case 1: // Write .env file
-                    // Use the APP_KEY from form data (which is already set in runtime)
-                    $appKey = $data['app_key'] ?? config('app.key');
+                case 1: // Set runtime configuration
+                    // Always use the current runtime APP_KEY to avoid session invalidation
+                    $appKey = config('app.key');
+
+                    // Only generate a new key if absolutely necessary (shouldn't happen)
                     if (empty($appKey) || $appKey === 'base64:') {
-                        $appKey = 'base64:'.base64_encode(
-                            Encrypter::generateKey(config('app.cipher'))
-                        );
+                        $appKey = 'base64:' . base64_encode(
+                                Encrypter::generateKey(config('app.cipher'))
+                            );
+                        config(['app.key' => $appKey]);
                     }
-                    
-                    // Set the APP_KEY in runtime config BEFORE writing to .env
-                    config(['app.key' => $appKey]);
-                    $this->writeEnvFile($data, $appKey);
+
+                    $this->setEnvironmentVariables($data, $appKey);
                     break;
 
-                case 2: // Clear config cache (skipped)
-                    // Skip config:clear to avoid reloading APP_KEY and invalidating session
+                case 2: // Clear all caches
+                    // Clear all caches to ensure fresh configuration
+                    $this->executeCommand('cache:clear');
+                    $this->executeCommand('config:clear');
+                    $this->executeCommand('route:clear');
+                    $this->executeCommand('view:clear');
+                    $this->executeCommand('event:clear');
                     break;
 
                 case 3: // Run migrations
                     $this->setDatabaseConfig($data);
-                    Artisan::call('migrate', ['--force' => true]);
+                    $this->executeCommand('migrate', ['--force' => true]);
                     break;
 
                 case 4: // Create admin user
-                    Artisan::call('make:filament-user', [
+                    $this->executeCommand('make:filament-user', [
                         '--name' => 'Admin',
                         '--email' => 'admin@dev.com',
                         '--password' => 'admin',
                     ]);
                     break;
 
-                case 5: // Finalize installation
+                case 5: // Write .env file and finalize installation
+                    // Write .env file at the end to avoid session invalidation
+                    $appKey = config('app.key');
+                    $this->writeEnvFile($data, $appKey);
                     $this->updateEnvValue('APP_INSTALLED', 'true');
+
+                    // Optimize caches for production performance
+                    $this->executeCommand('config:cache');
+                    $this->executeCommand('route:cache');
+                    $this->executeCommand('view:cache');
+                    $this->executeCommand('event:cache');
+
+                    // Clear installation session data
+                    session()->forget('install_wizard_config');
+                    session()->forget('install_wizard_db_tested');
+                    session()->forget('install_wizard_db_message');
                     break;
             }
 
@@ -593,7 +824,7 @@ class InstallWizard extends Page implements HasForms
             $this->isInstalling = false;
             $this->isCompleted = false;
             $this->installStep = 0;
-            
+
             Notification::make()
                 ->title('❌ 安装失败')
                 ->body('步骤 ' . $this->installStep . ' 失败：' . $e->getMessage())
@@ -602,6 +833,7 @@ class InstallWizard extends Page implements HasForms
                 ->send();
         }
     }
+
 
     protected function writeEnvFile(array $data, string $appKey): void
     {
@@ -619,6 +851,7 @@ class InstallWizard extends Page implements HasForms
         $envplaceholder = $this->replaceEnvValue($envplaceholder, 'APP_KEY', $appKey);
         $envplaceholder = $this->replaceEnvValue($envplaceholder, 'APP_DEBUG', $data['app_debug'] ? 'true' : 'false');
         $envplaceholder = $this->replaceEnvValue($envplaceholder, 'APP_URL', $data['app_url']);
+        $envplaceholder = $this->replaceEnvValue($envplaceholder, 'APP_TIMEZONE', $data['app_timezone']);
 
         $envplaceholder = $this->replaceEnvValue($envplaceholder, 'DB_CONNECTION', $data['db_connection']);
 
@@ -634,14 +867,6 @@ class InstallWizard extends Page implements HasForms
 
         $envplaceholder = $this->replaceEnvValue($envplaceholder, 'CACHE_DRIVER', 'file');
         $envplaceholder = $this->replaceEnvValue($envplaceholder, 'SESSION_DRIVER', 'file');
-        $envplaceholder = $this->replaceEnvValue($envplaceholder, 'QUEUE_CONNECTION', $data['queue_connection']);
-
-        if ($data['queue_connection'] === 'redis') {
-            $envplaceholder = $this->replaceEnvValue($envplaceholder, 'REDIS_HOST', $data['redis_host']);
-            $envplaceholder = $this->replaceEnvValue($envplaceholder, 'REDIS_PORT', $data['redis_port']);
-            $envplaceholder = $this->replaceEnvValue($envplaceholder, 'REDIS_PASSWORD', $data['redis_password'] ?? '');
-            $envplaceholder = $this->replaceEnvValue($envplaceholder, 'REDIS_DB', $data['redis_database']);
-        }
 
         File::put($envPath, $envplaceholder);
     }
@@ -698,10 +923,6 @@ class InstallWizard extends Page implements HasForms
         }
     }
 
-    public function getMaxplaceholderWidth(): Width
-    {
-        return Width::SevenExtraLarge;
-    }
 
     public static function canAccess(): bool
     {

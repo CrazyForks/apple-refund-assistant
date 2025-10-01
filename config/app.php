@@ -2,6 +2,7 @@
 
 use Illuminate\Encryption\Encrypter;
 
+
 return [
     'installed' => env('APP_INSTALLED', false),
 
@@ -100,7 +101,8 @@ return [
 
     'cipher' => 'AES-256-CBC',
 
-    'key' => env('APP_KEY', 'base64:'.base64_encode(Encrypter::generateKey(config('app.cipher')))),
+    // for test install page
+    'key' => env('APP_KEY', 'base64:NwAyAj8xw+akQs0toMUb+tIUA3Ug40pmpxuTljVQlUg='),
 
     'previous_keys' => [
         ...array_filter(
