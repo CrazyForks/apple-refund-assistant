@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Encryption\Encrypter;
+
 return [
     'installed' => env('APP_INSTALLED', false),
 
@@ -98,7 +100,7 @@ return [
 
     'cipher' => 'AES-256-CBC',
 
-    'key' => env('APP_KEY', 'base64:RiYPWO3jykywZaRFBLMAdWHhbaSszYJmk7aajL/LwYQ='),
+    'key' => env('APP_KEY', 'base64:'.base64_encode(Encrypter::generateKey(config('app.cipher')))),
 
     'previous_keys' => [
         ...array_filter(

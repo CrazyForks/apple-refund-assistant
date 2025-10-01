@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         //
         $middleware->append(\App\Http\Middleware\AssignRequestIdMiddleware::class);
         $middleware->append(\App\Http\Middleware\LocalizationMiddleware::class);
+        $middleware->append(\App\Http\Middleware\CheckInstallation::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
