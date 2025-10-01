@@ -35,11 +35,11 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
+            ->topNavigation()
             ->tenant(App::class)
             ->tenantRoutePrefix('apps')
             ->tenantRegistration(RegisterApp::class)
             ->tenantProfile(ConfigApp::class)
-            ->path('admin')
             ->profile(EditProfile::class)
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')

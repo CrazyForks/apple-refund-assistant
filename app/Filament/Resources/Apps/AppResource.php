@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Apps;
 
-use App\Enums\AppStatusEnum;
 use App\Enums\BoolEnum;
 use App\Filament\Resources\Apps\Pages\ManageApps;
 use App\Filament\Tables\Actions\AppTestWebhookAction;
@@ -13,7 +12,6 @@ use BackedEnum;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -25,7 +23,6 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
 class AppResource extends Resource
