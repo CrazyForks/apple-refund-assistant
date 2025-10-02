@@ -1,8 +1,13 @@
+
 ## 苹果退款管理助手
 
 简体中文 | [English](./README.md)
 
 基于 Laravel 的多租户支付退款预防服务。
+
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/seth-shi/apple-refund-assistant/laravel.yml)
+![Codecov](https://img.shields.io/codecov/c/github/seth-shi/apple-refund-assistant)
+
 
 ## 概述
 

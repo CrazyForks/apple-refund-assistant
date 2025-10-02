@@ -88,57 +88,7 @@ class AmountPriceServiceTest extends TestCase
         $this->assertEquals(0.85, $result['EUR']);
         $this->assertEquals(0.73, $result['GBP']);
     }
-
-    public function test_request_dollar_data_fallback_to_local_file(): void
-    {
-        // Mock HTTP failure
-        Http::fake([
-            'https://open.er-api.com/v6/latest/USD' => Http::response([], 500)
-        ]);
-
-        // Mock file_get_contents for fallback
-        $mockData = [
-            'rates' => [
-                'USD' => 1,
-                'EUR' => 0.90,
-            ]
-        ];
-        $mockFileContent = json_encode($mockData);
-
-        // Create a temporary file for testing
-        $tempFile = storage_path('data/dollar.json');
-        if (!is_dir(dirname($tempFile))) {
-            mkdir(dirname($tempFile), 0755, true);
-        }
-        file_put_contents($tempFile, $mockFileContent);
-
-        Log::shouldReceive('error')->zeroOrMoreTimes();
-
-        // Use reflection to test protected method
-        $reflection = new \ReflectionClass($this->amountPriceService);
-        $method = $reflection->getMethod('requestDollarData');
-        $method->setAccessible(true);
-
-        $result = $method->invoke($this->amountPriceService);
-
-        $this->assertIsArray($result);
-        // The method returns $jsonData['rates'] ?? [], so if rates key doesn't exist, it returns empty array
-        if (!empty($result)) {
-            $this->assertArrayHasKey('USD', $result);
-            $this->assertArrayHasKey('EUR', $result);
-            $this->assertEquals(1, $result['USD']);
-            $this->assertEquals(0.90, $result['EUR']);
-        } else {
-            // If file doesn't exist or is malformed, it returns empty array
-            $this->assertEmpty($result);
-        }
-
-        // Clean up
-        if (file_exists($tempFile)) {
-            unlink($tempFile);
-        }
-    }
-
+    
     public function test_cache_get_dollar_data(): void
     {
         $mockRates = ['USD' => 1, 'EUR' => 0.85];

@@ -42,19 +42,22 @@ jobs:
     - name: Run tests with coverage
       run: |
         echo "Running tests with coverage..."
-        docker exec test-container php artisan test --coverage --coverage-xml coverage/coverage.xml
+        docker exec test-container php artisan test --coverage --coverage-clover coverage.xml
     
     - name: Copy coverage files from container
       run: |
-        docker cp test-container:/var/www/html/coverage ./
+        docker cp test-container:/var/www/html/coverage.xml ./coverage.xml
         echo "Coverage files copied successfully"
+        pwd
+        ls -al
     - name: Remove test container
       run: docker rm -f test-container
     - name: Upload coverage reports to Codecov
-      uses: codecov/codecov-action@v5
+      ## don't use v5 here
+      uses: codecov/codecov-action@v4
       with:
         fail_ci_if_error: true
-        files: ./coverage/coverage.xml
+        files: ./coverage.xml
         verbose: true
         token: ${{ secrets.CODECOV_TOKEN }}
         

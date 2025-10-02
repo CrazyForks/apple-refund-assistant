@@ -20,6 +20,7 @@
 /storage/pail
 /vendor
 /coverage
+coverage.xml
 Homestead.json
 Homestead.yaml
 Thumbs.db
