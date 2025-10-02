@@ -4,7 +4,7 @@ use Illuminate\Encryption\Encrypter;
 
 
 return [
-    'installed' => env('APP_INSTALLED', false),
+    'installed_at' => env('APP_INSTALLED_AT'),
 
     /*
     |--------------------------------------------------------------------------

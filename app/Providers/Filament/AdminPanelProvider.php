@@ -6,14 +6,20 @@ use App\Filament\Pages\Auth\EditProfile;
 use App\Filament\Pages\Tenancy\ConfigApp;
 use App\Filament\Pages\Tenancy\RegisterApp;
 use App\Models\App;
+use Filament\Forms\Components\Field;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Infolists\Components\Entry;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Tables\Columns\Column;
+use Filament\Tables\Enums\RecordActionsPosition;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Table;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -21,6 +27,7 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class AdminPanelProvider extends PanelProvider
@@ -60,5 +67,25 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ]);
+    }
+
+    public function boot(): void
+    {
+        Table::configureUsing(function (Table $table): void {
+            $table->defaultSort('id', 'desc');
+            $table->recordActionsPosition(RecordActionsPosition::BeforeCells);
+        });
+        Column::configureUsing(function(Column $column): void {
+            $column->translateLabel();
+        });
+        Filter::configureUsing(function(Filter $filter): void {
+            $filter->translateLabel();
+        });
+        Field::configureUsing(function(Field $field): void {
+            $field->translateLabel();
+        });
+        Entry::configureUsing(function(Entry $entry): void {
+            $entry->translateLabel();
+        });
     }
 }

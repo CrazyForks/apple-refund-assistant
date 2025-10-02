@@ -9,6 +9,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -26,21 +27,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Table::configureUsing(function (Table $table): void {
-            $table->defaultSort('id', 'desc');
-            $table->recordActionsPosition(RecordActionsPosition::BeforeCells);
-        });
-        Column::configureUsing(function(Column $column): void {
-            $column->translateLabel();
-        });
-        Filter::configureUsing(function(Filter $filter): void {
-            $filter->translateLabel();
-        });
-        Field::configureUsing(function(Field $field): void {
-            $field->translateLabel();
-        });
-        Entry::configureUsing(function(Entry $entry): void {
-            $entry->translateLabel();
-        });
+        Schema::defaultStringLength(191);
     }
 }
