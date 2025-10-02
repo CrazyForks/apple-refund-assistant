@@ -1,4 +1,4 @@
-name: Laravel
+name: apple-refund-assistant-ci
 
 on:
   push:
@@ -16,35 +16,47 @@ jobs:
     - uses: actions/checkout@v4
     
     - name: Build Docker test image
-      run: docker build -t apple-refund-assistant-image .
+      run: docker build --build-arg BUILD_MODE=test -t apple-refund-assistant-test .
     
-    - name: Run tests in Docker container
+    - name: Create coverage directory
+      run: mkdir -p coverage
+    
+    - name: Start test container
       run: |
-        docker run --rm \
-          --user root \
+        docker run -d \
+          --name test-container \
           -e DB_CONNECTION=sqlite \
           -e DB_DATABASE=database/database.sqlite \
           -e APP_ENV=testing \
-          apple-refund-assistant-image \
-          sh -c "
-            echo 'Installing coverage driver...' &&
-            install-php-extensions pcov &&
-            echo 'Switching to www-data user and running tests...' &&
-            su www-data -s /bin/sh -c '
-              cd /var/www/html &&
-              echo \"Installing dev dependencies...\" &&
-              composer install --optimize-autoloader &&
-              cp .env.example .env &&
-              php artisan key:generate &&
-              mkdir -p database &&
-              touch database/database.sqlite &&
-              echo \"Running tests with coverage...\" &&
-              php artisan test --coverage-xml=coverage
-            '
-          "
+          apple-refund-assistant-test
+    
+    - name: Setup test environment
+      run: |
+        echo "Setting up test environment..."
+        docker exec test-container cp .env.example .env
+        docker exec test-container composer install
+        docker exec test-container php artisan key:generate
+        docker exec test-container mkdir -p database
+        docker exec test-container touch database/database.sqlite
+    
+    - name: Run tests with coverage
+      run: |
+        echo "Running tests with coverage..."
+        docker exec test-container php artisan test --coverage --coverage-xml coverage/
+    
+    - name: Copy coverage files from container
+      run: |
+        docker cp test-container:/var/www/html/coverage ./
+        echo "Coverage files copied successfully"
+    
+    - name: Remove test container
+      run: docker rm -f test-container
+    
+
     - name: Upload coverage reports to Codecov
-      if: ${{ !env.ACT }}
       uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
+        directory: ./coverage
         fail_ci_if_error: false
+        verbose: true

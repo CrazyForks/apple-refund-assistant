@@ -1,7 +1,17 @@
 FROM serversideup/php:8.2-fpm-nginx-alpine
 
+# Build argument for test mode
+ARG BUILD_MODE=production
+
 USER root
 RUN install-php-extensions bcmath intl gd mbstring xml curl exif fileinfo iconv
+
+# Install PCOV for test mode
+RUN if [ "$BUILD_MODE" = "test" ]; then \
+        echo "Installing PCOV for test mode..." && \
+        install-php-extensions pcov; \
+    fi
+
 USER www-data
 
 # 切换到工作目录
