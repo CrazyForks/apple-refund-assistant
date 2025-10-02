@@ -1,17 +1,12 @@
 name: apple-refund-assistant-ci
 
 on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+  release:
+    types: [published, created]
 
 jobs:
   laravel-tests:
-
     runs-on: ubuntu-latest
-
-
     steps:
     - uses: actions/checkout@v4
     
@@ -47,9 +42,7 @@ jobs:
     - name: Copy coverage files from container
       run: |
         docker cp test-container:/var/www/html/coverage.xml ./coverage.xml
-        echo "Coverage files copied successfully"
-        pwd
-        ls -al
+        echo "Coverage files copied successfully"   
     - name: Remove test container
       run: docker rm -f test-container
     - name: Upload coverage reports to Codecov
@@ -58,6 +51,48 @@ jobs:
       with:
         fail_ci_if_error: true
         files: ./coverage.xml
-        verbose: true
         token: ${{ secrets.CODECOV_TOKEN }}
-        
+
+  publish-docker-image:
+    needs: laravel-tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    steps:
+    - name: Check out the repo
+      uses: actions/checkout@v4
+
+    - name: Log in to the Container registry
+      uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata (tags, labels) for Docker
+      id: meta
+      uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+      with:
+        images: ghcr.io/${{ github.repository }}
+        tags: |
+          type=ref,event=tag
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: Build and push Docker image
+      id: push
+      uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+
+    - name: Generate artifact attestation
+      uses: actions/attest-build-provenance@v3
+      with:
+        subject-name: ghcr.io/${{ github.repository }}
+        subject-digest: ${{ steps.push.outputs.digest }}
+        push-to-registry: true
