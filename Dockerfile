@@ -21,5 +21,4 @@ RUN chown -R www-data:www-data storage bootstrap/cache \
 ENV PHP_OPCACHE_ENABLE=1
 ENV LOG_OUTPUT_LEVEL=error
 
-# 暴露端口（NGINX 使用 8080 和 8443）
 EXPOSE 8080 8443
