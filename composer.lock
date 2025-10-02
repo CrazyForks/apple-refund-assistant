@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a7c1f57b76a191337e20dbec7dff5749",
+    "content-hash": "c6dab74df36d01cdb1f577c250d11e21",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -7981,11 +7981,11 @@
         },
         {
             "name": "symfony/var-dumper",
-            "version": "v7.3.3",
+            "version": "v7.3.4",
             "dist": {
                 "type": "zip",
-                "url": "https://mirrors.tencent.com/repository/composer/symfony/var-dumper/v7.3.3/symfony-var-dumper-v7.3.3.zip",
-                "reference": "34d8d4c4b9597347306d1ec8eb4e1319b1e6986f",
+                "url": "https://mirrors.cloud.tencent.com/repository/composer/symfony/var-dumper/v7.3.4/symfony-var-dumper-v7.3.4.zip",
+                "reference": "b8abe7daf2730d07dfd4b2ee1cecbf0dd2fbdabb",
                 "shasum": ""
             },
             "require": {
@@ -8038,9 +8038,9 @@
                 "dump"
             ],
             "support": {
-                "source": "https://github.com/symfony/var-dumper/tree/v7.3.3"
+                "source": "https://github.com/symfony/var-dumper/tree/v7.3.4"
             },
-            "time": "2025-08-13T11:49:31+00:00"
+            "time": "2025-09-11T10:12:26+00:00"
         },
         {
             "name": "tijsverkoyen/css-to-inline-styles",

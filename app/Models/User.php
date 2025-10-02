@@ -125,10 +125,9 @@ class User extends Authenticatable implements FilamentUser, HasTenants, HasDefau
     public function getDefaultTenant(Panel $panel): ?Model
     {
         if (! $this->defaultAppLoaded) {
-            dump($this->defaultAppLoaded);
             $this->defaultAppLoaded = true;
             if ($this->default_app_id) {
-                $this->defaultApp = App::findOrNew($this->default_app_id);
+                $this->defaultApp = App::find($this->default_app_id);
             }
         }
 

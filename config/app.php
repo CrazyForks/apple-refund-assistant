@@ -1,6 +1,10 @@
 <?php
 
+use Illuminate\Encryption\Encrypter;
+
+
 return [
+    'installed_at' => env('APP_INSTALLED_AT'),
 
     /*
     |--------------------------------------------------------------------------
@@ -13,7 +17,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'apple-refund-assistant'),
 
     /*
     |--------------------------------------------------------------------------
@@ -26,7 +30,7 @@ return [
     |
     */
 
-    'env' => env('APP_ENV', 'production'),
+    'env' => env('APP_ENV', 'local'),
 
     /*
     |--------------------------------------------------------------------------
@@ -39,7 +43,7 @@ return [
     |
     */
 
-    'debug' => (bool) env('APP_DEBUG', false),
+    'debug' => (bool) env('APP_DEBUG', true),
 
     /*
     |--------------------------------------------------------------------------
@@ -65,7 +69,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => env('APP_TIMEZONE', 'PRC'),
 
     /*
     |--------------------------------------------------------------------------
@@ -97,7 +101,8 @@ return [
 
     'cipher' => 'AES-256-CBC',
 
-    'key' => env('APP_KEY'),
+    // for test install page
+    'key' => env('APP_KEY', 'base64:NwAyAj8xw+akQs0toMUb+tIUA3Ug40pmpxuTljVQlUg='),
 
     'previous_keys' => [
         ...array_filter(
