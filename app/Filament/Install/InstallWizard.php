@@ -39,10 +39,10 @@ class InstallWizard extends Page implements HasForms
     public string $installStepMessage = '';
     public array $commandLogs = [];
     public array $installSteps = [
-        1 => '写入 .env 配置文件',
-        2 => '清除所有缓存',
-        3 => '执行数据库迁移',
-        4 => '创建管理员账户',
+        1 => 'Write .env configuration file',
+        2 => 'Clear all caches',
+        3 => 'Run database migrations',
+        4 => 'Create admin account',
     ];
 
     public function mount(): void
@@ -64,7 +64,6 @@ class InstallWizard extends Page implements HasForms
             'app_debug' => false,
             'app_key' => $key,
             'app_timezone' => 'Asia/Shanghai',
-            'app_locale' => 'zh',
 
             'db_connection' => 'sqlite',
             'db_host' => '127.0.0.1',
@@ -115,15 +114,15 @@ class InstallWizard extends Page implements HasForms
         return $schema
             ->components([
                 Wizard::make([
-                    Step::make('环境检查')
+                    Step::make(__('Environment Check'))
                         ->icon('heroicon-o-shield-check')
-                        ->description('检查系统环境和权限')
+                        ->description(__('Check system environment and permissions'))
                         ->components([
-                            Section::make('系统环境检查')
-                                ->description('确保系统满足安装要求')
+                            Section::make(__('System Environment Check'))
+                                ->description(__('Ensure system meets installation requirements'))
                                 ->schema([
                                     TextEntry::make('storage_permissions')
-                                        ->label('存储目录权限')
+                                        ->label(__('Storage Directory Permissions'))
                                         ->placeholder(function () {
                                             $paths = [
                                                 'storage' => storage_path(),
@@ -132,11 +131,11 @@ class InstallWizard extends Page implements HasForms
                                             $results = [];
                                             foreach ($paths as $name => $path) {
                                                 if (!is_dir($path)) {
-                                                    $results[] = "❌ {$name}: 目录不存在";
+                                                    $results[] = "❌ {$name}: " . __('Directory does not exist');
                                                 } elseif (!is_writable($path)) {
-                                                    $results[] = "❌ {$name}: 无写入权限";
+                                                    $results[] = "❌ {$name}: " . __('No write permission');
                                                 } else {
-                                                    $results[] = "✅ {$name}: 权限正常";
+                                                    $results[] = "✅ {$name}: " . __('Permission normal');
                                                 }
                                             }
                                             return Html::make(implode("<br>", $results));
@@ -144,7 +143,7 @@ class InstallWizard extends Page implements HasForms
                                 ])
                                 ->footerActions([
                                     Action::make('refreshCheck')
-                                        ->label('重新检查')
+                                        ->label(__('Recheck'))
                                         ->icon('heroicon-o-arrow-path')
                                         ->color('gray')
                                         ->action(function () {
@@ -154,90 +153,80 @@ class InstallWizard extends Page implements HasForms
                                 ]),
                         ]),
 
-                    Step::make('应用配置')
+                    Step::make(__('Application Configuration'))
                         ->icon('heroicon-o-cog-6-tooth')
-                        ->description('配置应用基本信息')
+                        ->description(__('Configure application basic information'))
                         ->afterValidation(function () {
                             $this->saveConfigToSession();
                         })
                         ->components([
-                            Section::make('基本信息')
+                            Section::make(__('Basic Information'))
                                 ->schema([
                                     TextInput::make('app_name')
-                                        ->label('应用名称')
+                                        ->label(__('Application Name'))
                                         ->required()
                                         ->maxLength(255),
 
                                     TextInput::make('app_url')
-                                        ->label('应用 URL')
+                                        ->label(__('Application URL'))
                                         ->required()
                                         ->url(),
 
                                     Select::make('app_env')
-                                        ->label('运行环境')
+                                        ->label(__('Runtime Environment'))
                                         ->required()
                                         ->native(false)
                                         ->options([
-                                            'local' => '本地 (Local)',
-                                            'development' => '开发 (Development)',
-                                            'production' => '生产 (Production)',
+                                            'local' => __('Local') . ' (Local)',
+                                            'development' => __('Development') . ' (Development)',
+                                            'production' => __('Production') . ' (Production)',
                                         ]),
 
                                     Select::make('app_debug')
-                                        ->label('调试模式')
+                                        ->label(__('Debug Mode'))
                                         ->required()
                                         ->native(false)
                                         ->boolean()
-                                        ->helperText('生产环境建议关闭调试模式'),
+                                        ->helperText(__('Production environment recommends turning off debug mode')),
 
                                     Select::make('app_timezone')
-                                        ->label('应用时区')
+                                        ->label(__('Application Timezone'))
                                         ->required()
                                         ->native(false)
                                         ->searchable()
                                         ->options([
-                                            'Asia/Shanghai' => '中国标准时间 (Asia/Shanghai)',
-                                            'Asia/Hong_Kong' => '中国香港时间 (Asia/Hong_Kong)',
-                                            'Asia/Taipei' => '中国台北时间 (Asia/Taipei)',
-                                            'Asia/Tokyo' => '东京时间 (Asia/Tokyo)',
-                                            'Asia/Seoul' => '首尔时间 (Asia/Seoul)',
-                                            'Asia/Singapore' => '新加坡时间 (Asia/Singapore)',
-                                            'Asia/Bangkok' => '曼谷时间 (Asia/Bangkok)',
-                                            'Asia/Kuala_Lumpur' => '吉隆坡时间 (Asia/Kuala_Lumpur)',
-                                            'Asia/Jakarta' => '雅加达时间 (Asia/Jakarta)',
-                                            'UTC' => '协调世界时 (UTC)',
-                                            'America/New_York' => '纽约时间 (America/New_York)',
-                                            'America/Los_Angeles' => '洛杉矶时间 (America/Los_Angeles)',
-                                            'Europe/London' => '伦敦时间 (Europe/London)',
-                                            'Europe/Paris' => '巴黎时间 (Europe/Paris)',
-                                            'Europe/Berlin' => '柏林时间 (Europe/Berlin)',
-                                            'Australia/Sydney' => '悉尼时间 (Australia/Sydney)',
+                                            'Asia/Shanghai' => __('China Standard Time') . ' (Asia/Shanghai)',
+                                            'Asia/Hong_Kong' => __('Hong Kong Time') . ' (Asia/Hong_Kong)',
+                                            'Asia/Taipei' => __('Taipei Time') . ' (Asia/Taipei)',
+                                            'Asia/Tokyo' => __('Tokyo Time') . ' (Asia/Tokyo)',
+                                            'Asia/Seoul' => __('Seoul Time') . ' (Asia/Seoul)',
+                                            'Asia/Singapore' => __('Singapore Time') . ' (Asia/Singapore)',
+                                            'Asia/Bangkok' => __('Bangkok Time') . ' (Asia/Bangkok)',
+                                            'Asia/Kuala_Lumpur' => __('Kuala Lumpur Time') . ' (Asia/Kuala_Lumpur)',
+                                            'Asia/Jakarta' => __('Jakarta Time') . ' (Asia/Jakarta)',
+                                            'UTC' => __('Coordinated Universal Time') . ' (UTC)',
+                                            'America/New_York' => __('New York Time') . ' (America/New_York)',
+                                            'America/Los_Angeles' => __('Los Angeles Time') . ' (America/Los_Angeles)',
+                                            'Europe/London' => __('London Time') . ' (Europe/London)',
+                                            'Europe/Paris' => __('Paris Time') . ' (Europe/Paris)',
+                                            'Europe/Berlin' => __('Berlin Time') . ' (Europe/Berlin)',
+                                            'Australia/Sydney' => __('Sydney Time') . ' (Australia/Sydney)',
                                         ])
-                                        ->helperText('选择应用使用的时区，影响日志时间和定时任务'),
-
-                                    Select::make('app_locale')
-                                        ->label('应用语言')
-                                        ->required()
-                                        ->native(false)
-                                        ->options([
-                                            'zh' => '简体中文 (zh)',
-                                            'en' => 'English (en)',
-                                        ])
-                                        ->helperText('选择应用界面显示语言'),
+                                        ->helperText(__('Select the timezone used by the application, affects log time and scheduled tasks')),
                                 ])->columns(2),
                         ]),
 
-                    Wizard\Step::make('数据库配置')
+                    Wizard\Step::make(__('Database Configuration'))
                         ->icon('heroicon-o-circle-stack')
-                        ->description('配置数据库连接')
+                        ->description(__('Configure database connection'))
                         ->afterValidation(function () {
                             // Save database config to session
                             $this->saveConfigToSession();
 
                             if (!$this->isDatabaseTested) {
                                 Notification::make()
-                                    ->title('请先测试数据库连接')
-                                    ->body('在进入下一步之前，请点击"测试数据库连接"按钮确保数据库配置正确')
+                                    ->title(__('Please test database connection first'))
+                                    ->body(__('Before proceeding to the next step, please click the "Test Database Connection" button to ensure the database configuration is correct'))
                                     ->warning()
                                     ->persistent()
                                     ->send();
@@ -246,16 +235,16 @@ class InstallWizard extends Page implements HasForms
                             }
                         })
                         ->components([
-                            Section::make('数据库设置')
+                            Section::make(__('Database Settings'))
                                 ->description(function (Get $get) {
                                     if ($get('db_connection') === 'sqlite') {
-                                        return '⚠️ 重要提醒：如果指定的 SQLite 数据库文件已存在，安装过程可能会覆盖现有数据。请务必先备份好重要的数据库文件！';
+                                        return '⚠️ ' . __('Important reminder: If the specified SQLite database file already exists, the installation process may overwrite existing data. Please be sure to backup important database files first!');
                                     }
                                     return null;
                                 })
                                 ->schema([
                                     Select::make('db_connection')
-                                        ->label('数据库类型')
+                                        ->label(__('Database Type'))
                                         ->required()
                                         ->native(false)
                                         ->options([
@@ -276,7 +265,7 @@ class InstallWizard extends Page implements HasForms
                                         }),
 
                                     TextInput::make('db_host')
-                                        ->label('数据库主机')
+                                        ->label(__('Database Host'))
                                         ->required(fn(Get $get) => $get('db_connection') === 'mysql')
                                         ->visible(fn(Get $get) => $get('db_connection') === 'mysql')
                                         ->live(onBlur: true)
@@ -287,7 +276,7 @@ class InstallWizard extends Page implements HasForms
                                         }),
 
                                     TextInput::make('db_port')
-                                        ->label('数据库端口')
+                                        ->label(__('Database Port'))
                                         ->required(fn(Get $get) => $get('db_connection') === 'mysql')
                                         ->visible(fn(Get $get) => $get('db_connection') === 'mysql')
                                         ->live(onBlur: true)
@@ -298,11 +287,11 @@ class InstallWizard extends Page implements HasForms
                                         }),
 
                                     TextInput::make('db_database')
-                                        ->label(fn(Get $get) => $get('db_connection') === 'sqlite' ? '数据库文件路径' : '数据库名称')
+                                        ->label(fn(Get $get) => $get('db_connection') === 'sqlite' ? __('Database File Path') : __('Database Name'))
                                         ->required()
                                         ->helperText(function (Get $get) {
                                             if ($get('db_connection') === 'sqlite') {
-                                                return '相对于项目根目录。⚠️ 如果文件已存在，请先备份好现有数据库文件！';
+                                                return __('Relative to project root directory. ⚠️ If file already exists, please backup existing database file first!');
                                             }
                                             return '';
                                         })
@@ -314,7 +303,7 @@ class InstallWizard extends Page implements HasForms
                                         }),
 
                                     TextInput::make('db_username')
-                                        ->label('数据库用户名')
+                                        ->label(__('Database Username'))
                                         ->required(fn(Get $get) => $get('db_connection') === 'mysql')
                                         ->visible(fn(Get $get) => $get('db_connection') === 'mysql')
                                         ->live(onBlur: true)
@@ -325,7 +314,7 @@ class InstallWizard extends Page implements HasForms
                                         }),
 
                                     TextInput::make('db_password')
-                                        ->label('数据库密码')
+                                        ->label(__('Database Password'))
                                         ->password()
                                         ->revealable()
                                         ->visible(fn(Get $get) => $get('db_connection') === 'mysql')
@@ -337,7 +326,7 @@ class InstallWizard extends Page implements HasForms
                                         }),
                                 ])->columns(2),
 
-                            Section::make('连接测试')
+                            Section::make(__('Connection Test'))
                                 ->schema([
                                     TextEntry::make('db_test_status')
                                         ->label(function () {
@@ -345,9 +334,9 @@ class InstallWizard extends Page implements HasForms
                                                 return $this->databaseTestMessage;
                                             }
                                             if ($this->isDatabaseTested) {
-                                                return '✅ 数据库连接已测试通过';
+                                                return '✅ ' . __('Database connection test passed');
                                             }
-                                            return '⚠️ 请点击下方按钮测试数据库连接（必须测试通过才能进入下一步）';
+                                            return '⚠️ ' . __('Please click the button below to test database connection (must pass test to proceed to next step)');
                                         })
                                         ->color(function () {
                                             if ($this->isDatabaseTested) {
@@ -361,7 +350,7 @@ class InstallWizard extends Page implements HasForms
                                 ])
                                 ->footerActions([
                                     Action::make('testDatabaseConnection')
-                                        ->label('测试数据库连接')
+                                        ->label(__('Test Database Connection'))
                                         ->icon('heroicon-o-signal')
                                         ->color(fn() => $this->isDatabaseTested ? 'success' : 'primary')
                                         ->action(function () {
@@ -370,15 +359,15 @@ class InstallWizard extends Page implements HasForms
                                 ]),
                         ]),
 
-                    Wizard\Step::make('确认配置')
+                    Wizard\Step::make(__('Confirm Configuration'))
                         ->icon('heroicon-o-clipboard-document-check')
-                        ->description('检查所有配置信息')
+                        ->description(__('Check all configuration information'))
                         ->components([
-                            Section::make('.env 文件预览')
-                                ->description('保存好配置')
+                            Section::make(__('.env File Preview'))
+                                ->description(__('Save configuration properly'))
                                 ->headerActions([
                                     Action::make('copyEnvContent')
-                                        ->label('复制配置')
+                                        ->label(__('Copy Configuration'))
                                         ->icon('heroicon-o-clipboard-document')
                                         ->color('gray')
                                         ->action(function (Get $get) {
@@ -398,34 +387,34 @@ class InstallWizard extends Page implements HasForms
                                 ]),
                         ]),
 
-                    Wizard\Step::make('开始安装')
+                    Wizard\Step::make(__('Start Installation'))
                         ->icon('heroicon-o-rocket-launch')
-                        ->description('准备安装系统')
+                        ->description(__('Prepare to install system'))
                         ->components([
-                            Section::make('🎉 安装完成')
-                                ->description('恭喜！系统安装已成功完成。')
+                            Section::make('🎉 ' . __('Installation Complete'))
+                                ->description(__('Congratulations! System installation has been completed successfully.'))
                                 ->schema([
                                     Html::make('<div class="text-center space-y-4">
-                                          <div class="pt-4">
-                                            <a href="/admin" target="_blank" style="color: #1e9fff;" class="text-blue-600 hover:text-blue-800 underline font-medium transition-colors">
-                                                访问管理后台 /admin
-                                            </a>
-                                        </div>
+                                           <div class="pt-4">
+                                             <a href="/admin" target="_blank" style="color: #1e9fff;" class="text-blue-600 hover:text-blue-800 underline font-medium transition-colors">
+                                                 ' . __('Access Admin Panel') . ' /admin
+                                             </a>
+                                         </div>
                                         <div class="space-y-2">
-                                            <p><strong>管理员账户信息：</strong></p>
-                                            <p>邮箱: <code>admin@dev.com</code></p>
-                                            <p>密码: <code>admin</code></p>
+                                            <p><strong>' . __('Admin Account Information') . '：</strong></p>
+                                            <p>' . __('Email') . ': <code>admin@dev.com</code></p>
+                                            <p>' . __('Password') . ': <code>admin</code></p>
                                         </div>
 
                                         <div class="text-sm text-gray-600">
-                                            <p>⚠️ 如果需要优化性能安全问题,请执行以下命令</p>
+                                            <p>⚠️ ' . __('If you need to optimize performance and security, please execute the following commands') . '</p>
                                             <code>php artisan key:generate</code> <br>
                                             <code>php artisan optimize</code>
                                         </div>
                                     </div>')
                                 ])
                                 ->visible(fn() => $this->isCompleted),
-                            Section::make('安装执行日志')
+                            Section::make(__('Installation Execution Log'))
                                 ->schema([
                                     Textarea::make('command_logs')
                                         ->label('')
@@ -437,7 +426,7 @@ class InstallWizard extends Page implements HasForms
                                         ])
                                         ->placeholder(function () {
                                             if (empty($this->commandLogs)) {
-                                                return '等待命令执行...';
+                                                return __('Waiting for command execution...');
                                             }
 
                                             $logs = '';
@@ -473,14 +462,14 @@ class InstallWizard extends Page implements HasForms
             $data = $this->data;
 
             if (!isset($data['db_connection'])) {
-                throw new \Exception('请先选择数据库类型');
+                throw new \Exception(__('Please select database type first'));
             }
 
             $connection = $data['db_connection'];
 
             if ($connection === 'sqlite') {
                 if (!isset($data['db_database']) || empty($data['db_database'])) {
-                    throw new \Exception('请填写数据库文件路径');
+                    throw new \Exception(__('Please fill in database file path'));
                 }
 
                 $dbPath = base_path($data['db_database']);
@@ -499,10 +488,10 @@ class InstallWizard extends Page implements HasForms
                 DB::connection('sqlite')->getPdo();
             } else {
                 if (!isset($data['db_host']) || empty($data['db_host'])) {
-                    throw new \Exception('请填写数据库主机');
+                    throw new \Exception(__('Please fill in database host'));
                 }
                 if (!isset($data['db_database']) || empty($data['db_database'])) {
-                    throw new \Exception('请填写数据库名称');
+                    throw new \Exception(__('Please fill in database name'));
                 }
 
                 // 设置 MySQL 连接配置
@@ -525,12 +514,12 @@ class InstallWizard extends Page implements HasForms
             }
 
             $this->isDatabaseTested = true;
-            $this->databaseTestMessage = '✅ 数据库连接测试成功，可以继续下一步';
+            $this->databaseTestMessage = '✅ ' . __('Database connection test successful, you can proceed to the next step');
             $this->saveTestStatusToSession();
 
         } catch (\Exception $e) {
             $this->isDatabaseTested = false;
-            $this->databaseTestMessage = '❌ 数据库连接失败：' . $e->getMessage();
+            $this->databaseTestMessage = '❌ ' . __('Database connection failed') . '：' . $e->getMessage();
             $this->saveTestStatusToSession();
         }
     }
@@ -547,7 +536,6 @@ class InstallWizard extends Page implements HasForms
         $lines[] = 'APP_DEBUG=' . ($data['app_debug'] ? 'true' : 'false');
         $lines[] = 'APP_URL=' . $data['app_url'];
         $lines[] = 'APP_TIMEZONE=' . $data['app_timezone'];
-        $lines[] = 'APP_LOCALE=' . $data['app_locale'];
         $lines[] = 'APP_INSTALLED_AT=' . Carbon::now()->unix();
         $lines[] = '';
 
@@ -584,7 +572,6 @@ class InstallWizard extends Page implements HasForms
             'app_debug' => $get('app_debug'),
             'app_url' => $get('app_url'),
             'app_timezone' => $get('app_timezone'),
-            'app_locale' => $get('app_locale'),
             'db_connection' => $get('db_connection'),
             'db_host' => $get('db_host'),
             'db_port' => $get('db_port'),
@@ -610,7 +597,7 @@ class InstallWizard extends Page implements HasForms
     protected function executeCommand(string $command, array $parameters = []): array
     {
         $startTime = microtime(true);
-        $this->addCommandLog("执行命令: php artisan {$command} " . implode(' ', $parameters), 'info');
+        $this->addCommandLog(__('Executing command') . ": php artisan {$command} " . implode(' ', $parameters), 'info');
 
         try {
             $exitCode = Artisan::call($command, $parameters);
@@ -618,14 +605,14 @@ class InstallWizard extends Page implements HasForms
             $duration = round((microtime(true) - $startTime) * 1000, 2);
 
             if ($exitCode === 0) {
-                $this->addCommandLog("✅ 命令执行成功 (耗时: {$duration}ms)", 'success');
+                $this->addCommandLog("✅ " . __('Command executed successfully') . " (" . __('Duration') . ": {$duration}ms)", 'success');
                 if (!empty(trim($output))) {
-                    $this->addCommandLog("输出: " . trim($output), 'info');
+                    $this->addCommandLog(__('Output') . ": " . trim($output), 'info');
                 }
             } else {
-                $this->addCommandLog("❌ 命令执行失败 (退出码: {$exitCode})", 'error');
+                $this->addCommandLog("❌ " . __('Command execution failed') . " (" . __('Exit code') . ": {$exitCode})", 'error');
                 if (!empty(trim($output))) {
-                    $this->addCommandLog("错误输出: " . trim($output), 'error');
+                    $this->addCommandLog(__('Error output') . ": " . trim($output), 'error');
                 }
             }
 
@@ -637,8 +624,8 @@ class InstallWizard extends Page implements HasForms
             ];
         } catch (\Exception $e) {
             $duration = round((microtime(true) - $startTime) * 1000, 2);
-            $this->addCommandLog("❌ 命令执行异常: " . $e->getMessage(), 'error');
-            $this->addCommandLog("耗时: {$duration}ms", 'error');
+            $this->addCommandLog("❌ " . __('Command execution exception') . ": " . $e->getMessage(), 'error');
+            $this->addCommandLog(__('Duration') . ": {$duration}ms", 'error');
 
             return [
                 'success' => false,
@@ -677,8 +664,8 @@ class InstallWizard extends Page implements HasForms
                 $this->isInstalling = false;
 
                 // Add completion log
-                $this->addCommandLog("🎉 安装完成！", 'success');
-                $this->addCommandLog("您现在可以访问管理后台了", 'success');
+                $this->addCommandLog("🎉 " . __('Installation complete!'), 'success');
+                $this->addCommandLog(__('You can now access the admin panel'), 'success');
 
                 // Clear installation session data
                 session()->forget('install_wizard_config');
@@ -689,7 +676,7 @@ class InstallWizard extends Page implements HasForms
             }
 
             $this->installStep = $nextStep;
-            $this->installStepMessage = $this->installSteps[$nextStep];
+            $this->installStepMessage = __($this->installSteps[$nextStep]);
 
             switch ($nextStep) {
                 case 1: // Write .env file
@@ -712,16 +699,16 @@ class InstallWizard extends Page implements HasForms
 
         } catch (\Exception $e) {
             // 记录错误到日志中
-            $this->addCommandLog("❌ 安装失败: " . $e->getMessage(), 'error');
-            $this->addCommandLog("失败步骤: " . $this->installSteps[$nextStep], 'error');
+            $this->addCommandLog("❌ " . __('Installation failed') . ": " . $e->getMessage(), 'error');
+            $this->addCommandLog(__('Failed step') . ": " . __($this->installSteps[$nextStep]), 'error');
 
             $this->isInstalling = false;
             $this->isCompleted = false;
             // 不要重置 installStep，保持当前步骤以显示日志
 
             Notification::make()
-                ->title('❌ 安装失败')
-                ->body('步骤 ' . $nextStep . ' (' . $this->installSteps[$nextStep] . ') 失败：' . $e->getMessage())
+                ->title('❌ ' . __('Installation failed'))
+                ->body(__('Step') . ' ' . $nextStep . ' (' . __($this->installSteps[$nextStep]) . ') ' . __('failed') . '：' . $e->getMessage())
                 ->danger()
                 ->persistent()
                 ->send();
@@ -731,15 +718,15 @@ class InstallWizard extends Page implements HasForms
 
     protected function writeEnvFile(array $data): void
     {
-        $this->addCommandLog("生成 .env 配置文件...", 'info');
+        $this->addCommandLog(__('Generating .env configuration file...'), 'info');
 
         $envPath = base_path('.env');
         $envContent = $this->generateEnvContent($data);
 
         File::put($envPath, $envContent);
 
-        $this->addCommandLog("✅ .env 文件生成完成", 'success');
-        $this->addCommandLog("文件路径: {$envPath}", 'info');
+        $this->addCommandLog("✅ " . __('.env file generation completed'), 'success');
+        $this->addCommandLog(__('File path') . ": {$envPath}", 'info');
     }
 
 
