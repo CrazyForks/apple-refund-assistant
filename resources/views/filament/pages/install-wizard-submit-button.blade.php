@@ -2,6 +2,6 @@
     type="submit"
     size="lg"
 >
-    开始安装
+    {{ __('Start Installation') }}
 </x-filament::button>
 
