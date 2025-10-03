@@ -169,5 +169,13 @@
     "failed": "失败",
     "Generating .env configuration file...": "生成 .env 配置文件...",
     ".env file generation completed": ".env 文件生成完成",
-    "File path": "文件路径"
+    "File path": "文件路径",
+    "Batch send latest 20": "批量发送最近20条",
+    "Batch send consumption information": "批量发送消费信息",
+    "Will automatically send the latest 20 pending consumption logs to Apple server, are you sure to continue?": "将自动发送最近20条待处理的消费日志到Apple服务器，确定要继续吗？",
+    "Confirm send": "确认发送",
+    "No pending logs": "没有待处理的日志",
+    "There are currently no pending consumption logs to send.": "当前没有待处理的消费日志需要发送。",
+    "Batch send task started": "批量发送任务已启动",
+    "Successfully added :count consumption logs to the send queue.": "已成功将 :count 条消费日志加入发送队列。"
 }

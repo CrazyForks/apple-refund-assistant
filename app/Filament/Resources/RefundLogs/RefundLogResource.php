@@ -76,7 +76,6 @@ class RefundLogResource extends Resource
                     ->sortable(),
                 TextColumn::make('environment')
                     ->searchable(),
-                TextColumn::make('bundle_id'),
                 TextColumn::make('transaction_id')
                     ->searchable(),
                 TextColumn::make('price')

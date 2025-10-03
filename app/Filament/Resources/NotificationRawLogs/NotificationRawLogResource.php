@@ -80,8 +80,6 @@ class NotificationRawLogResource extends Resource
                     ->searchable(),
                 TextColumn::make('notification_type')
                     ->searchable(),
-                TextColumn::make('bundle_id')
-                    ->searchable(),
                 TextColumn::make('notification_uuid')
                     ->searchable(),
                 IconColumn::make('forward_success')

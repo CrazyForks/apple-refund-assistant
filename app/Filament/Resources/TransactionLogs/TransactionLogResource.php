@@ -103,8 +103,6 @@ class TransactionLogResource extends Resource
                 TextColumn::make('currency')
                     ->numeric()
                     ->sortable(),
-                TextColumn::make('bundle_id')
-                    ->searchable(),
                 TextColumn::make('notification_uuid')
                     ->searchable(),
                 TextColumn::make('transaction_id')
