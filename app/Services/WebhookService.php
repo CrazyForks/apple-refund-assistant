@@ -17,6 +17,7 @@ use App\Models\NotificationRawLog;
 use App\Models\RefundLog;
 use App\Models\TransactionLog;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Readdle\AppStoreServerAPI\Exception\AppStoreServerNotificationException;
 use Readdle\AppStoreServerAPI\ResponseBodyV2;
@@ -85,7 +86,8 @@ class WebhookService
                 break;
         }
 
-        dispatch(new SendRequestToAppNotificationUrlJob($raw, $app));
+        // NOTE: use fpm fast-cgi running in background
+        dispatch(new SendRequestToAppNotificationUrlJob($raw, $app))->afterResponse();
 
         return $raw;
     }
