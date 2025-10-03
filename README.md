@@ -43,12 +43,11 @@
 ## 快速开始
 ### 使用已经构建好的镜像
 ```bash
-docker pull ghcr.io/seth-shi/apple-refund-assistant:latest
 docker run -d \
   -p 8080:8080 \
   --name apple-refund-assistant \
   --restart=always \
-  apple-refund-assistant-image
+  ghcr.io/seth-shi/apple-refund-assistant:latest
 ```
 
 
@@ -68,7 +67,7 @@ docker run -d \
   -v $(pwd)/database.sqlite:/var/www/html/database/database.sqlite \
   --name apple-refund-assistant \
   --restart=always \
-  apple-refund-assistant-image
+  ghcr.io/seth-shi/apple-refund-assistant:latest
 ```
 
 ## 消费字段策略
