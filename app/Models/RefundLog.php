@@ -12,7 +12,7 @@ use Kra8\Snowflake\HasShortflakePrimary;
 
 /**
  * @property int $id
- * @property string|null $apple_account_token
+ * @property string|null $app_account_token
  * @property int $app_id
  * @property string|null $notification_uuid
  * @property string|null $bundle_id
@@ -30,8 +30,8 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog whereAppAccountToken($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog whereAppId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog whereAppleAccountToken($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog whereBundleId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog whereCurrency($value)

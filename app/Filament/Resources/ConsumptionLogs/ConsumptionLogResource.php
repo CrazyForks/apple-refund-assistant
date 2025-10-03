@@ -9,12 +9,14 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Facades\Filament;
+use Filament\Infolists\Components\CodeEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Phiki\Grammar\Grammar;
 
 class ConsumptionLogResource extends Resource
 {
@@ -66,6 +68,10 @@ class ConsumptionLogResource extends Resource
                 TextEntry::make('status'),
                 TextEntry::make('status_msg')
                     ->placeholder('-'),
+                CodeEntry::make('send_body')
+                    ->grammar(Grammar::Json)
+                    ->copyable()
+                    ->columnSpanFull(),
                 TextEntry::make('created_at')
                     ->dateTime()
                     ->placeholder('-'),
@@ -81,17 +87,12 @@ class ConsumptionLogResource extends Resource
             ->columns([
                 TextColumn::make('id')
                     ->sortable(),
-                TextColumn::make('bundle_id')
-                    ->searchable(),
                 TextColumn::make('environment')
                     ->badge()
                     ->searchable(),
                 TextColumn::make('status')
                     ->badge()
                     ->searchable(),
-                TextColumn::make('deadline_at')
-                    ->dateTime()
-                    ->sortable(),
                 TextColumn::make('notification_uuid')
                     ->searchable(),
                 TextColumn::make('transaction_id')

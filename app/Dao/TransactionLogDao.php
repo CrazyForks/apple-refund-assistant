@@ -3,6 +3,7 @@
 namespace App\Dao;
 
 use App\Models\App;
+use App\Models\ConsumptionLog;
 use App\Models\TransactionLog;
 use Readdle\AppStoreServerAPI\ResponseBodyV2;
 
@@ -42,5 +43,14 @@ class TransactionLogDao extends PayloadAttribute
         $model->save();
 
         return $model;
+    }
+
+    public function findTransactionByConsumption(ConsumptionLog $log) : ?TransactionLog
+    {
+        return TransactionLog::query()
+            ->where('original_transaction_id', $log->original_transaction_id)
+            ->where('app_id', $log->app_id)
+            ->orderByDesc('id')
+            ->first();
     }
 }

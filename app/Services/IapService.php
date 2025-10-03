@@ -46,6 +46,24 @@ class IapService
         return self::api($issuerId, $bundleId, $keyId, $p8Key, $env)->requestTestNotification();
     }
 
+    /**
+     * Send consumption information to Apple
+     * 
+     * @throws AppStoreServerAPIException
+     */
+    public function sendConsumptionInformation(App $app, string $transactionId, array $requestBody, string $environment): void
+    {
+        $api = self::api(
+            $app->issuer_id,
+            $app->bundle_id,
+            $app->key_id,
+            $app->p8_key,
+            $environment
+        );
+        
+        $api->sendConsumptionInformation($transactionId, $requestBody);
+    }
+
 
     /**
      * @throws AppStoreServerNotificationException

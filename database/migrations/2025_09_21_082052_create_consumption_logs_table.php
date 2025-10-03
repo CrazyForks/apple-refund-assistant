@@ -29,6 +29,7 @@ return new class extends Migration
             $table->timestamp('deadline_at')->nullable();
             $table->string('status')->default(\App\Enums\ConsumptionLogStatusEnum::PENDING);
             $table->string('status_msg')->nullable();
+            $table->text('send_body')->nullable();
 
             $table->timestamps();
         });

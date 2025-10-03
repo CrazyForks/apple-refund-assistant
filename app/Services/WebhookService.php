@@ -60,7 +60,6 @@ class WebhookService
     {
         $payload = $this->iapService->decodePayload($content);
 
-        // 1. raw logs
         $app = $this->appDao->find($appId);
         $raw = $this->insertRawLog($content, $app, $payload);
 
@@ -102,7 +101,7 @@ class WebhookService
 
         $log = $this->consumptionLogDao->storeLog($app, $payload);
 
-        SendConsumptionInformationJob::dispatch($log);
+        dispatch(new SendConsumptionInformationJob($log))->afterResponse();
 
         return $log;
     }

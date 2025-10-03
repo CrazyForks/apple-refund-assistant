@@ -6,6 +6,7 @@ use App\Casts\SafeEnumCast;
 use App\Enums\ConsumptionLogStatusEnum;
 use App\Enums\EnvironmentEnum;
 use App\Enums\NotificationTypeEnum;
+use App\Models\Traits\EnvironmentTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Kra8\Snowflake\HasShortflakePrimary;
@@ -27,6 +28,7 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @property string|null $status_msg
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $send_body
  * @property-read \App\Models\App|null $app
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConsumptionLog newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConsumptionLog newQuery()
@@ -42,6 +44,7 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConsumptionLog whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConsumptionLog whereNotificationUuid($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConsumptionLog whereOriginalTransactionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ConsumptionLog whereSendBody($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConsumptionLog whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConsumptionLog whereStatusMsg($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConsumptionLog whereTransactionId($value)
@@ -50,12 +53,28 @@ use Kra8\Snowflake\HasShortflakePrimary;
  */
 class ConsumptionLog extends Model
 {
-    use HasShortflakePrimary;
+    use HasShortflakePrimary, EnvironmentTrait;
+
+    protected $fillable = [
+        'app_id',
+        'app_account_token',
+        'original_transaction_id',
+        'transaction_id',
+        'notification_uuid',
+        'bundle_id',
+        'environment',
+        'consumption_request_reason',
+        'deadline_at',
+        'status',
+        'status_msg'
+    ];
 
     protected $casts = [
         'environment' => [SafeEnumCast::class, EnvironmentEnum::class],
         'status' => [SafeEnumCast::class, ConsumptionLogStatusEnum::class],
+        'send_body' => 'json',
     ];
+
 
     public function app(): BelongsTo
     {

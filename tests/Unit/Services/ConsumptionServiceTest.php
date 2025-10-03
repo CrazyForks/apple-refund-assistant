@@ -3,8 +3,11 @@
 namespace Tests\Unit\Services;
 
 use App\Dao\AppleUserDao;
+use App\Dao\AppDao;
+use App\Dao\TransactionLogDao;
 use App\Models\App;
 use App\Models\AppleUser;
+use App\Models\ConsumptionLog;
 use App\Models\TransactionLog;
 use App\Services\ConsumptionService;
 use Carbon\Carbon;
@@ -15,6 +18,8 @@ use Mockery;
 class ConsumptionServiceTest extends TestCase
 {
     protected $appleUserDao;
+    protected $appDao;
+    protected $transactionLogDao;
     protected $consumptionService;
 
     protected function setUp(): void
@@ -22,7 +27,13 @@ class ConsumptionServiceTest extends TestCase
         parent::setUp();
         
         $this->appleUserDao = Mockery::mock(AppleUserDao::class);
-        $this->consumptionService = new ConsumptionService($this->appleUserDao);
+        $this->appDao = Mockery::mock(AppDao::class);
+        $this->transactionLogDao = Mockery::mock(TransactionLogDao::class);
+        $this->consumptionService = new ConsumptionService(
+            $this->appleUserDao, 
+            $this->appDao, 
+            $this->transactionLogDao
+        );
     }
 
     public function test_make_consumption_request_with_user(): void
@@ -43,19 +54,45 @@ class ConsumptionServiceTest extends TestCase
         $transaction->app_account_token = 'test-token';
         $transaction->expiration_date = Carbon::now()->addDays(30);
 
+        $consumptionLog = new ConsumptionLog([
+            'app_id' => 1,
+            'app_account_token' => 'test-token',
+            'original_transaction_id' => 'original-123',
+            'transaction_id' => 'transaction-456'
+        ]);
+        $consumptionLog->setRelation('app', $app);
+
+        $this->transactionLogDao
+            ->shouldReceive('findTransactionByConsumption')
+            ->with($consumptionLog)
+            ->once()
+            ->andReturn($transaction);
+
         $this->appleUserDao
             ->shouldReceive('find')
             ->with('test-token', 1)
             ->once()
             ->andReturn($user);
 
-        $result = $this->consumptionService->makeConsumptionRequest($app, $transaction);
+        $result = $this->consumptionService->makeConsumptionRequest($consumptionLog);
 
-        $this->assertInstanceOf(ConsumptionRequestBody::class, $result);
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('accountTenure', $result);
+        $this->assertArrayHasKey('appAccountToken', $result);
+        $this->assertArrayHasKey('consumptionStatus', $result);
+        $this->assertArrayHasKey('customerConsented', $result);
+        $this->assertArrayHasKey('deliveryStatus', $result);
+        $this->assertArrayHasKey('lifetimeDollarsPurchased', $result);
+        $this->assertArrayHasKey('lifetimeDollarsRefunded', $result);
+        $this->assertArrayHasKey('platform', $result);
+        $this->assertArrayHasKey('playTime', $result);
+        $this->assertArrayHasKey('refundPreference', $result);
+        $this->assertArrayHasKey('sampleContentProvided', $result);
+        $this->assertArrayHasKey('userStatus', $result);
         
-        // Since we can't access the private data property, let's just verify the object was created
-        // and test the individual methods that would be called
-        $this->assertInstanceOf(ConsumptionRequestBody::class, $result);
+        $this->assertEquals('test-token', $result['appAccountToken']);
+        $this->assertTrue($result['customerConsented']);
+        $this->assertTrue($result['sampleContentProvided']);
     }
 
     public function test_make_consumption_request_without_user(): void
@@ -69,6 +106,14 @@ class ConsumptionServiceTest extends TestCase
         $transaction->app_account_token = 'test-token';
         $transaction->expiration_date = null;
 
+        $consumptionLog = new ConsumptionLog([
+            'app_id' => 1,
+            'app_account_token' => 'test-token',
+            'original_transaction_id' => 'original-123',
+            'transaction_id' => 'transaction-456'
+        ]);
+        $consumptionLog->setRelation('app', $app);
+
         // Create a default user to avoid null type error
         $defaultUser = new AppleUser([
             'purchased_dollars' => 0,
@@ -77,18 +122,26 @@ class ConsumptionServiceTest extends TestCase
             'register_at' => null,
         ]);
 
+        $this->transactionLogDao
+            ->shouldReceive('findTransactionByConsumption')
+            ->with($consumptionLog)
+            ->once()
+            ->andReturn($transaction);
+
         $this->appleUserDao
             ->shouldReceive('find')
             ->with('test-token', 1)
             ->once()
             ->andReturn($defaultUser);
 
-        $result = $this->consumptionService->makeConsumptionRequest($app, $transaction);
+        $result = $this->consumptionService->makeConsumptionRequest($consumptionLog);
 
-        $this->assertInstanceOf(ConsumptionRequestBody::class, $result);
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('appAccountToken', $result);
+        $this->assertArrayHasKey('sampleContentProvided', $result);
         
-        // Since we can't access the private data property, just verify the object was created
-        $this->assertInstanceOf(ConsumptionRequestBody::class, $result);
+        $this->assertEquals('test-token', $result['appAccountToken']);
+        $this->assertFalse($result['sampleContentProvided']);
     }
 
     public function test_play_time_calculations(): void
@@ -199,34 +252,37 @@ class ConsumptionServiceTest extends TestCase
         $method = $reflection->getMethod('accountTenure');
         $method->setAccessible(true);
 
-        // Test null register_at - the code has a bug, it returns UNDECLARED when register_at is NOT null
-        $user = new AppleUser(['register_at' => Carbon::now()]);
+        // Test null register_at
+        $user = new AppleUser(['register_at' => null]);
         $this->assertEquals(ConsumptionRequestBody::ACCOUNT_TENURE__UNDECLARED, $method->invoke($this->consumptionService, $user));
 
-        // Test with null register_at (the code has a bug in logic)
-        $user = new AppleUser(['register_at' => null]);
-        // Due to the bug in line 124, this will actually return ACCOUNT_TENURE__3 (default case)
+        // Test 2 days
+        $user = new AppleUser(['register_at' => Carbon::now()->subDays(2)]);
         $this->assertEquals(ConsumptionRequestBody::ACCOUNT_TENURE__3, $method->invoke($this->consumptionService, $user));
 
-        // Test 5 days - but due to the bug in line 124, any non-null register_at returns UNDECLARED
+        // Test 5 days
         $user = new AppleUser(['register_at' => Carbon::now()->subDays(5)]);
-        $this->assertEquals(ConsumptionRequestBody::ACCOUNT_TENURE__UNDECLARED, $method->invoke($this->consumptionService, $user));
+        $this->assertEquals(ConsumptionRequestBody::ACCOUNT_TENURE__10, $method->invoke($this->consumptionService, $user));
 
-        // All other tests with non-null register_at will return UNDECLARED due to the bug
+        // Test 20 days
         $user = new AppleUser(['register_at' => Carbon::now()->subDays(20)]);
-        $this->assertEquals(ConsumptionRequestBody::ACCOUNT_TENURE__UNDECLARED, $method->invoke($this->consumptionService, $user));
+        $this->assertEquals(ConsumptionRequestBody::ACCOUNT_TENURE__30, $method->invoke($this->consumptionService, $user));
 
+        // Test 60 days
         $user = new AppleUser(['register_at' => Carbon::now()->subDays(60)]);
-        $this->assertEquals(ConsumptionRequestBody::ACCOUNT_TENURE__UNDECLARED, $method->invoke($this->consumptionService, $user));
+        $this->assertEquals(ConsumptionRequestBody::ACCOUNT_TENURE__90, $method->invoke($this->consumptionService, $user));
 
+        // Test 120 days
         $user = new AppleUser(['register_at' => Carbon::now()->subDays(120)]);
-        $this->assertEquals(ConsumptionRequestBody::ACCOUNT_TENURE__UNDECLARED, $method->invoke($this->consumptionService, $user));
+        $this->assertEquals(ConsumptionRequestBody::ACCOUNT_TENURE__180, $method->invoke($this->consumptionService, $user));
 
+        // Test 200 days
         $user = new AppleUser(['register_at' => Carbon::now()->subDays(200)]);
-        $this->assertEquals(ConsumptionRequestBody::ACCOUNT_TENURE__UNDECLARED, $method->invoke($this->consumptionService, $user));
+        $this->assertEquals(ConsumptionRequestBody::ACCOUNT_TENURE__365, $method->invoke($this->consumptionService, $user));
 
+        // Test 400 days
         $user = new AppleUser(['register_at' => Carbon::now()->subDays(400)]);
-        $this->assertEquals(ConsumptionRequestBody::ACCOUNT_TENURE__UNDECLARED, $method->invoke($this->consumptionService, $user));
+        $this->assertEquals(ConsumptionRequestBody::ACCOUNT_TENURE__OVER_365, $method->invoke($this->consumptionService, $user));
     }
 
     public function test_consumption_status(): void

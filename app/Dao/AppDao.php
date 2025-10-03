@@ -9,13 +9,12 @@ use Illuminate\Support\Facades\DB;
 class AppDao
 {
     /**
-     * @param $id
-     * @throws \Exception
-     * @return Collection
+     * @param int $id
+     * @return App
      */
     public function find(int $id) : App
     {
-        return App::findOrFail($id);
+        return App::find($id);
     }
 
     public function incrementRefund(int $id, float $dollar) : int

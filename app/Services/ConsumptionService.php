@@ -2,9 +2,12 @@
 
 namespace App\Services;
 
+use App\Dao\AppDao;
 use App\Dao\AppleUserDao;
+use App\Dao\TransactionLogDao;
 use App\Models\App;
 use App\Models\AppleUser;
+use App\Models\ConsumptionLog;
 use App\Models\TransactionLog;
 use App\Models\User;
 use Carbon\Carbon;
@@ -23,20 +26,27 @@ use Readdle\AppStoreServerAPI\Util\Helper;
 class ConsumptionService
 {
     protected AppleUserDao $appleUserDao;
+    protected TransactionLogDao $transactionDao;
+    protected AppDao $appDao;
 
-    public function __construct(AppleUserDao $appleUserDao)
+    public function __construct(AppleUserDao $appleUserDao, AppDao $appDao, TransactionLogDao $transactionDao)
     {
         $this->appleUserDao = $appleUserDao;
+        $this->transactionDao = $transactionDao;
+        $this->appDao = $appDao;
     }
 
-   public function makeConsumptionRequest(App $app, TransactionLog $transaction): ConsumptionRequestBody
+   public function makeConsumptionRequest(ConsumptionLog $log): array
    {
-       // register at
-       $user = $this->appleUserDao->find($transaction->app_account_token, $app->id);
+       // Get user data
+       $app = $log->app;
+       $transaction = $this->transactionDao->findTransactionByConsumption($log);
+       $user = $this->appleUserDao->find($log->app_account_token, $log->app_id);
 
-       $data = [
+
+       return [
            'accountTenure' => $this->accountTenure($user),
-           'appAccountToken' => $transaction->app_account_token ?: '',
+           'appAccountToken' => $log->app_account_token ?: '',
            'consumptionStatus' => $this->consumptionStatus($transaction),
            'customerConsented' => true,
            'deliveryStatus' => ConsumptionRequestBody::DELIVERY_STATUS__DELIVERED,
@@ -48,8 +58,6 @@ class ConsumptionService
            'sampleContentProvided' => $this->sampleContentProvided($app),
            'userStatus' => ConsumptionRequestBody::USER_STATUS__ACTIVE,
        ];
-
-       return new ConsumptionRequestBody($data);
    }
 
    private function sampleContentProvided(App $app) : bool
@@ -117,11 +125,11 @@ class ConsumptionService
     }
 
 
-   private function accountTenure(AppleUser $user): int
+   private function accountTenure(?AppleUser $user): int
    {
        // https://developer.apple.com/documentation/appstoreserverapi/accounttenure
        $registerAt = Carbon::make($user->register_at ?? null);
-       if ($registerAt) {
+       if (!$registerAt) {
            return ConsumptionRequestBody::ACCOUNT_TENURE__UNDECLARED;
        }
 
@@ -137,7 +145,7 @@ class ConsumptionService
        };
    }
 
-    private function consumptionStatus(TransactionLog $transaction): int
+    private function consumptionStatus(?TransactionLog $transaction): int
     {
         $expirationDate = Carbon::make($transaction->expiration_date ?? null);
         if (is_null($expirationDate)) {
@@ -152,9 +160,9 @@ class ConsumptionService
         return ConsumptionRequestBody::CONSUMPTION_STATUS__PARTIALLY_CONSUMED;
     }
 
-    private function refundPreference(TransactionLog $transaction): int
+    private function refundPreference(?TransactionLog $transaction): int
     {
-        $expirationDate = Carbon::make($transaction->expiration_date);
+        $expirationDate = Carbon::make($transaction->expiration_date ?? null);
         if (is_null($expirationDate)) {
             return ConsumptionRequestBody::REFUND_PREFERENCE__UNDECLARED;
         }

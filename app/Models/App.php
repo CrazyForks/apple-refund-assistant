@@ -37,6 +37,7 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @property int $consumption_count
  * @property int|null $owner_id
  * @property string|null $notification_url
+ * @property int|null $pending_consumption_count
  * @property $activate
  * @property-read \App\Models\User|null $owner
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App newModelQuery()
@@ -54,6 +55,7 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App whereNotificationUrl($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App whereOwnerId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App whereP8Key($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|App wherePendingConsumptionCount($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App whereRefundCount($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App whereRefundDollars($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App whereSampleContentProvided($value)

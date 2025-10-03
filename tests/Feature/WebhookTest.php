@@ -215,7 +215,8 @@ class WebhookTest extends TestCase
         $payload = $this->fakePayload('UNKNOWN_EVENT', $this->meta());
         $this->stubDecode($payload);
 
-        $this->postJson('/api/v1/apps/' . $app->id . '/webhook', [])->assertOk();
+        $resp = $this->postJson('/api/v1/apps/' . $app->id . '/webhook', []);
+        $resp->assertOk();
 
         $this->assertDatabaseHas('notification_raw_logs', [
             'app_id' => $app->id,
