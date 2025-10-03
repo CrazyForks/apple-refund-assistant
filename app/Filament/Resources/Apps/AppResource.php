@@ -39,12 +39,12 @@ class AppResource extends Resource
 
     public static function getModelLabel(): string
     {
-        return __('App');
+        return __('App Header Name');
     }
 
     public static function getNavigationLabel(): string
     {
-        return __('App');
+        return __('App Header Name');
     }
 
     public static function form(Schema $schema): Schema
@@ -118,7 +118,6 @@ class AppResource extends Resource
                 EditAction::make(),
                 DeleteAction::make(),
                 AppTestWebhookAction::make(),
-                SetDefaultAppAction::make(),
             ]);
     }
 

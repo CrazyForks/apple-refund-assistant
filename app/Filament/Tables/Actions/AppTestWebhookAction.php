@@ -9,6 +9,7 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Html;
 use Filament\Schemas\Components\Section;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\HtmlString;
@@ -40,7 +41,7 @@ class AppTestWebhookAction
                             ->schema([
                                 Textarea::make('p8_key')
                                     ->rows(10)
-                                    ->helperText('-----BEGIN PRIVATE KEY-----\n<base64-encoded private key goes here>\n-----END PRIVATE KEY-----')
+                                    ->helperText(Html::make('-----BEGIN PRIVATE KEY-----<br>base64-encoded private key goes here<br>-----END PRIVATE KEY-----'))
                                     ->columnSpanFull(),
                             ]),
                     ]),

@@ -64,7 +64,7 @@
     "set app config review all settings": "请点击右上角的配置按钮，填写数据完成应用上线",
     "Config app": "配置应用",
     "Register app": "创建应用",
-    "App": "应用",
+    "App Header Name": "应用",
     "Notification Raw": "原始日志",
     "Notification Refund": "退款通知",
     "Notification Transaction": "交易通知",

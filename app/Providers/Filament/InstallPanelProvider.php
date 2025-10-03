@@ -22,7 +22,6 @@ class InstallPanelProvider extends PanelProvider
             ->id('install')
             ->path('install')
             ->navigation(false)
-            ->topbar(false)
             ->breadcrumbs(false)
             ->sidebarCollapsibleOnDesktop(false)
             ->pages([
