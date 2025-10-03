@@ -13,6 +13,7 @@ class SqlFormatUtil
         $bindings = $query->bindings;
         $time = $query->time;
 
+        foreach ($bindings as $binding) {
             if (is_string($binding)) {
                 $binding = "'{$binding}'";
             } elseif (is_null($binding)) {
@@ -23,6 +24,7 @@ class SqlFormatUtil
             $sql = preg_replace('/\?/', $binding, $sql, 1);
         }
 
+        $formattedSql = self::formatSql($sql);
 
         return sprintf(
             "\n" . str_repeat('=', 80) . "\n" .
@@ -37,6 +39,7 @@ class SqlFormatUtil
 
     private static function formatSql(string $sql): string
     {
+        $keywords = [
             'SELECT', 'FROM', 'WHERE', 'JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'INNER JOIN',
             'ORDER BY', 'GROUP BY', 'HAVING', 'LIMIT', 'OFFSET', 'INSERT', 'INTO',
             'VALUES', 'UPDATE', 'SET', 'DELETE', 'CREATE', 'TABLE', 'ALTER', 'DROP',
@@ -46,14 +49,18 @@ class SqlFormatUtil
 
         $formatted = $sql;
 
+        $mainClauses = ['FROM', 'WHERE', 'JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'INNER JOIN',
             'ORDER BY', 'GROUP BY', 'HAVING', 'LIMIT'];
 
         foreach ($mainClauses as $clause) {
             $formatted = preg_replace('/\s+' . $clause . '\s+/i', "\n    " . $clause . ' ', $formatted);
         }
 
+        $formatted = preg_replace('/,\s*(?=\w)/', ",\n        ", $formatted);
 
+        $formatted = preg_replace('/\s+(AND|OR)\s+/i', "\n        $1 ", $formatted);
 
+        $formatted = "    " . trim($formatted);
 
         return $formatted;
     }
