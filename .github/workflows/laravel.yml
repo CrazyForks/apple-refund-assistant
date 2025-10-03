@@ -2,7 +2,7 @@ name: apple-refund-assistant-ci
 
 on:
   release:
-    types: [published, created]
+    types: [published]
 
 jobs:
   laravel-tests:
@@ -54,7 +54,6 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
 
   publish-docker-image:
-    needs: laravel-tests
     runs-on: ubuntu-latest
     permissions:
       contents: read
