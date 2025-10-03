@@ -80,7 +80,7 @@ class AmountPriceServiceTest extends TestCase
         ]);
 
         $service = $this->createService();
-        
+
         // Use reflection to test protected method
         $reflection = new \ReflectionClass($service);
         $method = $reflection->getMethod('requestDollarData');
@@ -311,20 +311,31 @@ class AmountPriceServiceTest extends TestCase
             throw new \Exception('Network error');
         });
 
-        // 创建备份数据文件
         $dataDir = storage_path('data');
+        $dollarJsonPath = storage_path('data/dollar.json');
+        $backupPath = storage_path('data/dollar.json.backup');
+        
+        // 备份原有文件（如果存在）
+        $hadOriginalFile = false;
+        if (file_exists($dollarJsonPath)) {
+            $hadOriginalFile = true;
+            copy($dollarJsonPath, $backupPath);
+        }
+        
+        // 创建目录（如果不存在）
         if (!is_dir($dataDir)) {
             mkdir($dataDir, 0755, true);
         }
         
-        $backupData = json_encode([
+        // 创建测试数据文件
+        $testData = json_encode([
             'rates' => [
                 'USD' => 1.0,
                 'EUR' => 0.85,
                 'CNY' => 7.2
             ]
         ]);
-        file_put_contents(storage_path('data/dollar.json'), $backupData);
+        file_put_contents($dollarJsonPath, $testData);
 
         // Mock Log facade
         Log::shouldReceive('error')
@@ -332,7 +343,7 @@ class AmountPriceServiceTest extends TestCase
             ->with(\Mockery::pattern('/Failed to fetch exchange rates.*Network error/'));
 
         $service = $this->createService();
-        
+
         // Use reflection to test protected method
         $reflection = new \ReflectionClass($service);
         $method = $reflection->getMethod('requestDollarData');
@@ -344,12 +355,20 @@ class AmountPriceServiceTest extends TestCase
         $this->assertArrayHasKey('USD', $result);
         $this->assertEquals(1.0, $result['USD']);
         
-        // 清理
-        if (file_exists(storage_path('data/dollar.json'))) {
-            unlink(storage_path('data/dollar.json'));
-        }
-        if (is_dir($dataDir) && count(scandir($dataDir)) === 2) {
-            rmdir($dataDir);
+        // 恢复原文件或清理测试文件
+        if ($hadOriginalFile) {
+            // 恢复原文件
+            copy($backupPath, $dollarJsonPath);
+            unlink($backupPath);
+        } else {
+            // 删除测试创建的文件
+            if (file_exists($dollarJsonPath)) {
+                unlink($dollarJsonPath);
+            }
+            // 如果目录是我们创建的且为空，则删除
+            if (is_dir($dataDir) && count(scandir($dataDir)) === 2) {
+                rmdir($dataDir);
+            }
         }
     }
 
