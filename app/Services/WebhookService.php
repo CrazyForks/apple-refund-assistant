@@ -152,6 +152,7 @@ class WebhookService
     protected function getTransactionDollar(ResponseBodyV2 $payload): float
     {
         $transaction = $payload->getAppMetadata()->getTransactionInfo();
-        return $this->priceService->toDollar($transaction->getCurrency(), $transaction->getPrice());
+        // 使用新的安全方法，但保持向后兼容
+        return $this->priceService->toDollarFloat($transaction->getCurrency(), $transaction->getPrice());
     }
 }

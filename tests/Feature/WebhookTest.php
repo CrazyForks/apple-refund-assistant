@@ -81,6 +81,7 @@ class WebhookTest extends TestCase
 
         $this->mock(AmountPriceService::class, function ($mock) {
             $mock->shouldReceive('toDollar')->andReturn(1.99);
+            $mock->shouldReceive('toDollarFloat')->andReturn(1.99);
         });
     }
 

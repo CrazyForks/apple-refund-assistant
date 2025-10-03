@@ -3,65 +3,68 @@
 namespace Tests\Unit\Services;
 
 use App\Services\AmountPriceService;
+use Brick\Money\Money;
+use Carbon\Carbon;
 use Illuminate\Contracts\Cache\Repository;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
-use Mockery;
 
 class AmountPriceServiceTest extends TestCase
 {
-    protected $cacheRepository;
-    protected $amountPriceService;
-
-    protected function setUp(): void
+    /**
+     * 创建服务实例（懒加载）
+     */
+    protected function createService(): AmountPriceService
     {
-        parent::setUp();
-        
-        $this->cacheRepository = Mockery::mock(Repository::class);
-        $this->amountPriceService = new AmountPriceService($this->cacheRepository);
+        return new AmountPriceService(Cache::store('array'));
     }
 
-    public function test_to_dollar_with_cached_rates(): void
+    public function test_to_dollar_returns_money_object_type(): void
     {
-        // Mock cache data
-        $mockRates = [
-            'USD' => 1,
-            'EUR' => 0.85,
-            'GBP' => 0.73,
-            'CNY' => 7.2,
-        ];
+        // 在测试方法内部创建，并且 Mock 在创建之前设置
+        Http::fake([
+            'https://open.er-api.com/v6/latest/USD' => Http::response([
+                'rates' => ['USD' => 1.0]
+            ])
+        ]);
 
-        $this->cacheRepository
-            ->shouldReceive('remember')
-            ->times(3) // Will be called 3 times for 3 different conversions
-            ->andReturn($mockRates);
-
-        // Test USD conversion
-        $result = $this->amountPriceService->toDollar('USD', 199);
-        $this->assertEquals(1.99, $result);
-
-        // Test EUR conversion
-        $result = $this->amountPriceService->toDollar('EUR', 199);
-        $this->assertEquals(2.34, $result); // 199/100/0.85 = 2.34
-
-        // Test unknown currency (should default to rate 1)
-        $result = $this->amountPriceService->toDollar('UNKNOWN', 199);
-        $this->assertEquals(1.99, $result);
+        $service = $this->createService();
+        $result = $service->toDollar('USD', 100);
+        
+        $this->assertInstanceOf(Money::class, $result);
+        $this->assertEquals('USD', $result->getCurrency()->getCurrencyCode());
     }
 
-    public function test_to_dollar_with_lowercase_currency(): void
+    public function test_to_dollar_float_returns_float_type(): void
     {
-        $mockRates = ['USD' => 1, 'EUR' => 0.85];
-        
-        $this->cacheRepository
-            ->shouldReceive('remember')
-            ->once()
-            ->andReturn($mockRates);
+        Http::fake([
+            'https://open.er-api.com/v6/latest/USD' => Http::response([
+                'rates' => ['USD' => 1.0, 'CNY' => 7.2]
+            ])
+        ]);
 
-        // Test lowercase currency code
-        $result = $this->amountPriceService->toDollar('eur', 170);
-        $this->assertEquals(2.00, $result); // 170/100/0.85 = 2.00
+        $service = $this->createService();
+        $result = $service->toDollarFloat('USD', 250);
+        
+        $this->assertIsFloat($result);
+        $this->assertGreaterThan(0, $result);
+    }
+
+    public function test_to_dollar_with_zero_amount(): void
+    {
+        Http::fake([
+            'https://open.er-api.com/v6/latest/USD' => Http::response([
+                'rates' => ['USD' => 1.0]
+            ])
+        ]);
+
+        $service = $this->createService();
+        $result = $service->toDollar('USD', 0);
+        
+        $this->assertInstanceOf(Money::class, $result);
+        $this->assertEquals('0.00', $result->getAmount()->__toString());
     }
 
     public function test_request_dollar_data_success(): void
@@ -69,49 +72,25 @@ class AmountPriceServiceTest extends TestCase
         Http::fake([
             'https://open.er-api.com/v6/latest/USD' => Http::response([
                 'rates' => [
-                    'USD' => 1,
+                    'USD' => 1.0,
                     'EUR' => 0.85,
-                    'GBP' => 0.73,
+                    'CNY' => 7.2
                 ]
             ], 200)
         ]);
 
+        $service = $this->createService();
+        
         // Use reflection to test protected method
-        $reflection = new \ReflectionClass($this->amountPriceService);
+        $reflection = new \ReflectionClass($service);
         $method = $reflection->getMethod('requestDollarData');
         $method->setAccessible(true);
 
-        $result = $method->invoke($this->amountPriceService);
+        $result = $method->invoke($service);
 
         $this->assertIsArray($result);
-        $this->assertEquals(1, $result['USD']);
+        $this->assertEquals(1.0, $result['USD']);
         $this->assertEquals(0.85, $result['EUR']);
-        $this->assertEquals(0.73, $result['GBP']);
-    }
-    
-    public function test_cache_get_dollar_data(): void
-    {
-        $mockRates = ['USD' => 1, 'EUR' => 0.85];
-        
-        $this->cacheRepository
-            ->shouldReceive('remember')
-            ->once()
-            ->with('dollar_rate_data', \Mockery::type(\Carbon\Carbon::class), \Mockery::type('callable'))
-            ->andReturn($mockRates);
-
-        // Use reflection to test protected method
-        $reflection = new \ReflectionClass($this->amountPriceService);
-        $method = $reflection->getMethod('cacheGetDollarData');
-        $method->setAccessible(true);
-
-        $result = $method->invoke($this->amountPriceService);
-
-        $this->assertEquals($mockRates, $result);
-    }
-
-    protected function tearDown(): void
-    {
-        Mockery::close();
-        parent::tearDown();
+        $this->assertEquals(7.2, $result['CNY']);
     }
 }

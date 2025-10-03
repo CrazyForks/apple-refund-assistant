@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2eb28cd5ac4dd470d5cb89e89edff389",
+    "content-hash": "74a429d1c7153233434922445fedf62d",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -351,6 +351,51 @@
                 "source": "https://github.com/brick/math/tree/0.14.0"
             },
             "time": "2025-08-29T12:40:03+00:00"
+        },
+        {
+            "name": "brick/money",
+            "version": "0.10.3",
+            "dist": {
+                "type": "zip",
+                "url": "https://mirrors.cloud.tencent.com/repository/composer/brick/money/0.10.3/brick-money-0.10.3.zip",
+                "reference": "b1b0bb6035d26a58f29b1c06b1265c01a0b5c9c3",
+                "shasum": ""
+            },
+            "require": {
+                "brick/math": "~0.12.0|~0.13.0|~0.14.0",
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "brick/varexporter": "~0.5.0",
+                "ext-dom": "*",
+                "ext-pdo": "*",
+                "php-coveralls/php-coveralls": "^2.2",
+                "phpunit/phpunit": "^10.1",
+                "vimeo/psalm": "6.3.0"
+            },
+            "suggest": {
+                "ext-intl": "Required to format Money objects"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Brick\\Money\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Money and currency library",
+            "keywords": [
+                "brick",
+                "currency",
+                "money"
+            ],
+            "support": {
+                "issues": "https://github.com/brick/money/issues",
+                "source": "https://github.com/brick/money/tree/0.10.3"
+            },
+            "time": "2025-09-03T09:55:48+00:00"
         },
         {
             "name": "carbonphp/carbon-doctrine-types",
