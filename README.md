@@ -41,13 +41,22 @@
 
 
 ## 快速开始
+### 使用已经构建好的镜像
+* 运行的时候如果使用`sqlite`注意挂载数据目录出来(-v ./database:/var/www/html/database)
+```bash
+docker pull ghcr.io/seth-shi/apple-refund-assistant:latest
+docker run -d \
+  -p 8080:8080 \
+  --name apple-refund-assistant \
+  --restart=always \
+  apple-refund-assistant-image
+```
 
-1. **克隆并配置**
+
+### 本地构建运行
 ```bash
 git clone https://github.com/seth-shi/apple-refund-assistant
 cd apple-refund-assistant
-# 使用你的凭据编辑 .env.project
-cp .env.example .env
 ## 构建镜像并部署
 ./deploy.sh
 ```
