@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Casts\SafeEnumCast;
 use App\Enums\EnvironmentEnum;
 use App\Enums\NotificationTypeEnum;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Kra8\Snowflake\HasShortflakePrimary;
@@ -59,7 +60,7 @@ use Kra8\Snowflake\HasShortflakePrimary;
  */
 class TransactionLog extends Model
 {
-    use HasShortflakePrimary;
+    use HasFactory, HasShortflakePrimary;
 
     protected $casts = [
         'environment' => [SafeEnumCast::class, EnvironmentEnum::class],

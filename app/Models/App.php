@@ -10,6 +10,7 @@ use Filament\Models\Contracts\HasAvatar;
 use Filament\Models\Contracts\HasCurrentTenantLabel;
 use Filament\Models\Contracts\HasName;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Crypt;
 use Kra8\Snowflake\HasShortflakePrimary;
@@ -68,7 +69,7 @@ use Kra8\Snowflake\HasShortflakePrimary;
  */
 class App extends Model implements HasName, HasCurrentTenantLabel, HasAvatar
 {
-    use HasShortflakePrimary;
+    use HasFactory, HasShortflakePrimary;
 
     protected $guarded = [];
     protected $casts = [

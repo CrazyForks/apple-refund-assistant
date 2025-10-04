@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Kra8\Snowflake\HasShortflakePrimary;
@@ -33,7 +34,7 @@ use Kra8\Snowflake\HasShortflakePrimary;
  */
 class AppleUser extends Model
 {
-    use HasShortflakePrimary;
+    use HasFactory, HasShortflakePrimary;
 
     protected $guarded = [];
     
