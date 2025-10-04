@@ -4,12 +4,14 @@ namespace Tests\Feature;
 
 use App\Enums\AppStatusEnum;
 use App\Models\App;
+use App\Models\AppleUser;
 use App\Models\ConsumptionLog;
 use App\Models\NotificationRawLog;
 use App\Models\RefundLog;
 use App\Models\TransactionLog;
 use App\Services\AmountPriceService;
 use App\Services\IapService;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Log;
@@ -234,6 +236,225 @@ class WebhookTest extends TestCase
             ->atLeast()->once();
 
         Queue::assertPushed(SendRequestToAppNotificationUrlJob::class);
+    }
+
+    public function test_transaction_creates_apple_user_with_register_at(): void
+    {
+        $app = $this->makeApp();
+        
+        $originalPurchaseDate = 1690000000000; // milliseconds
+        $meta = $this->meta([
+            'transactionInfo' => array_merge($this->meta()['transactionInfo'], [
+                'appAccountToken' => 'user-token-123',
+                'originalPurchaseDate' => $originalPurchaseDate,
+            ])
+        ]);
+        
+        $payload = $this->fakePayload('SUBSCRIBED', $meta);
+        $this->stubDecode($payload);
+        
+        $this->postJson('/api/v1/apps/' . $app->id . '/webhook', [])->assertOk();
+        
+        $this->assertDatabaseHas('apple_users', [
+            'app_account_token' => 'user-token-123',
+            'app_id' => $app->id,
+            'purchased_dollars' => 1.99,
+            'refunded_dollars' => 0,
+        ]);
+        
+        $user = AppleUser::where('app_account_token', 'user-token-123')->first();
+        $this->assertNotNull($user);
+        $this->assertNotNull($user->register_at);
+        $this->assertInstanceOf(Carbon::class, $user->register_at);
+        
+        // Check register_at is set to originalPurchaseDate
+        /** @var Carbon $registerAt */
+        $registerAt = $user->register_at;
+        $expectedTime = Carbon::createFromTimestamp($originalPurchaseDate / 1000);
+        $this->assertEquals(
+            $expectedTime->format('Y-m-d H:i:s'),
+            $registerAt->format('Y-m-d H:i:s')
+        );
+    }
+
+    public function test_transaction_with_existing_user_increments_purchased_dollars(): void
+    {
+        $app = $this->makeApp();
+        
+        // Create existing user
+        $existingUser = AppleUser::create([
+            'app_account_token' => 'existing-user',
+            'app_id' => $app->id,
+            'purchased_dollars' => 10.0,
+            'refunded_dollars' => 0,
+            'play_seconds' => 0,
+            'register_at' => Carbon::parse('2023-01-01 00:00:00'),
+        ]);
+        
+        $meta = $this->meta([
+            'transactionInfo' => array_merge($this->meta()['transactionInfo'], [
+                'appAccountToken' => 'existing-user',
+            ])
+        ]);
+        
+        $payload = $this->fakePayload('SUBSCRIBED', $meta);
+        $this->stubDecode($payload);
+        
+        $this->postJson('/api/v1/apps/' . $app->id . '/webhook', [])->assertOk();
+        
+        $existingUser->refresh();
+        $this->assertEquals(11.99, $existingUser->purchased_dollars);
+        // register_at should not change
+        $this->assertInstanceOf(Carbon::class, $existingUser->register_at);
+        /** @var Carbon $registerAt */
+        $registerAt = $existingUser->register_at;
+        $this->assertEquals('2023-01-01 00:00:00', $registerAt->format('Y-m-d H:i:s'));
+    }
+
+    public function test_transaction_without_app_account_token_still_works(): void
+    {
+        $app = $this->makeApp();
+        
+        $meta = $this->meta([
+            'transactionInfo' => array_merge($this->meta()['transactionInfo'], [
+                'appAccountToken' => null,
+            ])
+        ]);
+        
+        $payload = $this->fakePayload('SUBSCRIBED', $meta);
+        $this->stubDecode($payload);
+        
+        $resp = $this->postJson('/api/v1/apps/' . $app->id . '/webhook', []);
+        $resp->assertOk();
+        
+        // Transaction log should be created
+        $this->assertDatabaseHas('transaction_logs', [
+            'app_id' => $app->id,
+        ]);
+        
+        // But no AppleUser created
+        $this->assertDatabaseMissing('apple_users', [
+            'app_id' => $app->id,
+        ]);
+    }
+
+    public function test_refund_increments_user_refunded_dollars(): void
+    {
+        $app = $this->makeApp();
+        
+        // Create user
+        $user = AppleUser::create([
+            'app_account_token' => 'refund-user',
+            'app_id' => $app->id,
+            'purchased_dollars' => 50.0,
+            'refunded_dollars' => 0,
+            'play_seconds' => 0,
+            'register_at' => Carbon::now(),
+        ]);
+        
+        $meta = $this->meta([
+            'transactionInfo' => array_merge($this->meta()['transactionInfo'], [
+                'appAccountToken' => 'refund-user',
+            ])
+        ]);
+        
+        $payload = $this->fakePayload('REFUND', $meta);
+        $this->stubDecode($payload);
+        
+        $this->postJson('/api/v1/apps/' . $app->id . '/webhook', [])->assertOk();
+        
+        $user->refresh();
+        $this->assertEquals(1.99, $user->refunded_dollars);
+        $this->assertEquals(50.0, $user->purchased_dollars); // should not change
+    }
+
+    public function test_refund_without_existing_user_does_not_create_user(): void
+    {
+        $app = $this->makeApp();
+        
+        $meta = $this->meta([
+            'transactionInfo' => array_merge($this->meta()['transactionInfo'], [
+                'appAccountToken' => 'non-existent-user',
+            ])
+        ]);
+        
+        $payload = $this->fakePayload('REFUND', $meta);
+        $this->stubDecode($payload);
+        
+        $resp = $this->postJson('/api/v1/apps/' . $app->id . '/webhook', []);
+        $resp->assertOk();
+        
+        // Refund log should be created
+        $this->assertDatabaseHas('refund_logs', [
+            'app_id' => $app->id,
+        ]);
+        
+        // But no AppleUser created
+        $this->assertDatabaseMissing('apple_users', [
+            'app_account_token' => 'non-existent-user',
+        ]);
+    }
+
+    public function test_multiple_transactions_accumulate_purchased_dollars(): void
+    {
+        $app = $this->makeApp();
+        
+        $meta = $this->meta([
+            'transactionInfo' => array_merge($this->meta()['transactionInfo'], [
+                'appAccountToken' => 'multi-user',
+            ])
+        ]);
+        
+        // First transaction
+        $payload1 = $this->fakePayload('SUBSCRIBED', $meta);
+        $this->stubDecode($payload1);
+        $this->postJson('/api/v1/apps/' . $app->id . '/webhook', [])->assertOk();
+        
+        // Second transaction
+        $payload2 = $this->fakePayload('DID_RENEW', $meta);
+        $this->stubDecode($payload2);
+        $this->postJson('/api/v1/apps/' . $app->id . '/webhook', [])->assertOk();
+        
+        // Third transaction
+        $payload3 = $this->fakePayload('ONE_TIME_CHARGE', $meta);
+        $this->stubDecode($payload3);
+        $this->postJson('/api/v1/apps/' . $app->id . '/webhook', [])->assertOk();
+        
+        $user = AppleUser::where('app_account_token', 'multi-user')->first();
+        $this->assertNotNull($user);
+        $this->assertEquals(5.97, $user->purchased_dollars); // 1.99 * 3
+        $this->assertEquals(0, $user->refunded_dollars);
+    }
+
+    public function test_transaction_with_zero_timestamp_uses_current_time(): void
+    {
+        Carbon::setTestNow('2024-06-15 10:30:00');
+        
+        $app = $this->makeApp();
+        
+        $meta = $this->meta([
+            'transactionInfo' => array_merge($this->meta()['transactionInfo'], [
+                'appAccountToken' => 'zero-time-user',
+                'originalPurchaseDate' => 0,
+            ])
+        ]);
+        
+        $payload = $this->fakePayload('SUBSCRIBED', $meta);
+        $this->stubDecode($payload);
+        
+        $this->postJson('/api/v1/apps/' . $app->id . '/webhook', [])->assertOk();
+        
+        $user = AppleUser::where('app_account_token', 'zero-time-user')->first();
+        $this->assertNotNull($user);
+        $this->assertInstanceOf(Carbon::class, $user->register_at);
+        /** @var Carbon $registerAt */
+        $registerAt = $user->register_at;
+        $this->assertEquals(
+            Carbon::now()->format('Y-m-d H:i:s'),
+            $registerAt->format('Y-m-d H:i:s')
+        );
+        
+        Carbon::setTestNow();
     }
 }
 

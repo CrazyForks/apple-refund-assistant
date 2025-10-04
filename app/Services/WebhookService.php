@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Dao\AppDao;
+use App\Dao\AppleUserDao;
 use App\Dao\ConsumptionLogDao;
 use App\Dao\NotificationRawLogDao;
 use App\Dao\RefundLogDao;
@@ -29,6 +30,7 @@ class WebhookService
     protected RefundLogDao $refundLogDao;
     protected ConsumptionLogDao $consumptionLogDao;
     protected TransactionLogDao $transactionLogDao;
+    protected AppleUserDao $appleUserDao;
     protected IapService $iapService;
     protected AmountPriceService $priceService;
 
@@ -38,6 +40,7 @@ class WebhookService
         ConsumptionLogDao     $consumptionLogDao,
         RefundLogDao          $refundLogDao,
         TransactionLogDao     $transactionLogDao,
+        AppleUserDao          $appleUserDao,
         IapService            $iapService,
         AmountPriceService    $priceService,
     )
@@ -47,6 +50,7 @@ class WebhookService
         $this->transactionLogDao = $transactionLogDao;
         $this->consumptionLogDao = $consumptionLogDao;
         $this->refundLogDao = $refundLogDao;
+        $this->appleUserDao = $appleUserDao;
         $this->iapService = $iapService;
         $this->priceService = $priceService;
     }
@@ -115,6 +119,19 @@ class WebhookService
         $dollar = $this->getTransactionDollar($payload);
         $this->appDao->incrementTransaction($app->id, $dollar);
 
+         // Create or get user and update purchased amount
+         $transInfo = $payload->getAppMetadata()->getTransactionInfo();
+         $appAccountToken = $transInfo->getAppAccountToken();
+         
+         if (!empty($appAccountToken)) {
+             // Use originalPurchaseDate as registration time (first purchase time)
+             // Apple returns milliseconds, convert to seconds
+             $registerTimestamp = (int)($transInfo->getOriginalPurchaseDate() / 1000);
+             
+             $user = $this->appleUserDao->firstOrCreate($appAccountToken, $app->id, $registerTimestamp);
+             $this->appleUserDao->incrementPurchased($user->id, $dollar);
+         }
+
 
         return $this->transactionLogDao->storeLog($app, $payload);
     }
@@ -126,6 +143,15 @@ class WebhookService
     {
         $dollar = $this->getTransactionDollar($payload);
         $this->appDao->incrementRefund($app->id, $dollar);
+
+        // Update user's refunded amount (only if user exists)
+        $transInfo = $payload->getAppMetadata()->getTransactionInfo();
+        $appAccountToken = $transInfo->getAppAccountToken();
+        
+        if (!empty($appAccountToken)) {
+            // Optimized: directly update without SELECT query
+            $this->appleUserDao->incrementRefundedByToken($appAccountToken, $app->id, $dollar);
+        }
 
         return $this->refundLogDao->storeLog($app, $payload);
     }
@@ -152,7 +178,7 @@ class WebhookService
     protected function getTransactionDollar(ResponseBodyV2 $payload): float
     {
         $transaction = $payload->getAppMetadata()->getTransactionInfo();
-        // 使用新的安全方法，但保持向后兼容
+        // Use new safe method while maintaining backward compatibility
         return $this->priceService->toDollarFloat($transaction->getCurrency(), $transaction->getPrice());
     }
 }

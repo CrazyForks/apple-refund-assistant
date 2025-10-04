@@ -96,8 +96,6 @@ docker run -d \
 
 ## TODO
 - [ ] NotificationRawLog select field without request body, payload
-- [ ] 用户构建创建从 apply notification
-- [ ] 使用更安全的金额转换库
 
 ## 许可证
 
