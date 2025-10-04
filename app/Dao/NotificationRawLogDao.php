@@ -16,7 +16,7 @@ class NotificationRawLogDao
     {
         $meta = $payload->getAppMetadata();
         $status = $app->bundle_id === $meta->getBundleId() ?
-            NotificationLogStatusEnum::PENDING :
+            NotificationLogStatusEnum::PROCESSING :
             NotificationLogStatusEnum::UN_MATCH_BUNDLE;
         $model = new NotificationLog();
         $model->app_id = $app->getKey();

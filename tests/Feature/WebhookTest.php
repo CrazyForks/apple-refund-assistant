@@ -97,7 +97,7 @@ class WebhookTest extends TestCase
         $resp = $this->postJson('/api/v1/apps/' . $app->id . '/webhook', []);
         $resp->assertOk();
 
-        $this->assertDatabaseHas('notification_raw_logs', [
+        $this->assertDatabaseHas('notification_logs', [
             'app_id' => $app->id,
             'bundle_id' => 'com.demo.app',
             'notification_type' => 'TEST',
@@ -221,7 +221,7 @@ class WebhookTest extends TestCase
         $resp = $this->postJson('/api/v1/apps/' . $app->id . '/webhook', []);
         $resp->assertOk();
 
-        $this->assertDatabaseHas('notification_raw_logs', [
+        $this->assertDatabaseHas('notification_logs', [
             'app_id' => $app->id,
             'notification_type' => 'UNKNOWN_EVENT',
         ]);
