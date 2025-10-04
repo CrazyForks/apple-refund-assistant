@@ -24,14 +24,14 @@ class TransactionLogDaoTest extends TestCase
     public function test_find_transaction_by_consumption_returns_latest_transaction(): void
     {
         $app = App::factory()->create();
-        
+
         // Create multiple transactions with same original_transaction_id
         $transaction1 = TransactionLog::factory()->create([
             'app_id' => $app->id,
             'original_transaction_id' => 'orig-123',
             'created_at' => now()->subHours(2),
         ]);
-        
+
         $transaction2 = TransactionLog::factory()->create([
             'app_id' => $app->id,
             'original_transaction_id' => 'orig-123',
@@ -68,13 +68,13 @@ class TransactionLogDaoTest extends TestCase
     {
         $app1 = App::factory()->create();
         $app2 = App::factory()->create();
-        
+
         // Create transaction for app1
         TransactionLog::factory()->create([
             'app_id' => $app1->id,
             'original_transaction_id' => 'orig-123',
         ]);
-        
+
         // Create consumption log for app2
         $consumptionLog = ConsumptionLog::factory()->create([
             'app_id' => $app2->id,
@@ -90,18 +90,18 @@ class TransactionLogDaoTest extends TestCase
     public function test_find_transaction_by_consumption_orders_by_id_desc(): void
     {
         $app = App::factory()->create();
-        
+
         // Create 3 transactions with same original_transaction_id
         $t1 = TransactionLog::factory()->create([
             'app_id' => $app->id,
             'original_transaction_id' => 'orig-123',
         ]);
-        
+
         $t2 = TransactionLog::factory()->create([
             'app_id' => $app->id,
             'original_transaction_id' => 'orig-123',
         ]);
-        
+
         $t3 = TransactionLog::factory()->create([
             'app_id' => $app->id,
             'original_transaction_id' => 'orig-123',
@@ -121,14 +121,14 @@ class TransactionLogDaoTest extends TestCase
     public function test_store_log_throws_exception_when_transaction_info_is_null(): void
     {
         $app = App::factory()->create();
-        
+
         // Create a raw log without transaction info (by mocking)
-        $rawLog = $this->createMock(\App\Models\NotificationRawLog::class);
+        $rawLog = $this->createMock(\App\Models\NotificationLog::class);
         $rawLog->method('getTransactionInfo')->willReturn(null);
-        
+
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('invalid transaction info');
-        
+
         $this->dao->storeLog($app, $rawLog);
     }
 }

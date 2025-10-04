@@ -93,8 +93,6 @@ class ConsumptionLogResource extends Resource
                 TextColumn::make('status')
                     ->badge()
                     ->searchable(),
-                TextColumn::make('notification_uuid')
-                    ->searchable(),
                 TextColumn::make('transaction_id')
                     ->searchable(),
                 TextColumn::make('consumption_request_reason')

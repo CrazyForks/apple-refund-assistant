@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Casts\SafeEnumCast;
 use App\Enums\EnvironmentEnum;
 use App\Enums\NotificationTypeEnum;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Kra8\Snowflake\HasShortflakePrimary;
@@ -16,6 +17,7 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @property int $app_id
  * @property string|null $notification_uuid
  * @property string|null $bundle_id
+ * @property string|null $bundle_version
  * @property $environment
  * @property string|null $purchase_date
  * @property string $original_transaction_id
@@ -27,12 +29,14 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\App|null $app
+ * @method static \Database\Factories\RefundLogFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog whereAppAccountToken($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog whereAppId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog whereBundleId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog whereBundleVersion($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog whereCurrency($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog whereEnvironment($value)
@@ -49,7 +53,9 @@ use Kra8\Snowflake\HasShortflakePrimary;
  */
 class RefundLog extends Model
 {
-    use HasShortflakePrimary;
+    use HasFactory, HasShortflakePrimary;
+
+    protected $guarded = [];
 
     protected $casts = [
         'environment' => [SafeEnumCast::class, EnvironmentEnum::class],

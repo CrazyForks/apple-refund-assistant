@@ -2,25 +2,38 @@
 
 namespace App\Dao;
 
+use App\Enums\AppStatusEnum;
+use App\Enums\NotificationLogStatusEnum;
 use App\Enums\NotificationTypeEnum;
 use App\Models\App;
+use App\Models\NotificationLog;
 use App\Models\NotificationRawLog;
 use Readdle\AppStoreServerAPI\ResponseBodyV2;
 
 class NotificationRawLogDao
 {
-    public function storeRawLog(string $content, App $app, ResponseBodyV2 $payload): NotificationRawLog
+    public function storeRawLog(string $content, App $app, ResponseBodyV2 $payload): NotificationLog
     {
-        $model = new NotificationRawLog();
+        $meta = $payload->getAppMetadata();
+        $status = $app->bundle_id === $meta->getBundleId() ?
+            NotificationLogStatusEnum::PENDING :
+            NotificationLogStatusEnum::UN_MATCH_BUNDLE;
+        $model = new NotificationLog();
         $model->app_id = $app->getKey();
-        $model->bundle_id = $payload->getAppMetadata()->getBundleId();
-        $model->environment = $payload->getAppMetadata()->getEnvironment();
+        $model->bundle_id = $meta->getBundleId();
+        $model->bundle_version = $meta->getBundleVersion();
+        $model->environment = $meta->getEnvironment();
         $model->notification_type = $payload->getNotificationType();
         $model->notification_uuid = $payload->getNotificationUUID();
-
-        $model->request_body = $content;
         $model->payload = json_encode($payload);
+        $model->status = $status;
         $model->save();
+
+        // Store large request_body in separate table
+        $raw = new NotificationRawLog();
+        $raw->id = $model->getKey();
+        $raw->request_body = $content;
+        $raw->save();
 
         return $model;
     }

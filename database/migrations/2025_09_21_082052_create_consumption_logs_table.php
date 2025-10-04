@@ -19,6 +19,7 @@ return new class extends Migration
             $table->unsignedBigInteger('app_id');
             $table->string('notification_uuid')->nullable()->index();
             $table->string('bundle_id')->nullable();
+            $table->string('bundle_version')->nullable();
             $table->string('environment')->nullable();
 
             $table->string('original_transaction_id')->index();

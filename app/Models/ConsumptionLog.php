@@ -15,29 +15,30 @@ use Kra8\Snowflake\HasShortflakePrimary;
 
 /**
  * @property int $id
- * @property string|null $apple_account_token
+ * @property string|null $app_account_token
  * @property int $app_id
  * @property string|null $notification_uuid
  * @property string|null $bundle_id
+ * @property string|null $bundle_version
  * @property $environment
  * @property string $original_transaction_id
- * @property string|null $app_account_token
  * @property string $transaction_id
  * @property string|null $consumption_request_reason
  * @property string|null $deadline_at
  * @property $status
  * @property string|null $status_msg
+ * @property array<array-key, mixed>|null $send_body
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string|null $send_body
  * @property-read \App\Models\App|null $app
+ * @method static \Database\Factories\ConsumptionLogFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConsumptionLog newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConsumptionLog newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConsumptionLog query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConsumptionLog whereAppAccountToken($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConsumptionLog whereAppId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ConsumptionLog whereAppleAccountToken($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConsumptionLog whereBundleId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ConsumptionLog whereBundleVersion($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConsumptionLog whereConsumptionRequestReason($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConsumptionLog whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConsumptionLog whereDeadlineAt($value)
@@ -56,19 +57,7 @@ class ConsumptionLog extends Model
 {
     use HasFactory, HasShortflakePrimary, EnvironmentTrait;
 
-    protected $fillable = [
-        'app_id',
-        'app_account_token',
-        'original_transaction_id',
-        'transaction_id',
-        'notification_uuid',
-        'bundle_id',
-        'environment',
-        'consumption_request_reason',
-        'deadline_at',
-        'status',
-        'status_msg'
-    ];
+    protected $guarded = [];
 
     protected $casts = [
         'environment' => [SafeEnumCast::class, EnvironmentEnum::class],

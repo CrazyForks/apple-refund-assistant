@@ -26,21 +26,22 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @property string|null $key_id
  * @property string|null $p8_key
  * @property string|null $test_notification_token
+ * @property int $sample_content_provided
  * @property $status
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property int|null $sample_content_provided
+ * @property string|null $notification_url
  * @property string $transaction_dollars
  * @property string $refund_dollars
  * @property string $consumption_dollars
  * @property int $transaction_count
  * @property int $refund_count
  * @property int $consumption_count
+ * @property int $pending_consumption_count
  * @property int|null $owner_id
- * @property string|null $notification_url
- * @property int|null $pending_consumption_count
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property $activate
  * @property-read \App\Models\User|null $owner
+ * @method static \Database\Factories\AppFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App query()

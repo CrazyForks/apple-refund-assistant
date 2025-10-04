@@ -4,7 +4,7 @@ namespace App\Dao;
 
 use App\Models\App;
 use App\Models\ConsumptionLog;
-use App\Models\NotificationRawLog;
+use App\Models\NotificationLog;
 use App\Models\TransactionLog;
 
 class TransactionLogDao
@@ -12,7 +12,7 @@ class TransactionLogDao
     /**
      * @throws \Exception
      */
-    public function storeLog(App $app, NotificationRawLog $raw): TransactionLog
+    public function storeLog(App $app, NotificationLog $raw): TransactionLog
     {
         $transInfo = $raw->getTransactionInfo();
         if (is_null($transInfo)) {
@@ -20,9 +20,11 @@ class TransactionLogDao
         }
 
         $model = new TransactionLog();
+        $model->id = $raw->id;
         $model->notification_type = $raw->notification_type;
-        $model->app_id = $app->getKey();
+        $model->app_id = $app->id;
         $model->bundle_id = $raw->bundle_id;
+        $model->bundle_version = $raw->bundle_version;
         $model->environment = $raw->environment;
         $model->notification_uuid = $raw->notification_uuid;
 

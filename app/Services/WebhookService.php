@@ -9,12 +9,13 @@ use App\Dao\NotificationRawLogDao;
 use App\Dao\RefundLogDao;
 use App\Dao\TransactionLogDao;
 use App\Enums\AppStatusEnum;
+use App\Enums\NotificationLogStatusEnum;
 use App\Enums\NotificationTypeEnum;
 use App\Jobs\SendConsumptionInformationJob;
-use App\Jobs\SendRequestToAppNotificationUrlJob;
+use App\Jobs\FinishNotificationJob;
 use App\Models\App;
 use App\Models\ConsumptionLog;
-use App\Models\NotificationRawLog;
+use App\Models\NotificationLog;
 use App\Models\RefundLog;
 use App\Models\TransactionLog;
 use Illuminate\Database\Eloquent\Model;
@@ -90,7 +91,7 @@ class WebhookService
         }
 
         // NOTE: use fpm fast-cgi running in background
-        dispatch(new SendRequestToAppNotificationUrlJob($raw, $app))->afterResponse();
+        dispatch(new FinishNotificationJob($raw, $app))->afterResponse();
 
         return $raw;
     }
@@ -98,7 +99,7 @@ class WebhookService
     /**
      * @throws \Exception
      */
-    protected function handleConsumption(App $app, NotificationRawLog $raw): ConsumptionLog
+    protected function handleConsumption(App $app, NotificationLog $raw): ConsumptionLog
     {
         $dollar = $this->getTransactionDollar($raw);
         $this->appDao->incrementConsumption($app->id, $dollar);
@@ -114,7 +115,7 @@ class WebhookService
     /**
      * @throws \Exception
      */
-    protected function handleTransaction(App $app, NotificationRawLog $raw): TransactionLog
+    protected function handleTransaction(App $app, NotificationLog $raw): TransactionLog
     {
         $dollar = $this->getTransactionDollar($raw);
         $this->appDao->incrementTransaction($app->id, $dollar);
@@ -122,11 +123,10 @@ class WebhookService
          // Create or get user and update purchased amount
          $transInfo = $raw->getTransactionInfo();
          $appAccountToken = $transInfo?->appAccountToken;
-         
+
          if (!empty($appAccountToken)) {
              // Use originalPurchaseDate as registration time (first purchase time)
              $registerTimestamp = $transInfo->getOriginalPurchaseDateTimestamp();
-             
              $user = $this->appleUserDao->firstOrCreate($appAccountToken, $app->id, $registerTimestamp);
              $this->appleUserDao->incrementPurchased($user->id, $dollar);
          }
@@ -138,7 +138,7 @@ class WebhookService
     /**
      * @throws \Exception
      */
-    protected function handleRefund(App $app, NotificationRawLog $raw): RefundLog
+    protected function handleRefund(App $app, NotificationLog $raw): RefundLog
     {
         $dollar = $this->getTransactionDollar($raw);
         $this->appDao->incrementRefund($app->id, $dollar);
@@ -146,16 +146,15 @@ class WebhookService
         // Update user's refunded amount (only if user exists)
         $transInfo = $raw->getTransactionInfo();
         $appAccountToken = $transInfo?->appAccountToken;
-        
+
         if (!empty($appAccountToken)) {
-            // Optimized: directly update without SELECT query
             $this->appleUserDao->incrementRefundedByToken($appAccountToken, $app->id, $dollar);
         }
 
         return $this->refundLogDao->storeLog($app, $raw);
     }
 
-    protected function handleTest(App $app, NotificationRawLog $raw): void
+    protected function handleTest(App $app, NotificationLog $raw): void
     {
         $app->status = AppStatusEnum::NORMAL;
         $app->save();
@@ -164,22 +163,23 @@ class WebhookService
     /**
      * @throws \Exception
      */
-    protected function insertRawLog($content, App $app, ResponseBodyV2 $payload): NotificationRawLog
+    protected function insertRawLog($content, App $app, ResponseBodyV2 $payload): NotificationLog
     {
-        if ($app->bundle_id !== $payload->getAppMetadata()->getBundleId()) {
+        $raw = $this->rawLogDao->storeRawLog($content, $app, $payload);
+        if ($raw->status === NotificationLogStatusEnum::UN_MATCH_BUNDLE) {
             throw new \Exception("bundle_id don't match");
         }
 
-        return $this->rawLogDao->storeRawLog($content, $app, $payload);
+        return $raw;
     }
 
 
-    protected function getTransactionDollar(NotificationRawLog $raw): float
+    protected function getTransactionDollar(NotificationLog $raw): float
     {
         $transaction = $raw->getTransactionInfo();
         // Use new safe method while maintaining backward compatibility
         return $this->priceService->toDollarFloat(
-            $transaction?->currency ?? 'USD', 
+            $transaction?->currency ?? 'USD',
             $transaction?->price ?? 0
         );
     }

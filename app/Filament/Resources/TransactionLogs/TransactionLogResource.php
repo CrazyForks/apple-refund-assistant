@@ -98,21 +98,13 @@ class TransactionLogResource extends Resource
                     ->badge()
                     ->searchable(),
                 TextColumn::make('price')
-                    ->money()
-                    ->sortable(),
-                TextColumn::make('currency')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('notification_uuid')
-                    ->searchable(),
+                    ->money(fn (TransactionLog $record) => $record->currency),
                 TextColumn::make('transaction_id')
                     ->searchable(),
                 TextColumn::make('product_id')
                     ->searchable(),
                 TextColumn::make('purchase_date')
-                    ->dateTime(),
-                TextColumn::make('expiration_date')
-                    ->dateTime(),
+                    ->dateTime('Y-m-d H:i:s'),
                 TextColumn::make('created_at'),
                 TextColumn::make('updated_at')
                     ->toggleable(isToggledHiddenByDefault: true),

@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Filament\Resources\NotificationRawLogs;
+namespace App\Filament\Resources\NotificationLogs;
 
-use App\Filament\Resources\NotificationRawLogs\Pages\ManageNotificationRawLogs;
-use App\Models\NotificationRawLog;
+use App\Filament\Resources\NotificationLogs\Pages\ManageNotificationLogs;
+use App\Models\NotificationLog;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
@@ -24,9 +24,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Phiki\Grammar\Grammar;
 
-class NotificationRawLogResource extends Resource
+class NotificationLogResource extends Resource
 {
-    protected static ?string $model = NotificationRawLog::class;
+    protected static ?string $model = NotificationLog::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
@@ -53,12 +53,18 @@ class NotificationRawLogResource extends Resource
                     ->placeholder('-'),
                 TextEntry::make('bundle_id')
                     ->placeholder('-'),
-                CodeEntry::make('request_body')
+                CodeEntry::make('raw.request_body')
+                    ->label('Request Body')
                     ->grammar(Grammar::Json)
                     ->copyable()
                     ->columnSpanFull(),
                 CodeEntry::make('payload')
+                    ->label('Payload')
                     ->grammar(Grammar::Json)
+                    ->copyable()
+                    ->columnSpanFull(),
+                TextEntry::make('raw.forward_msg')
+                    ->label('Forward msg')
                     ->copyable()
                     ->columnSpanFull(),
                 TextEntry::make('created_at')
@@ -83,12 +89,10 @@ class NotificationRawLogResource extends Resource
                     ->searchable(),
                 TextColumn::make('environment')
                     ->searchable(),
-                TextColumn::make('notification_type')
-                    ->searchable(),
-                TextColumn::make('notification_uuid')
-                    ->searchable(),
+                TextColumn::make('notification_type'),
+                TextColumn::make('notification_uuid')->searchable(),
+                TextColumn::make('status'),
                 IconColumn::make('forward_success')
-                    ->tooltip(fn (NotificationRawLog $record): ?string => $record->forward_msg)
                     ->color(fn (int $state): string => $state > 0 ? 'success' : 'danger')
                     ->icon(fn (int $state): ?string => $state > 0 ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle'),
                 TextColumn::make('created_at'),
@@ -101,7 +105,7 @@ class NotificationRawLogResource extends Resource
             ->headerActions([
                 Action::make('refresh')
                     ->label(__('refresh'))
-                    ->action(function (ManageNotificationRawLogs $livewire) {
+                    ->action(function (ManageNotificationLogs $livewire) {
                         $livewire->resetTable();
                     }),
             ])
@@ -118,7 +122,7 @@ class NotificationRawLogResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ManageNotificationRawLogs::route('/'),
+            'index' => ManageNotificationLogs::route('/'),
         ];
     }
 }

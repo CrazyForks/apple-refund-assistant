@@ -22,14 +22,14 @@ class ConsumptionLogDaoTest extends TestCase
     public function test_store_log_throws_exception_when_transaction_info_is_null(): void
     {
         $app = App::factory()->create();
-        
+
         // Create a raw log without transaction info (by mocking)
-        $rawLog = $this->createMock(\App\Models\NotificationRawLog::class);
+        $rawLog = $this->createMock(\App\Models\NotificationLog::class);
         $rawLog->method('getTransactionInfo')->willReturn(null);
-        
+
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('invalid transaction info');
-        
+
         $this->dao->storeLog($app, $rawLog);
     }
 }

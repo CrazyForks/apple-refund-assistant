@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('notification_uuid')->nullable()->index();
             $table->string('notification_type')->nullable();
             $table->string('bundle_id')->nullable();
+            $table->string('bundle_version')->nullable();
             $table->string('environment')->nullable();
 
             $table->string('original_transaction_id')->index();

@@ -3,7 +3,7 @@
 namespace App\Dao;
 
 use App\Models\App;
-use App\Models\NotificationRawLog;
+use App\Models\NotificationLog;
 use App\Models\RefundLog;
 
 class RefundLogDao
@@ -11,7 +11,7 @@ class RefundLogDao
     /**
      * @throws \Exception
      */
-    public function storeLog(App $app, NotificationRawLog $raw): RefundLog
+    public function storeLog(App $app, NotificationLog $raw): RefundLog
     {
         $transInfo = $raw->getTransactionInfo();
         if (is_null($transInfo)) {
@@ -19,8 +19,10 @@ class RefundLogDao
         }
 
         $model = new RefundLog();
-        $model->app_id = $app->getKey();
+        $model->id = $raw->id;
+        $model->app_id = $app->id;
         $model->bundle_id = $raw->bundle_id;
+        $model->bundle_version = $raw->bundle_version;
         $model->environment = $raw->environment;
         $model->notification_uuid = $raw->notification_uuid;
 

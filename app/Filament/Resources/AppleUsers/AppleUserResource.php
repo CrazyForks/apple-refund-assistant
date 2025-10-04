@@ -65,10 +65,8 @@ class AppleUserResource extends Resource
             ->columns([
                 TextColumn::make('app_account_token'),
                 TextColumn::make('purchased_dollars')
-                    ->numeric()
                     ->sortable(),
                 TextColumn::make('refunded_dollars')
-                    ->numeric()
                     ->sortable(),
                 TextColumn::make('play_seconds')
                     ->numeric()

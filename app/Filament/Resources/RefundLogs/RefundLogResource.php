@@ -4,6 +4,7 @@ namespace App\Filament\Resources\RefundLogs;
 
 use App\Filament\Resources\RefundLogs\Pages\ManageRefundLogs;
 use App\Models\RefundLog;
+use App\Models\TransactionLog;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -79,13 +80,10 @@ class RefundLogResource extends Resource
                 TextColumn::make('transaction_id')
                     ->searchable(),
                 TextColumn::make('price')
-                    ->numeric(),
-                TextColumn::make('currency'),
+                    ->money(fn (RefundLog $record) => $record->currency),
                 TextColumn::make('refund_date')
-                    ->dateTime()
-                    ->sortable(),
-                TextColumn::make('refund_reason')
-                    ->searchable(),
+                    ->dateTime('Y-m-d H:i:s'),
+                TextColumn::make('refund_reason'),
                 TextColumn::make('created_at'),
                 TextColumn::make('updated_at')
                     ->toggleable(isToggledHiddenByDefault: true),

@@ -5,7 +5,7 @@ namespace App\Jobs;
 use App\Dao\AppDao;
 use App\Enums\ConsumptionLogStatusEnum;
 use App\Models\ConsumptionLog;
-use App\Models\NotificationRawLog;
+use App\Models\NotificationLog;
 use App\Models\TransactionLog;
 use App\Services\ConsumptionService;
 use App\Services\IapService;

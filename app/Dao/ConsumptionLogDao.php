@@ -5,7 +5,7 @@ namespace App\Dao;
 use App\Enums\ConsumptionLogStatusEnum;
 use App\Models\App;
 use App\Models\ConsumptionLog;
-use App\Models\NotificationRawLog;
+use App\Models\NotificationLog;
 use App\Models\RefundLog;
 use Carbon\Carbon;
 
@@ -14,7 +14,7 @@ class ConsumptionLogDao
     /**
      * @throws \Exception
      */
-    public function storeLog(App $app, NotificationRawLog $raw): ConsumptionLog
+    public function storeLog(App $app, NotificationLog $raw): ConsumptionLog
     {
         $transInfo = $raw->getTransactionInfo();
         if (is_null($transInfo)) {
@@ -23,8 +23,10 @@ class ConsumptionLogDao
 
 
         $model = new ConsumptionLog();
-        $model->app_id = $app->getKey();
+        $model->id = $app->id;
+        $model->app_id = $app->id;
         $model->bundle_id = $raw->bundle_id;
+        $model->bundle_version = $raw->bundle_version;
         $model->environment = $raw->environment;
         $model->notification_uuid = $raw->notification_uuid;
 

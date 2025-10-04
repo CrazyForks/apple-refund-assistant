@@ -17,6 +17,7 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @property string|null $notification_uuid
  * @property $notification_type
  * @property string|null $bundle_id
+ * @property string|null $bundle_version
  * @property $environment
  * @property string $original_transaction_id
  * @property string|null $app_account_token
@@ -33,12 +34,14 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\App|null $app
+ * @method static \Database\Factories\TransactionLogFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionLog newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionLog newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionLog query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionLog whereAppAccountToken($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionLog whereAppId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionLog whereBundleId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionLog whereBundleVersion($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionLog whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionLog whereCurrency($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionLog whereEnvironment($value)
@@ -61,6 +64,8 @@ use Kra8\Snowflake\HasShortflakePrimary;
 class TransactionLog extends Model
 {
     use HasFactory, HasShortflakePrimary;
+
+    protected $guarded = [];
 
     protected $casts = [
         'environment' => [SafeEnumCast::class, EnvironmentEnum::class],

@@ -11,20 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('notification_raw_logs', function (Blueprint $table) {
-            $table->id();
+        Schema::create('notification_logs', function (Blueprint $table) {
 
+            $table->unsignedBigInteger('id')->primary();
             $table->unsignedBigInteger('app_id');
             $table->string('notification_uuid')->nullable()->index();
             $table->string('notification_type')->nullable();
             $table->string('bundle_id')->nullable();
+            $table->string('bundle_version')->nullable();
             $table->string('environment')->nullable();
 
-            $table->text('request_body')->nullable();
             $table->text('payload')->nullable();
 
+            $table->tinyInteger('status');
             $table->boolean('forward_success')->nullable();
-            $table->string('forward_msg')->nullable();
 
             $table->timestamps();
 
@@ -37,6 +37,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('notification_raw_logs');
+        Schema::dropIfExists('notification_logs');
     }
 };
