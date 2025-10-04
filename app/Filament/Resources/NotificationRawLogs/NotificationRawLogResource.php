@@ -18,6 +18,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\PaginationMode;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
@@ -72,9 +73,13 @@ class NotificationRawLogResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->paginationMode(PaginationMode::Cursor)
             ->deferLoading()
+            ->defaultSort('id', 'desc')
+            ->defaultKeySort(false)
             ->columns([
                 TextColumn::make('id')
+                    ->sortable()
                     ->searchable(),
                 TextColumn::make('environment')
                     ->searchable(),
@@ -86,13 +91,8 @@ class NotificationRawLogResource extends Resource
                     ->tooltip(fn (NotificationRawLog $record): ?string => $record->forward_msg)
                     ->color(fn (int $state): string => $state > 0 ? 'success' : 'danger')
                     ->icon(fn (int $state): ?string => $state > 0 ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle'),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('created_at'),
                 TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([

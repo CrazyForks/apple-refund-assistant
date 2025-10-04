@@ -77,13 +77,8 @@ class UserResource extends Resource
                     ->label('Role'),
                 IconColumn::make('activate')
                     ->boolean(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('created_at'),
                 TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([

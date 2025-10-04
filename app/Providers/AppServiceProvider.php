@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Utils\SqlFormatUtil;
 use BezhanSalleh\LanguageSwitch\LanguageSwitch;
+use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -28,6 +29,12 @@ class AppServiceProvider extends ServiceProvider
     {
         Schema::defaultStringLength(191);
 
+        $this->debugSql();
+        $this->languageSwitch();
+    }
+
+    protected function debugSql()
+    {
         if ($this->app->hasDebugModeEnabled()) {
             $id = Str::random();
             $index = 0;
@@ -35,8 +42,10 @@ class AppServiceProvider extends ServiceProvider
                 Log::channel('sql')?->info(SqlFormatUtil::format(sprintf('%d@%s', $index ++, $id), $query));
             });
         }
+    }
 
-
+    protected function languageSwitch()
+    {
         LanguageSwitch::configureUsing(function (LanguageSwitch $switch) {
             $switch
                 ->locales(['zh', 'en', 'es', 'hi', 'ar', 'pt', 'ru', 'ja', 'fr'])

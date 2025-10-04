@@ -113,13 +113,8 @@ class TransactionLogResource extends Resource
                     ->dateTime(),
                 TextColumn::make('expiration_date')
                     ->dateTime(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('created_at'),
                 TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
