@@ -57,4 +57,36 @@ class NotificationRawLog extends Model
     {
         return $this->belongsTo(App::class, 'app_id');
     }
+
+    /**
+     * Get decoded payload data as array
+     */
+    public function getPayloadData(): array
+    {
+        return json_decode($this->payload, true) ?? [];
+    }
+
+    /**
+     * Get payload as DTO object (type-safe)
+     */
+    public function getPayloadDto(): \App\Dto\PayloadDto
+    {
+        return \App\Dto\PayloadDto::fromRawPayload($this->getPayloadData());
+    }
+
+    /**
+     * Get transaction info from payload (type-safe)
+     */
+    public function getTransactionInfo(): ?\App\Dto\TransactionInfoDto
+    {
+        return $this->getPayloadDto()->transactionInfo;
+    }
+
+    /**
+     * Get consumption request reason
+     */
+    public function getConsumptionRequestReason(): ?string
+    {
+        return $this->getPayloadDto()->consumptionRequestReason;
+    }
 }

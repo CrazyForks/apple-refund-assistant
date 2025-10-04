@@ -4,42 +4,41 @@ namespace App\Dao;
 
 use App\Models\App;
 use App\Models\ConsumptionLog;
+use App\Models\NotificationRawLog;
 use App\Models\TransactionLog;
-use Readdle\AppStoreServerAPI\ResponseBodyV2;
 
-class TransactionLogDao extends PayloadAttribute
+class TransactionLogDao
 {
     /**
      * @throws \Exception
      */
-    public function storeLog(App $app, ResponseBodyV2 $payload): TransactionLog
+    public function storeLog(App $app, NotificationRawLog $raw): TransactionLog
     {
-        $transInfo = $payload->getAppMetadata()->getTransactionInfo();
+        $transInfo = $raw->getTransactionInfo();
         if (is_null($transInfo)) {
             throw new \Exception('invalid transaction info');
         }
 
         $model = new TransactionLog();
-        $model->notification_type = $payload->getNotificationType();
+        $model->notification_type = $raw->notification_type;
         $model->app_id = $app->getKey();
-        $model->bundle_id = $payload->getAppMetadata()->getBundleId();
-        $model->environment = $payload->getAppMetadata()->getEnvironment();
-        $model->notification_type = $payload->getNotificationType();
-        $model->notification_uuid = $payload->getNotificationUUID();
+        $model->bundle_id = $raw->bundle_id;
+        $model->environment = $raw->environment;
+        $model->notification_uuid = $raw->notification_uuid;
 
-        $model->original_transaction_id = $transInfo->getOriginalTransactionId();
-        $model->transaction_id = $transInfo->getTransactionId();
-        $model->purchase_date = $this->fixTs($transInfo->getPurchaseDate());
-        $model->price = $this->formatPrice($transInfo->getPrice());
-        $model->currency = $transInfo->getCurrency();
+        $model->original_transaction_id = $transInfo->originalTransactionId;
+        $model->transaction_id = $transInfo->transactionId;
+        $model->purchase_date = $transInfo->getPurchaseDateTimestamp();
+        $model->price = $transInfo->getFormattedPrice();
+        $model->currency = $transInfo->currency;
 
-        $model->app_account_token = $transInfo->getAppAccountToken();
-        $model->product_id = $transInfo->getProductId();
-        $model->product_type = $transInfo->getType();
-        $model->original_purchase_date = ($transInfo->getOriginalPurchaseDate() ?? 0) / 1000;
-        $model->expiration_date = ($transInfo->getExpiresDate() ?? 0) / 1000;
-        $model->in_app_ownership_type = $transInfo->getInAppOwnershipType();
-        $model->quantity = $transInfo->getQuantity();
+        $model->app_account_token = $transInfo->appAccountToken;
+        $model->product_id = $transInfo->productId;
+        $model->product_type = $transInfo->type;
+        $model->original_purchase_date = $transInfo->getOriginalPurchaseDateTimestamp();
+        $model->expiration_date = $transInfo->getExpiresDateTimestamp();
+        $model->in_app_ownership_type = $transInfo->inAppOwnershipType;
+        $model->quantity = $transInfo->quantity ?? 0;
         $model->save();
 
         return $model;

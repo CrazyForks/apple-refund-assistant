@@ -8,16 +8,15 @@ use App\Models\ConsumptionLog;
 use App\Models\NotificationRawLog;
 use App\Models\RefundLog;
 use Carbon\Carbon;
-use Readdle\AppStoreServerAPI\ResponseBodyV2;
 
-class ConsumptionLogDao extends PayloadAttribute
+class ConsumptionLogDao
 {
     /**
      * @throws \Exception
      */
-    public function storeLog(App $app, ResponseBodyV2 $payload): ConsumptionLog
+    public function storeLog(App $app, NotificationRawLog $raw): ConsumptionLog
     {
-        $transInfo = $payload->getAppMetadata()->getTransactionInfo();
+        $transInfo = $raw->getTransactionInfo();
         if (is_null($transInfo)) {
             throw new \Exception('invalid transaction info');
         }
@@ -25,15 +24,15 @@ class ConsumptionLogDao extends PayloadAttribute
 
         $model = new ConsumptionLog();
         $model->app_id = $app->getKey();
-        $model->bundle_id = $payload->getAppMetadata()->getBundleId();
-        $model->environment = $payload->getAppMetadata()->getEnvironment();
-        $model->notification_uuid = $payload->getNotificationUUID();
+        $model->bundle_id = $raw->bundle_id;
+        $model->environment = $raw->environment;
+        $model->notification_uuid = $raw->notification_uuid;
 
-        $model->original_transaction_id = $transInfo->getOriginalTransactionId();
-        $model->transaction_id = $transInfo->getTransactionId();
-        $model->app_account_token = $transInfo->getAppAccountToken();
+        $model->original_transaction_id = $transInfo->originalTransactionId;
+        $model->transaction_id = $transInfo->transactionId;
+        $model->app_account_token = $transInfo->appAccountToken;
 
-        $model->consumption_request_reason = $payload->getAppMetadata()->getConsumptionRequestReason();
+        $model->consumption_request_reason = $raw->getConsumptionRequestReason();
         $model->deadline_at = Carbon::now()->addHours(12)->unix();
         $model->status = ConsumptionLogStatusEnum::PENDING;
         $model->save();

@@ -5,35 +5,34 @@ namespace App\Dao;
 use App\Models\App;
 use App\Models\NotificationRawLog;
 use App\Models\RefundLog;
-use Readdle\AppStoreServerAPI\ResponseBodyV2;
 
-class RefundLogDao extends PayloadAttribute
+class RefundLogDao
 {
     /**
      * @throws \Exception
      */
-    public function storeLog(App $app, ResponseBodyV2 $payload): RefundLog
+    public function storeLog(App $app, NotificationRawLog $raw): RefundLog
     {
-        $transInfo = $payload->getAppMetadata()->getTransactionInfo();
+        $transInfo = $raw->getTransactionInfo();
         if (is_null($transInfo)) {
             throw new \Exception('invalid transaction info');
         }
 
         $model = new RefundLog();
         $model->app_id = $app->getKey();
-        $model->bundle_id = $payload->getAppMetadata()->getBundleId();
-        $model->environment = $payload->getAppMetadata()->getEnvironment();
-        $model->notification_uuid = $payload->getNotificationUUID();
+        $model->bundle_id = $raw->bundle_id;
+        $model->environment = $raw->environment;
+        $model->notification_uuid = $raw->notification_uuid;
 
-        $model->original_transaction_id = $transInfo->getOriginalTransactionId();
-        $model->transaction_id = $transInfo->getTransactionId();
-        $model->purchase_date = $this->fixTs($transInfo->getPurchaseDate());
-        $model->price = $this->formatPrice($transInfo->getPrice());
-        $model->currency = $transInfo->getCurrency();
+        $model->original_transaction_id = $transInfo->originalTransactionId;
+        $model->transaction_id = $transInfo->transactionId;
+        $model->purchase_date = $transInfo->getPurchaseDateTimestamp();
+        $model->price = $transInfo->getFormattedPrice();
+        $model->currency = $transInfo->currency;
 
-        $model->app_account_token = $transInfo->getAppAccountToken();
-        $model->refund_date = $transInfo->getRevocationDate() / 1000;
-        $model->refund_reason = "code[{$transInfo->getRevocationReason()}]";
+        $model->app_account_token = $transInfo->appAccountToken;
+        $model->refund_date = $transInfo->getRevocationDateTimestamp();
+        $model->refund_reason = $transInfo->getRefundReason();
         $model->save();
 
         return $model;

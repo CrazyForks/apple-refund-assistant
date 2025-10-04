@@ -16,6 +16,7 @@
         <include>
             <directory>app/Http/Controllers/Api</directory>
             <directory>app/Services</directory>
+            <directory>app/Dao</directory>
         </include>
     </source>
     <php>

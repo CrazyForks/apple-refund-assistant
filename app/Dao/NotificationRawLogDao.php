@@ -7,7 +7,7 @@ use App\Models\App;
 use App\Models\NotificationRawLog;
 use Readdle\AppStoreServerAPI\ResponseBodyV2;
 
-class NotificationRawLogDao extends PayloadAttribute
+class NotificationRawLogDao
 {
     public function storeRawLog(string $content, App $app, ResponseBodyV2 $payload): NotificationRawLog
     {

@@ -68,24 +68,24 @@ class WebhookService
         $raw = $this->insertRawLog($content, $app, $payload);
 
         // TODO handle repeat message
-        switch (NotificationTypeEnum::tryFrom($payload->getNotificationType())) {
+        switch ($raw->notification_type) {
             case NotificationTypeEnum::TEST:
-                $this->handleTest($app, $payload);
+                $this->handleTest($app, $raw);
                 break;
             case NotificationTypeEnum::REFUND:
-                $this->handleRefund($app, $payload);
+                $this->handleRefund($app, $raw);
                 break;
             case NotificationTypeEnum::SUBSCRIBED:
             case NotificationTypeEnum::DID_RENEW:
             case NotificationTypeEnum::OFFER_REDEEMED:
             case NotificationTypeEnum::ONE_TIME_CHARGE:
-                $this->handleTransaction($app, $payload);
+                $this->handleTransaction($app, $raw);
                 break;
             case NotificationTypeEnum::CONSUMPTION_REQUEST:
-                $this->handleConsumption($app, $payload);
+                $this->handleConsumption($app, $raw);
                 break;
             default:
-                Log::info("[{$payload->getNotificationUUID()}]{$payload->getNotificationType()}");
+                Log::info("[{$raw->notification_uuid}]{$raw->notification_type->value}");
                 break;
         }
 
@@ -98,12 +98,12 @@ class WebhookService
     /**
      * @throws \Exception
      */
-    protected function handleConsumption(App $app, ResponseBodyV2 $payload): ConsumptionLog
+    protected function handleConsumption(App $app, NotificationRawLog $raw): ConsumptionLog
     {
-        $dollar = $this->getTransactionDollar($payload);
+        $dollar = $this->getTransactionDollar($raw);
         $this->appDao->incrementConsumption($app->id, $dollar);
 
-        $log = $this->consumptionLogDao->storeLog($app, $payload);
+        $log = $this->consumptionLogDao->storeLog($app, $raw);
 
         dispatch(new SendConsumptionInformationJob($log))->afterResponse();
 
@@ -114,49 +114,48 @@ class WebhookService
     /**
      * @throws \Exception
      */
-    protected function handleTransaction(App $app, ResponseBodyV2 $payload): TransactionLog
+    protected function handleTransaction(App $app, NotificationRawLog $raw): TransactionLog
     {
-        $dollar = $this->getTransactionDollar($payload);
+        $dollar = $this->getTransactionDollar($raw);
         $this->appDao->incrementTransaction($app->id, $dollar);
 
          // Create or get user and update purchased amount
-         $transInfo = $payload->getAppMetadata()->getTransactionInfo();
-         $appAccountToken = $transInfo->getAppAccountToken();
+         $transInfo = $raw->getTransactionInfo();
+         $appAccountToken = $transInfo?->appAccountToken;
          
          if (!empty($appAccountToken)) {
              // Use originalPurchaseDate as registration time (first purchase time)
-             // Apple returns milliseconds, convert to seconds
-             $registerTimestamp = (int)($transInfo->getOriginalPurchaseDate() / 1000);
+             $registerTimestamp = $transInfo->getOriginalPurchaseDateTimestamp();
              
              $user = $this->appleUserDao->firstOrCreate($appAccountToken, $app->id, $registerTimestamp);
              $this->appleUserDao->incrementPurchased($user->id, $dollar);
          }
 
 
-        return $this->transactionLogDao->storeLog($app, $payload);
+        return $this->transactionLogDao->storeLog($app, $raw);
     }
 
     /**
      * @throws \Exception
      */
-    protected function handleRefund(App $app, ResponseBodyV2 $payload): RefundLog
+    protected function handleRefund(App $app, NotificationRawLog $raw): RefundLog
     {
-        $dollar = $this->getTransactionDollar($payload);
+        $dollar = $this->getTransactionDollar($raw);
         $this->appDao->incrementRefund($app->id, $dollar);
 
         // Update user's refunded amount (only if user exists)
-        $transInfo = $payload->getAppMetadata()->getTransactionInfo();
-        $appAccountToken = $transInfo->getAppAccountToken();
+        $transInfo = $raw->getTransactionInfo();
+        $appAccountToken = $transInfo?->appAccountToken;
         
         if (!empty($appAccountToken)) {
             // Optimized: directly update without SELECT query
             $this->appleUserDao->incrementRefundedByToken($appAccountToken, $app->id, $dollar);
         }
 
-        return $this->refundLogDao->storeLog($app, $payload);
+        return $this->refundLogDao->storeLog($app, $raw);
     }
 
-    protected function handleTest(App $app, ResponseBodyV2 $payload): void
+    protected function handleTest(App $app, NotificationRawLog $raw): void
     {
         $app->status = AppStatusEnum::NORMAL;
         $app->save();
@@ -175,10 +174,13 @@ class WebhookService
     }
 
 
-    protected function getTransactionDollar(ResponseBodyV2 $payload): float
+    protected function getTransactionDollar(NotificationRawLog $raw): float
     {
-        $transaction = $payload->getAppMetadata()->getTransactionInfo();
+        $transaction = $raw->getTransactionInfo();
         // Use new safe method while maintaining backward compatibility
-        return $this->priceService->toDollarFloat($transaction->getCurrency(), $transaction->getPrice());
+        return $this->priceService->toDollarFloat(
+            $transaction?->currency, 
+            $transaction?->price
+        );
     }
 }

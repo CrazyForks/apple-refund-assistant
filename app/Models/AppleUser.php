@@ -36,6 +36,11 @@ class AppleUser extends Model
     use HasShortflakePrimary;
 
     protected $guarded = [];
+    
+    protected $casts = [
+        'register_at' => 'datetime',
+    ];
+    
     public function app(): BelongsTo
     {
         return $this->belongsTo(App::class, 'app_id');
