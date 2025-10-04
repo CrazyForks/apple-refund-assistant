@@ -85,7 +85,7 @@ class WebhookService
                 $this->handleConsumption($app, $raw);
                 break;
             default:
-                Log::info("[{$raw->notification_uuid}]{$raw->notification_type->value}");
+                Log::info("[{$raw->notification_uuid}]{$raw->notification_type}");
                 break;
         }
 
@@ -179,8 +179,8 @@ class WebhookService
         $transaction = $raw->getTransactionInfo();
         // Use new safe method while maintaining backward compatibility
         return $this->priceService->toDollarFloat(
-            $transaction?->currency, 
-            $transaction?->price
+            $transaction?->currency ?? 'USD', 
+            $transaction?->price ?? 0
         );
     }
 }
