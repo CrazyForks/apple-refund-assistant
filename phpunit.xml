@@ -14,10 +14,17 @@
     </testsuites>
     <source>
         <include>
-            <directory>app/Http/Controllers/Api</directory>
-            <directory>app/Services</directory>
-            <directory>app/Dao</directory>
+            <directory>app/</directory>
         </include>
+        <exclude>
+            <directory>app/Console</directory>
+            <directory>app/Providers</directory>
+            <directory>app/Providers</directory>
+            <directory>app/Enums</directory>
+            <directory>app/Filament</directory>
+            <directory>app/Models</directory>
+            <directory>app/Policies</directory>
+        </exclude>
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>

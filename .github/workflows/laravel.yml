@@ -37,7 +37,7 @@ jobs:
     - name: Run tests with coverage
       run: |
         echo "Running tests with coverage..."
-        docker exec test-container php artisan test --coverage --coverage-clover coverage.xml
+        docker exec test-container php artisan test --coverage --parallel --coverage-clover coverage.xml
     
     - name: Copy coverage files from container
       run: |

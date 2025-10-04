@@ -47,7 +47,7 @@ class TransactionInfoDto
      */
     public function getPurchaseDateTimestamp(): int
     {
-        return $this->fixTs($this->purchaseDate ?? 0);
+        return (int)(($this->purchaseDate ?? 0) / 1000);
     }
 
     /**
@@ -55,7 +55,7 @@ class TransactionInfoDto
      */
     public function getOriginalPurchaseDateTimestamp(): int
     {
-        return ($this->originalPurchaseDate ?? 0) / 1000;
+        return (int)(($this->originalPurchaseDate ?? 0) / 1000);
     }
 
     /**
@@ -63,7 +63,7 @@ class TransactionInfoDto
      */
     public function getExpiresDateTimestamp(): int
     {
-        return ($this->expiresDate ?? 0) / 1000;
+        return (int)(($this->expiresDate ?? 0) / 1000);
     }
 
     /**
@@ -71,7 +71,7 @@ class TransactionInfoDto
      */
     public function getRevocationDateTimestamp(): int
     {
-        return ($this->revocationDate ?? 0) / 1000;
+        return (int)(($this->revocationDate ?? 0) / 1000);
     }
 
     /**
@@ -79,7 +79,7 @@ class TransactionInfoDto
      */
     public function getFormattedPrice(): float
     {
-        return $this->formatPrice($this->price);
+        return ($this->price ?? 0) / 100;
     }
 
     /**
@@ -88,28 +88,6 @@ class TransactionInfoDto
     public function getRefundReason(): string
     {
         return "code[{$this->revocationReason}]";
-    }
-
-    /**
-     * Convert Apple timestamp (milliseconds) to Unix timestamp (seconds)
-     */
-    protected function fixTs(?int $ts): int
-    {
-        if (is_null($ts)) {
-            return 0;
-        }
-        return (int)($ts / 1000);
-    }
-
-    /**
-     * Format price from cents to decimal
-     */
-    protected function formatPrice(?int $price): float
-    {
-        if (is_null($price)) {
-            return 0;
-        }
-        return $price / 100;
     }
 }
 

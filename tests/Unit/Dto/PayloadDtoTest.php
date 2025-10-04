@@ -3,65 +3,154 @@
 namespace Tests\Unit\Dto;
 
 use App\Dto\PayloadDto;
-use App\Dto\TransactionInfoDto;
 use App\Enums\EnvironmentEnum;
 use App\Enums\NotificationTypeEnum;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
 class PayloadDtoTest extends TestCase
 {
-    public function test_can_create_payload_dto_from_raw_data(): void
+    public function test_from_raw_payload_with_apple_format(): void
     {
-        $rawPayload = [
+        $payload = [
             'notificationType' => 'REFUND',
-            'notificationUUID' => '12345-abcde',
+            'notificationUUID' => 'uuid-123',
             'data' => [
                 'bundleId' => 'com.example.app',
-                'environment' => 'Production',
+                'environment' => 'Sandbox',
                 'signedTransactionInfo' => [
                     'decoded' => [
-                        'originalTransactionId' => 'original_123',
-                        'transactionId' => 'trans_456',
-                        'purchaseDate' => 1609459200000,
-                        'price' => 999,
-                        'currency' => 'USD',
-                        'appAccountToken' => 'user_token_789',
-                        'productId' => 'product_123',
-                        'type' => 'Auto-Renewable Subscription',
-                        'quantity' => 1,
+                        'originalTransactionId' => 'orig-123',
+                        'transactionId' => 'trans-456',
                     ]
                 ]
             ]
         ];
 
-        $dto = PayloadDto::fromRawPayload($rawPayload);
+        $dto = PayloadDto::fromRawPayload($payload);
 
-        $this->assertSame(NotificationTypeEnum::REFUND, $dto->notificationType);
-        $this->assertSame('12345-abcde', $dto->notificationUuid);
-        $this->assertSame('com.example.app', $dto->bundleId);
-        $this->assertSame(EnvironmentEnum::PRODUCTION, $dto->environment);
-        
-        $this->assertInstanceOf(TransactionInfoDto::class, $dto->transactionInfo);
-        $this->assertSame('original_123', $dto->transactionInfo->originalTransactionId);
-        $this->assertSame('trans_456', $dto->transactionInfo->transactionId);
-        $this->assertSame(999, $dto->transactionInfo->price);
-        $this->assertSame('USD', $dto->transactionInfo->currency);
-        $this->assertSame('user_token_789', $dto->transactionInfo->appAccountToken);
+        $this->assertEquals(NotificationTypeEnum::REFUND, $dto->notificationType);
+        $this->assertEquals('uuid-123', $dto->notificationUuid);
+        $this->assertEquals('com.example.app', $dto->bundleId);
+        $this->assertEquals(EnvironmentEnum::SANDBOX, $dto->environment);
+        $this->assertNotNull($dto->transactionInfo);
+        $this->assertEquals('orig-123', $dto->transactionInfo->originalTransactionId);
     }
 
-    public function test_transaction_info_dto_is_readonly(): void
+    public function test_from_raw_payload_with_php_object_format(): void
     {
-        $dto = new TransactionInfoDto(
-            originalTransactionId: 'test_123',
-            transactionId: 'trans_456',
-            price: 999,
-            currency: 'USD'
-        );
+        $payload = [
+            'notificationType' => 'TEST',
+            'notificationUUID' => 'uuid-456',
+            'appMetadata' => [
+                'bundleId' => 'com.test.app',
+                'environment' => 'Production',
+                'transactionInfo' => [
+                    'originalTransactionId' => 'orig-789',
+                    'transactionId' => 'trans-012',
+                ]
+            ]
+        ];
 
-        $this->assertSame('test_123', $dto->originalTransactionId);
-        $this->assertSame('trans_456', $dto->transactionId);
-        $this->assertSame(999, $dto->price);
-        $this->assertSame('USD', $dto->currency);
+        $dto = PayloadDto::fromRawPayload($payload);
+
+        $this->assertEquals(NotificationTypeEnum::TEST, $dto->notificationType);
+        $this->assertEquals('uuid-456', $dto->notificationUuid);
+        $this->assertEquals('com.test.app', $dto->bundleId);
+        $this->assertEquals(EnvironmentEnum::PRODUCTION, $dto->environment);
+        $this->assertNotNull($dto->transactionInfo);
+    }
+
+    public function test_from_raw_payload_normalizes_local_sandbox_to_sandbox(): void
+    {
+        $payload = [
+            'notificationType' => 'TEST',
+            'notificationUUID' => 'uuid-789',
+            'appMetadata' => [
+                'bundleId' => 'com.demo.app',
+                'environment' => 'LocalSandbox',
+            ]
+        ];
+
+        $dto = PayloadDto::fromRawPayload($payload);
+
+        $this->assertEquals(EnvironmentEnum::SANDBOX, $dto->environment);
+    }
+
+    public function test_from_raw_payload_defaults_to_sandbox_when_empty_environment(): void
+    {
+        $payload = [
+            'notificationType' => 'TEST',
+            'notificationUUID' => 'uuid-999',
+            'data' => [
+                'bundleId' => 'com.app.test',
+            ]
+        ];
+
+        $dto = PayloadDto::fromRawPayload($payload);
+
+        $this->assertEquals(EnvironmentEnum::SANDBOX, $dto->environment);
+    }
+
+    public function test_from_raw_payload_with_consumption_request_reason(): void
+    {
+        $payload = [
+            'notificationType' => 'CONSUMPTION_REQUEST',
+            'notificationUUID' => 'uuid-consumption',
+            'data' => [
+                'bundleId' => 'com.app.consume',
+                'environment' => 'Sandbox',
+                'consumptionRequestReason' => 'UNINTENDED_PURCHASE',
+            ]
+        ];
+
+        $dto = PayloadDto::fromRawPayload($payload);
+
+        $this->assertEquals('UNINTENDED_PURCHASE', $dto->consumptionRequestReason);
+    }
+
+    public function test_from_raw_payload_without_transaction_info(): void
+    {
+        $payload = [
+            'notificationType' => 'TEST',
+            'notificationUUID' => 'uuid-no-trans',
+            'data' => [
+                'bundleId' => 'com.app.test',
+                'environment' => 'Sandbox',
+            ]
+        ];
+
+        $dto = PayloadDto::fromRawPayload($payload);
+
+        $this->assertNull($dto->transactionInfo);
+    }
+
+    public function test_from_raw_payload_with_unknown_notification_type(): void
+    {
+        $payload = [
+            'notificationType' => 'UNKNOWN_TYPE_XYZ',
+            'notificationUUID' => 'uuid-unknown',
+            'data' => [
+                'bundleId' => 'com.app.test',
+                'environment' => 'Sandbox',
+            ]
+        ];
+
+        $dto = PayloadDto::fromRawPayload($payload);
+
+        // Should fallback to TEST when unknown type
+        $this->assertEquals(NotificationTypeEnum::TEST, $dto->notificationType);
+    }
+
+    public function test_from_raw_payload_with_empty_values(): void
+    {
+        $payload = [];
+
+        $dto = PayloadDto::fromRawPayload($payload);
+
+        $this->assertEquals('', $dto->notificationUuid);
+        $this->assertEquals('', $dto->bundleId);
+        $this->assertEquals(EnvironmentEnum::SANDBOX, $dto->environment);
+        $this->assertNull($dto->transactionInfo);
+        $this->assertNull($dto->consumptionRequestReason);
     }
 }
-

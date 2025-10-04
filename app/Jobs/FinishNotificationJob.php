@@ -35,10 +35,15 @@ class FinishNotificationJob implements ShouldQueue
         $log->status = NotificationLogStatusEnum::PROCESSED;
 
         // no handle
+        $appUrl = $this->app->notification_url;
+        /**
+         * @var $raw NotificationRawLog
+         */
+        $raw = $log->raw()->first();
+        $body = $raw->request_body ?? '';
+
+        $msg = null;
         if (! empty($appUrl) && !empty($body)) {
-            $appUrl = $this->app->notification_url;
-            $body = $log->request_body ?? '';
-            $msg = null;
             try {
                 $resp = Http::timeout(config('notification.timeout', 30))
                     ->withBody($body, 'application/json')
