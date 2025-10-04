@@ -22,7 +22,6 @@ Apple के CONSUMPTION_REQUEST नोटिफिकेशन को रीय
 | निर्भरता | शून्य निर्भरता |  उन्नत   |
 |-----|--|-----|
 |  डेटाबेस   | sqlite | MySQL |
-|  कतार   | sync | redis  |
 |  कैश   | file | redis  |
 |   सत्र | file |  redis   |
 - **Webhook** API **100%** टेस्ट कवरेज के साथ

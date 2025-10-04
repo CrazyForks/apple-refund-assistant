@@ -22,7 +22,6 @@ AppleのCONSUMPTION_REQUEST通知をリアルタイムで処理し、直ちに�
 | 依存関係 | ゼロ依存関係 |  高度   |
 |-----|--|-----|
 |  データベース   | sqlite | MySQL |
-|  キュー   | sync | redis  |
 |  キャッシュ   | file | redis  |
 |   セッション | file |  redis   |
 - **Webhook** API **100%** テストカバレッジ

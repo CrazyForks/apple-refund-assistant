@@ -22,7 +22,6 @@ Procesa las notificaciones CONSUMPTION_REQUEST de Apple en tiempo real y envía 
 | Dependencia | Sin Dependencias |  Avanzado   |
 |-----|--|-----|
 |  Base de Datos   | sqlite | MySQL |
-|  Cola   | sync | redis  |
 |  Caché   | file | redis  |
 |   Sesión | file |  redis   |
 - API **Webhook** con **100%** de cobertura de pruebas

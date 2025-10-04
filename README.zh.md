@@ -22,7 +22,6 @@
 | 依赖项 | 零依赖方案 |  进阶方案   |
 |-----|--|-----|
 |  数据库   | sqlite | MySQL |
-|  队列   | sync | redis  |
 |  缓存   | file | redis  |
 |   session | file |  redis   |
 - **webhook** 接口 **100%** 测试覆盖率

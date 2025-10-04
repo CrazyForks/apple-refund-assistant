@@ -22,7 +22,6 @@ Traitez les notifications CONSUMPTION_REQUEST d'Apple en temps réel et envoyez 
 | Dépendance | Zéro Dépendance |  Avancé   |
 |-----|--|-----|
 |  Base de données   | sqlite | MySQL |
-|  File d'attente   | sync | redis  |
 |  Cache   | file | redis  |
 |   Session | file |  redis   |
 - API **Webhook** avec **100%** de couverture de tests

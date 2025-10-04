@@ -22,7 +22,6 @@ Processa notificações CONSUMPTION_REQUEST da Apple em tempo real e envia imedi
 | Dependência | Zero Dependências |  Avançado   |
 |-----|--|-----|
 |  Banco de Dados   | sqlite | MySQL |
-|  Fila   | sync | redis  |
 |  Cache   | file | redis  |
 |   Sessão | file |  redis   |
 - API **Webhook** com **100%** de cobertura de testes
