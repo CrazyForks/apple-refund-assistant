@@ -21,12 +21,12 @@ use Tests\Support\AppleSignedPayload;
 use Tests\TestCase;
 
 /**
- * Webhook 集成测试
+ * Webhook Integration Test
  *
- * 测试完整的webhook流程：从创建应用到各种通知类型的处理
+ * Tests the complete webhook flow: from app creation to handling various notification types
  *
- * 注意：这些测试模拟了完整的Apple Server Notification流程，
- * 包括TEST通知、交易通知、消费请求和退款通知。
+ * Note: These tests simulate the complete Apple Server Notification flow,
+ * including TEST notifications, transaction notifications, consumption requests, and refund notifications.
  */
 class WebhookIntegrationTest extends TestCase
 {
@@ -39,26 +39,26 @@ class WebhookIntegrationTest extends TestCase
     }
 
     /**
-     * 完整流程集成测试：从创建应用到退款
+     * Complete integration test: from app creation to refund
      *
-     * 测试场景：
-     * 1. 创建应用（UN_VERIFIED状态）
-     * 2. 接收TEST通知，应用状态变为NORMAL
-     * 3. 接收SUBSCRIBED通知，创建交易和用户
-     * 4. 接收DID_RENEW通知，累计交易金额
-     * 5. 接收ONE_TIME_CHARGE通知，增加一次性购买
-     * 6. 接收CONSUMPTION_REQUEST通知，处理消费请求
-     * 7. 接收REFUND通知，处理退款
+     * Test scenarios:
+     * 1. Create app (UN_VERIFIED status)
+     * 2. Receive TEST notification, app status becomes NORMAL
+     * 3. Receive SUBSCRIBED notification, create transaction and user
+     * 4. Receive DID_RENEW notification, accumulate transaction amount
+     * 5. Receive ONE_TIME_CHARGE notification, add one-time purchase
+     * 6. Receive CONSUMPTION_REQUEST notification, handle consumption request
+     * 7. Receive REFUND notification, handle refund
      */
     public function test_complete_webhook_flow_from_app_creation_to_refund(): void
     {
-        // 创建应用
+        // Create app
         $app = App::factory()->create([
             'bundle_id' => 'com.integration.test',
             'status' => AppStatusEnum::UN_VERIFIED->value,
         ]);
 
-        // 一次性 mock 所有服务调用
+        // Mock all service calls at once
         $this->mockAllServices($app, [
             ['event' => 'TEST', 'userToken' => 'user-001', 'price' => 4.99],
             ['event' => 'SUBSCRIBED', 'userToken' => 'user-001', 'price' => 4.99],
@@ -68,12 +68,12 @@ class WebhookIntegrationTest extends TestCase
             ['event' => 'REFUND', 'userToken' => 'user-001', 'price' => 4.99],
         ]);
 
-        // TEST通知
+        // TEST notification
         $this->sendWebhookNotification($app);
         $app->refresh();
         $this->assertEquals(AppStatusEnum::NORMAL, $app->status);
 
-        // 首次订阅
+        // First subscription
         $this->sendWebhookNotification($app);
         $app->refresh();
         $this->assertEquals(1, $app->transaction_count);
@@ -82,7 +82,7 @@ class WebhookIntegrationTest extends TestCase
         $this->assertNotNull($user);
         $this->assertEquals(4.99, (float) $user->purchased_dollars);
 
-        // 订阅续订
+        // Subscription renewal
         $this->sendWebhookNotification($app);
         $app->refresh();
         $this->assertEquals(2, $app->transaction_count);
@@ -90,7 +90,7 @@ class WebhookIntegrationTest extends TestCase
         $user->refresh();
         $this->assertEquals(9.98, (float) $user->purchased_dollars);
 
-        // 一次性购买
+        // One-time purchase
         $this->sendWebhookNotification($app);
         $app->refresh();
         $this->assertEquals(3, $app->transaction_count);
@@ -98,13 +98,13 @@ class WebhookIntegrationTest extends TestCase
         $user->refresh();
         $this->assertEquals(19.97, (float) $user->purchased_dollars);
 
-        // 消费请求
+        // Consumption request
         $this->sendWebhookNotification($app);
         $app->refresh();
         $this->assertEquals(1, $app->consumption_count);
         Queue::assertPushed(SendConsumptionInformationJob::class);
 
-        // 退款
+        // Refund
         $this->sendWebhookNotification($app);
         $app->refresh();
         $this->assertEquals(1, $app->refund_count);
@@ -113,7 +113,7 @@ class WebhookIntegrationTest extends TestCase
         $user->refresh();
         $this->assertEquals(4.99, (float) $user->refunded_dollars);
 
-        // 验证所有记录
+        // Verify all records
         $this->assertEquals(6, NotificationLog::where('app_id', $app->id)->count());
         $this->assertEquals(3, TransactionLog::where('app_id', $app->id)->count());
         $this->assertEquals(1, RefundLog::where('app_id', $app->id)->count());
@@ -121,7 +121,7 @@ class WebhookIntegrationTest extends TestCase
     }
 
     /**
-     * 测试多用户场景
+     * Test multiple users scenario
      */
     public function test_multiple_users_webhook_flow(): void
     {
@@ -130,7 +130,7 @@ class WebhookIntegrationTest extends TestCase
             'status' => AppStatusEnum::UN_VERIFIED->value,
         ]);
 
-        // 一次性 mock 所有服务调用
+        // Mock all service calls at once
         $this->mockAllServices($app, [
             ['event' => 'TEST', 'userToken' => 'user-a', 'price' => 4.99],
             ['event' => 'SUBSCRIBED', 'userToken' => 'user-a', 'price' => 9.99],
@@ -140,10 +140,10 @@ class WebhookIntegrationTest extends TestCase
 
         $this->sendWebhookNotification($app);
 
-        // 用户A的交易
+        // User A's transaction
         $this->sendWebhookNotification($app);
 
-        // 用户B的交易
+        // User B's transaction
         $this->sendWebhookNotification($app);
 
         $userA = AppleUser::where('app_account_token', 'user-a')->first();
@@ -154,7 +154,7 @@ class WebhookIntegrationTest extends TestCase
         $this->assertEquals(9.99, (float) $userA->purchased_dollars);
         $this->assertEquals(14.99, (float) $userB->purchased_dollars);
 
-        // 用户A的退款
+        // User A's refund
         $this->sendWebhookNotification($app);
 
         $userA->refresh();
@@ -168,7 +168,7 @@ class WebhookIntegrationTest extends TestCase
     }
 
     /**
-     * 测试无用户token的交易（匿名用户）
+     * Test transactions without user token (anonymous users)
      */
     public function test_webhook_flow_without_user_token(): void
     {
@@ -177,7 +177,7 @@ class WebhookIntegrationTest extends TestCase
             'status' => AppStatusEnum::UN_VERIFIED->value,
         ]);
 
-        // 一次性 mock 所有服务调用
+        // Mock all service calls at once
         $this->mockAllServices($app, [
             ['event' => 'TEST', 'userToken' => null, 'price' => 4.99],
             ['event' => 'ONE_TIME_CHARGE', 'userToken' => null, 'price' => 4.99],
@@ -186,14 +186,14 @@ class WebhookIntegrationTest extends TestCase
 
         $this->sendWebhookNotification($app);
 
-        // 无用户token的交易
+        // Transaction without user token
         $this->sendWebhookNotification($app);
 
         $app->refresh();
         $this->assertEquals(1, $app->transaction_count);
         $this->assertEquals(0, AppleUser::where('app_id', $app->id)->count());
 
-        // 无用户token的退款
+        // Refund without user token
         $this->sendWebhookNotification($app);
 
         $app->refresh();
@@ -202,7 +202,7 @@ class WebhookIntegrationTest extends TestCase
     }
 
     /**
-     * 测试bundle_id不匹配的情况
+     * Test bundle_id mismatch scenario
      */
     public function test_webhook_with_bundle_id_mismatch_throws_exception(): void
     {
@@ -211,7 +211,7 @@ class WebhookIntegrationTest extends TestCase
             'status' => AppStatusEnum::UN_VERIFIED->value,
         ]);
 
-        // Mock 一个不匹配的 bundle_id
+        // Mock a mismatched bundle_id
         $payload = $this->buildPayload('TEST', 'com.wrong.bundle', null, 4.99);
 
         $this->mock(IapService::class, function (Mockery\MockInterface $mock) use ($payload) {
@@ -224,10 +224,10 @@ class WebhookIntegrationTest extends TestCase
         $this->assertEquals(1, NotificationLog::where('app_id', $app->id)->count());
     }
 
-    // =============== 辅助方法 ===============
+    // =============== Helper Methods ===============
 
     /**
-     * 发送webhook通知并验证响应
+     * Send webhook notification and verify response
      */
     protected function sendWebhookNotification(App $app): void
     {
@@ -236,7 +236,7 @@ class WebhookIntegrationTest extends TestCase
     }
 
     /**
-     * 构建测试用的ResponseBodyV2 payload
+     * Build ResponseBodyV2 payload for testing
      */
     protected function buildPayload(string $event, string $bundleId, ?string $userToken, float $price): ResponseBodyV2
     {
@@ -251,7 +251,7 @@ class WebhookIntegrationTest extends TestCase
                 'transactionId' => '200000000000001',
                 'purchaseDate' => $now,
                 'originalPurchaseDate' => $now - 1000000000,
-                'price' => (int) ($price * 100), // 转换为分
+                'price' => (int) ($price * 100), // Convert to cents
                 'currency' => 'USD',
                 'appAccountToken' => $userToken,
                 'productId' => 'pro.monthly',
@@ -265,14 +265,14 @@ class WebhookIntegrationTest extends TestCase
     }
 
     /**
-     * 一次性 mock 所有服务调用
+     * Mock all service calls at once
      *
      * @param App $app
-     * @param array $notifications 通知数组，每个元素包含 ['event' => string, 'userToken' => ?string, 'price' => float]
+     * @param array $notifications Array of notifications, each element contains ['event' => string, 'userToken' => ?string, 'price' => float]
      */
     protected function mockAllServices(App $app, array $notifications): void
     {
-        // 构建所有 payload
+        // Build all payloads
         $payloads = [];
         foreach ($notifications as $notification) {
             $payloads[] = $this->buildPayload(
@@ -283,17 +283,17 @@ class WebhookIntegrationTest extends TestCase
             );
         }
 
-        // Mock IapService - 每个通知调用一次 decodePayload
+        // Mock IapService - call decodePayload once per notification
         $this->mock(IapService::class, function (Mockery\MockInterface $mock) use ($payloads) {
             foreach ($payloads as $payload) {
                 $mock->shouldReceive('decodePayload')->once()->andReturn($payload);
             }
         });
 
-        // Mock AmountPriceService - 除了 TEST 通知，其他都需要调用 toDollarFloat
+        // Mock AmountPriceService - all notifications except TEST need to call toDollarFloat
         $this->mock(AmountPriceService::class, function (Mockery\MockInterface $mock) use ($notifications) {
             foreach ($notifications as $notification) {
-                // TEST 通知不需要价格转换
+                // TEST notification doesn't need price conversion
                 if ($notification['event'] !== 'TEST') {
                     $mock->shouldReceive('toDollarFloat')
                         ->once()
