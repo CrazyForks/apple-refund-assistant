@@ -9,6 +9,12 @@
 ![Codecov](https://img.shields.io/codecov/c/github/seth-shi/apple-refund-assistant)
 ![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/seth-shi/apple-refund-assistant?utm_source=oss&utm_medium=github&utm_campaign=seth-shi%2Fapple-refund-assistant&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
 
+## عرض مباشر
+
+🌐 **موقع العرض التوضيحي**: [https://apple-refund-assistant.shiguopeng.cn/](https://apple-refund-assistant.shiguopeng.cn/)
+
+> ⚠️ **ملاحظة**: سيتم إعادة تعيين النظام كل 30 دقيقة.
+
 ## نظرة عامة
 
 معالجة إشعارات CONSUMPTION_REQUEST من Apple في الوقت الفعلي وإرسال معلومات الاستهلاك فوراً إلى Apple، مما يساعد في تقليل عمليات الاسترداد الاحتيالية.

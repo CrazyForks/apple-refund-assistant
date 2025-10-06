@@ -9,6 +9,12 @@ Un service de prévention des remboursements de paiement multi-tenant basé sur 
 ![Codecov](https://img.shields.io/codecov/c/github/seth-shi/apple-refund-assistant)
 ![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/seth-shi/apple-refund-assistant?utm_source=oss&utm_medium=github&utm_campaign=seth-shi%2Fapple-refund-assistant&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
 
+## Démonstration en Direct
+
+🌐 **Site de Démonstration**: [https://apple-refund-assistant.shiguopeng.cn/](https://apple-refund-assistant.shiguopeng.cn/)
+
+> ⚠️ **Remarque**: Le système sera réinitialisé toutes les 30 minutes.
+
 ## Aperçu
 
 Traitez les notifications CONSUMPTION_REQUEST d'Apple en temps réel et envoyez immédiatement les informations de consommation à Apple, aidant à réduire les remboursements frauduleux.

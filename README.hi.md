@@ -9,6 +9,12 @@ Laravel आधारित मल्टी-टेनेंट पेमेंट
 ![Codecov](https://img.shields.io/codecov/c/github/seth-shi/apple-refund-assistant)
 ![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/seth-shi/apple-refund-assistant?utm_source=oss&utm_medium=github&utm_campaign=seth-shi%2Fapple-refund-assistant&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
 
+## लाइव डेमो
+
+🌐 **डेमो साइट**: [https://apple-refund-assistant.shiguopeng.cn/](https://apple-refund-assistant.shiguopeng.cn/)
+
+> ⚠️ **नोट**: सिस्टम हर 30 मिनट में रीसेट हो जाएगा।
+
 ## अवलोकन
 
 Apple के CONSUMPTION_REQUEST नोटिफिकेशन को रीयल-टाइम में प्रोसेस करें और तुरंत Apple को उपभोग जानकारी वापस भेजें, धोखाधड़ी वाले रिफंड को कम करने में मदद करें।

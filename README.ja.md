@@ -9,6 +9,12 @@ Laravelベースのマルチテナント決済返金防止サービス。
 ![Codecov](https://img.shields.io/codecov/c/github/seth-shi/apple-refund-assistant)
 ![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/seth-shi/apple-refund-assistant?utm_source=oss&utm_medium=github&utm_campaign=seth-shi%2Fapple-refund-assistant&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
 
+## ライブデモ
+
+🌐 **デモサイト**: [https://apple-refund-assistant.shiguopeng.cn/](https://apple-refund-assistant.shiguopeng.cn/)
+
+> ⚠️ **注意**: システムは30分ごとにリセットされます。
+
 ## 概要
 
 AppleのCONSUMPTION_REQUEST通知をリアルタイムで処理し、直ちに消費情報をAppleに送信し、不正な返金を減らすのに役立ちます。

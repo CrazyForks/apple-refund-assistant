@@ -9,6 +9,12 @@ Un servicio de prevención de reembolsos de pagos multi-tenant basado en Laravel
 ![Codecov](https://img.shields.io/codecov/c/github/seth-shi/apple-refund-assistant)
 ![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/seth-shi/apple-refund-assistant?utm_source=oss&utm_medium=github&utm_campaign=seth-shi%2Fapple-refund-assistant&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
 
+## Demostración en Vivo
+
+🌐 **Sitio de Demostración**: [https://apple-refund-assistant.shiguopeng.cn/](https://apple-refund-assistant.shiguopeng.cn/)
+
+> ⚠️ **Nota**: El sistema se reiniciará cada 30 minutos.
+
 ## Descripción General
 
 Procesa las notificaciones CONSUMPTION_REQUEST de Apple en tiempo real y envía inmediatamente la información de consumo a Apple, ayudando a reducir los reembolsos fraudulentos.
