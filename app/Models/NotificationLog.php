@@ -31,6 +31,7 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\App|null $app
  * @property-read \App\Models\NotificationRawLog|null $raw
+ * @method static \Database\Factories\NotificationLogFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|NotificationLog newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|NotificationLog newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|NotificationLog query()

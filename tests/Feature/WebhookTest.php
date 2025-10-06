@@ -15,6 +15,7 @@ use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 use App\Jobs\SendConsumptionInformationJob;
 use App\Jobs\FinishNotificationJob;
 use Readdle\AppStoreServerAPI\AppMetadata;
@@ -31,6 +32,7 @@ class WebhookTest extends TestCase
     {
         parent::setUp();
         Queue::fake();
+        Cache::flush(); // Clear cache to prevent duplicate notification detection in tests
     }
 
     protected function makeApp(string $bundleId = 'com.demo.app'): App
@@ -405,19 +407,32 @@ class WebhookTest extends TestCase
             ])
         ]);
 
-        // First transaction
+        // Create three different payloads with unique UUIDs
         $payload1 = $this->fakePayload('SUBSCRIBED', $meta);
-        $this->stubDecode($payload1);
+        $payload2 = $this->fakePayload('DID_RENEW', $meta);
+        $payload3 = $this->fakePayload('ONE_TIME_CHARGE', $meta);
+
+        // Mock IapService to return different payloads for each call
+        $this->app->forgetInstance(IapService::class);
+        $this->mock(IapService::class, function ($mock) use ($payload1, $payload2, $payload3) {
+            $mock->shouldReceive('decodePayload')
+                ->times(3)
+                ->andReturn($payload1, $payload2, $payload3);
+        });
+
+        // Mock AmountPriceService for all calls
+        $this->mock(AmountPriceService::class, function ($mock) {
+            $mock->shouldReceive('toDollar')->andReturn(1.99);
+            $mock->shouldReceive('toDollarFloat')->andReturn(1.99);
+        });
+
+        // First transaction
         $this->postJson('/api/v1/apps/' . $app->id . '/webhook', [])->assertOk();
 
         // Second transaction
-        $payload2 = $this->fakePayload('DID_RENEW', $meta);
-        $this->stubDecode($payload2);
         $this->postJson('/api/v1/apps/' . $app->id . '/webhook', [])->assertOk();
 
         // Third transaction
-        $payload3 = $this->fakePayload('ONE_TIME_CHARGE', $meta);
-        $this->stubDecode($payload3);
         $this->postJson('/api/v1/apps/' . $app->id . '/webhook', [])->assertOk();
 
         $user = AppleUser::where('app_account_token', 'multi-user')->first();

@@ -35,6 +35,9 @@ class SendConsumptionInformationJob implements ShouldQueue
     public function handle(ConsumptionService $consumptionService, IapService $iapService, AppDao $appDao): void
     {
         $log = $this->consumptionLog;
+        if ($log->status === ConsumptionLogStatusEnum::SUCCESS) {
+            return;
+        }
 
         try {
             // Build consumption request

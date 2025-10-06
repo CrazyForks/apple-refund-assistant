@@ -18,6 +18,7 @@ use App\Models\ConsumptionLog;
 use App\Models\NotificationLog;
 use App\Models\RefundLog;
 use App\Models\TransactionLog;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -61,14 +62,24 @@ class WebhookService
      * @throws AppStoreServerNotificationException
      * @throws \Exception
      */
-    public function handleNotification(string $content, int $appId): Model
+    public function handleNotification(string $content, int $appId): ?Model
     {
         $payload = $this->iapService->decodePayload($content);
 
         $app = $this->appDao->find($appId);
+
+        // Check for duplicate notifications using cache
+        $notificationUuid = $payload->getNotificationUUID();
+        $cacheKey = "notification:processed:{$appId}:{$notificationUuid}";
+
+        if (Cache::has($cacheKey)) {
+            Log::info("Duplicate notification detected: {$notificationUuid}, skipping business logic");
+            return null;
+        }
+
         $raw = $this->insertRawLog($content, $app, $payload);
 
-        // TODO handle repeat message
+        // Handle notification based on type
         switch ($raw->notification_type) {
             case NotificationTypeEnum::TEST:
                 $this->handleTest($app, $raw);
@@ -89,6 +100,9 @@ class WebhookService
                 Log::info("[{$raw->notification_uuid}]{$raw->notification_type}");
                 break;
         }
+
+        // Mark notification as processed in cache (before dispatching job)
+        Cache::put($cacheKey, true, Carbon::now()->addHours(24));
 
         // NOTE: use fpm fast-cgi running in background
         dispatch(new FinishNotificationJob($raw, $app))->afterResponse();

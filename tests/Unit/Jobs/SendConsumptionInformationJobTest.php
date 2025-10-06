@@ -143,5 +143,34 @@ class SendConsumptionInformationJobTest extends TestCase
         $log->refresh();
         $this->assertEquals(ConsumptionLogStatusEnum::SUCCESS, $log->status);
     }
+
+    public function test_handle_skips_processing_when_already_successful(): void
+    {
+        $app = App::factory()->create();
+        $log = ConsumptionLog::factory()->create([
+            'app_id' => $app->id,
+            'status' => ConsumptionLogStatusEnum::SUCCESS,
+            'transaction_id' => 'trans-already-done',
+            'environment' => EnvironmentEnum::SANDBOX->value,
+            'send_body' => ['consumptionStatus' => 1],
+        ]);
+
+        // Mock services should not be called
+        $consumptionService = \Mockery::mock(ConsumptionService::class);
+        $consumptionService->shouldNotReceive('makeConsumptionRequest');
+
+        $iapService = \Mockery::mock(IapService::class);
+        $iapService->shouldNotReceive('sendConsumptionInformation');
+
+        $appDao = \Mockery::mock(AppDao::class);
+        $appDao->shouldNotReceive('find');
+
+        $job = new SendConsumptionInformationJob($log);
+        $job->handle($consumptionService, $iapService, $appDao);
+
+        // Status should remain SUCCESS
+        $log->refresh();
+        $this->assertEquals(ConsumptionLogStatusEnum::SUCCESS, $log->status);
+    }
 }
 

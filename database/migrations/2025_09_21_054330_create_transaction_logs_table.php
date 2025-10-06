@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('environment')->nullable();
 
             $table->string('original_transaction_id')->index();
-            $table->decimal('app_account_token')->index()->nullable();
+            $table->string('app_account_token')->index()->nullable();
             $table->string('transaction_id')->index();
 
 

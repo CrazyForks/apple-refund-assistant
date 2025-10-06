@@ -352,11 +352,11 @@ class FinishNotificationJobTest extends TestCase
         $job = new FinishNotificationJob($log, $app);
         $job->handle();
 
-        // Check message was truncated to 100 characters
+        // Check message was truncated to 191 characters
         $rawLog = NotificationRawLog::find($log->id);
         $this->assertNotNull($rawLog->forward_msg);
-        $this->assertLessThanOrEqual(100, strlen($rawLog->forward_msg));
-        $this->assertEquals(100, strlen($rawLog->forward_msg));
+        $this->assertLessThanOrEqual(191, strlen($rawLog->forward_msg));
+        $this->assertEquals(191, strlen($rawLog->forward_msg));
     }
 
     public function test_handle_skips_http_when_raw_log_missing(): void
