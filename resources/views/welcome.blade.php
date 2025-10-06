@@ -1436,6 +1436,9 @@
         <div
             class="text-[13px] leading-[20px] flex-1 p-6 pb-12 lg:p-20 bg-white dark:bg-[#161615] dark:text-[#EDEDEC] shadow-[inset_0px_0px_0px_1px_rgba(26,26,0,0.16)] dark:shadow-[inset_0px_0px_0px_1px_#fffaed2d] rounded-bl-lg rounded-br-lg lg:rounded-tl-lg lg:rounded-br-none">
             <h1 class="mb-1 font-medium">Let's get started</h1>
+            <div class="mb-2 text-[#706f6c] dark:text-[#A1A09A]">
+                <span class="font-medium">System Uptime:</span> <span id="uptime-display">{{ $uptime['days'] }} {{ sprintf('%02d:%02d:%02d', $uptime['hours'], $uptime['minutes'], $uptime['seconds']) }}</span>
+            </div>
             <ul class="flex flex-col mb-4 lg:mb-6">
                 <li class="flex items-center gap-4 py-2 relative before:border-l before:border-[#e3e3e0] dark:before:border-[#3E3E3A] before:top-1/2 before:bottom-0 before:left-[0.4rem] before:absolute">
                             <span class="relative py-1 bg-white dark:bg-[#161615]">
@@ -1534,5 +1537,26 @@
         </div>
     </main>
 </div>
+<script>
+    // Initialize uptime in seconds
+    let uptimeSeconds = {{ $uptime['days'] * 86400 + $uptime['hours'] * 3600 + $uptime['minutes'] * 60 + $uptime['seconds'] }};
+    
+    function formatUptime(seconds) {
+        const days = Math.floor(seconds / 86400);
+        const hours = Math.floor((seconds % 86400) / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const secs = seconds % 60;
+        
+        return `${days} ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+    
+    function updateUptime() {
+        uptimeSeconds++;
+        document.getElementById('uptime-display').textContent = formatUptime(uptimeSeconds);
+    }
+    
+    // Update every second
+    setInterval(updateUptime, 1000);
+</script>
 </body>
 </html>
