@@ -25,7 +25,7 @@ class IapServiceTest extends TestCase
     {
         parent::setUp();
         
-        $this->cacheRepository = Mockery::mock(Repository::class);
+        $this->cacheRepository = $this->mock(Repository::class);
         $this->iapService = new IapService($this->cacheRepository);
     }
 

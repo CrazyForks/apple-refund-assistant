@@ -25,7 +25,6 @@ Processa notificações CONSUMPTION_REQUEST da Apple em tempo real e envia imedi
 |  Cache   | file | redis  |
 |   Sessão | file |  redis   |
 - API **Webhook** com **100%** de cobertura de testes
-    - [x] Cobertura completa (Services\WebhookService)
 - **Chaves Auto-gerenciadas** - Chaves privadas são armazenadas apenas na sua tabela de banco de dados `apps` (com criptografia simétrica, chaves geradas pela sua aplicação)
 - **12 Campos de Consumo** - Calcula todos os campos Apple necessários
 - Suporte para encaminhamento de mensagens do servidor

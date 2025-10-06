@@ -86,7 +86,8 @@ class FinishNotificationJobTest extends TestCase
         $log = NotificationLog::find($logId);
         $initialUpdatedAt = $log->updated_at;
 
-        sleep(1); // Ensure timestamp difference
+        // Travel forward in time to ensure timestamp difference
+        $this->travel(1)->second();
 
         $job = new FinishNotificationJob($log, $app);
         $job->handle();

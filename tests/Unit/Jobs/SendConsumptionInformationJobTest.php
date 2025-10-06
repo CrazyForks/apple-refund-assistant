@@ -29,22 +29,25 @@ class SendConsumptionInformationJobTest extends TestCase
 
         $requestData = ['consumptionStatus' => 1];
 
-        $consumptionService = \Mockery::mock(ConsumptionService::class);
-        $consumptionService->shouldReceive('makeConsumptionRequest')
-            ->with($log)
-            ->once()
-            ->andReturn($requestData);
+        $consumptionService = $this->mock(ConsumptionService::class, function ($mock) use ($log, $requestData) {
+            $mock->shouldReceive('makeConsumptionRequest')
+                ->with($log)
+                ->once()
+                ->andReturn($requestData);
+        });
 
-        $iapService = \Mockery::mock(IapService::class);
-        $iapService->shouldReceive('sendConsumptionInformation')
-            ->with($app, 'trans-123', $requestData, EnvironmentEnum::SANDBOX->value)
-            ->once();
+        $iapService = $this->mock(IapService::class, function ($mock) use ($app, $requestData) {
+            $mock->shouldReceive('sendConsumptionInformation')
+                ->with($app, 'trans-123', $requestData, EnvironmentEnum::SANDBOX->value)
+                ->once();
+        });
 
-        $appDao = \Mockery::mock(AppDao::class);
-        $appDao->shouldReceive('find')
-            ->with($app->id)
-            ->once()
-            ->andReturn($app);
+        $appDao = $this->mock(AppDao::class, function ($mock) use ($app) {
+            $mock->shouldReceive('find')
+                ->with($app->id)
+                ->once()
+                ->andReturn($app);
+        });
 
         $job = new SendConsumptionInformationJob($log);
         $job->handle($consumptionService, $iapService, $appDao);
@@ -64,15 +67,17 @@ class SendConsumptionInformationJobTest extends TestCase
             'environment' => EnvironmentEnum::SANDBOX->value,
         ]);
 
-        $consumptionService = \Mockery::mock(ConsumptionService::class);
-        $consumptionService->shouldReceive('makeConsumptionRequest')
-            ->andThrow(new \Exception('API Error'));
+        $consumptionService = $this->mock(ConsumptionService::class, function ($mock) {
+            $mock->shouldReceive('makeConsumptionRequest')
+                ->andThrow(new \Exception('API Error'));
+        });
 
-        $iapService = \Mockery::mock(IapService::class);
+        $iapService = $this->mock(IapService::class);
 
-        $appDao = \Mockery::mock(AppDao::class);
-        $appDao->shouldReceive('find')
-            ->andReturn($app);
+        $appDao = $this->mock(AppDao::class, function ($mock) use ($app) {
+            $mock->shouldReceive('find')
+                ->andReturn($app);
+        });
 
         $job = new SendConsumptionInformationJob($log);
         $job->handle($consumptionService, $iapService, $appDao);
@@ -94,15 +99,18 @@ class SendConsumptionInformationJobTest extends TestCase
 
         $requestData = ['consumptionStatus' => 1, 'customerConsented' => true];
 
-        $consumptionService = \Mockery::mock(ConsumptionService::class);
-        $consumptionService->shouldReceive('makeConsumptionRequest')
-            ->andReturn($requestData);
+        $consumptionService = $this->mock(ConsumptionService::class, function ($mock) use ($requestData) {
+            $mock->shouldReceive('makeConsumptionRequest')
+                ->andReturn($requestData);
+        });
 
-        $iapService = \Mockery::mock(IapService::class);
-        $iapService->shouldReceive('sendConsumptionInformation')->once();
+        $iapService = $this->mock(IapService::class, function ($mock) {
+            $mock->shouldReceive('sendConsumptionInformation')->once();
+        });
 
-        $appDao = \Mockery::mock(AppDao::class);
-        $appDao->shouldReceive('find')->andReturn($app);
+        $appDao = $this->mock(AppDao::class, function ($mock) use ($app) {
+            $mock->shouldReceive('find')->andReturn($app);
+        });
 
         $job = new SendConsumptionInformationJob($log);
         $job->handle($consumptionService, $iapService, $appDao);
@@ -123,19 +131,22 @@ class SendConsumptionInformationJobTest extends TestCase
 
         $requestData = ['consumptionStatus' => 1];
 
-        $consumptionService = \Mockery::mock(ConsumptionService::class);
-        $consumptionService->shouldReceive('makeConsumptionRequest')
-            ->andReturn($requestData);
+        $consumptionService = $this->mock(ConsumptionService::class, function ($mock) use ($requestData) {
+            $mock->shouldReceive('makeConsumptionRequest')
+                ->andReturn($requestData);
+        });
 
-        $iapService = \Mockery::mock(IapService::class);
-        $iapService->shouldReceive('sendConsumptionInformation')
-            ->withArgs(function ($appArg, $transId, $data, $env) {
-                return $env === EnvironmentEnum::PRODUCTION->value;
-            })
-            ->once();
+        $iapService = $this->mock(IapService::class, function ($mock) {
+            $mock->shouldReceive('sendConsumptionInformation')
+                ->withArgs(function ($appArg, $transId, $data, $env) {
+                    return $env === EnvironmentEnum::PRODUCTION->value;
+                })
+                ->once();
+        });
 
-        $appDao = \Mockery::mock(AppDao::class);
-        $appDao->shouldReceive('find')->andReturn($app);
+        $appDao = $this->mock(AppDao::class, function ($mock) use ($app) {
+            $mock->shouldReceive('find')->andReturn($app);
+        });
 
         $job = new SendConsumptionInformationJob($log);
         $job->handle($consumptionService, $iapService, $appDao);
@@ -156,14 +167,17 @@ class SendConsumptionInformationJobTest extends TestCase
         ]);
 
         // Mock services should not be called
-        $consumptionService = \Mockery::mock(ConsumptionService::class);
-        $consumptionService->shouldNotReceive('makeConsumptionRequest');
+        $consumptionService = $this->mock(ConsumptionService::class, function ($mock) {
+            $mock->shouldNotReceive('makeConsumptionRequest');
+        });
 
-        $iapService = \Mockery::mock(IapService::class);
-        $iapService->shouldNotReceive('sendConsumptionInformation');
+        $iapService = $this->mock(IapService::class, function ($mock) {
+            $mock->shouldNotReceive('sendConsumptionInformation');
+        });
 
-        $appDao = \Mockery::mock(AppDao::class);
-        $appDao->shouldNotReceive('find');
+        $appDao = $this->mock(AppDao::class, function ($mock) {
+            $mock->shouldNotReceive('find');
+        });
 
         $job = new SendConsumptionInformationJob($log);
         $job->handle($consumptionService, $iapService, $appDao);
