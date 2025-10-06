@@ -12,12 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('consumption_logs', function (Blueprint $table) {
-            $table->id();
+            $table->unsignedBigInteger('id')->primary();
 
             $table->string('app_account_token')->index()->nullable()->comment('office update this column');
 
-            $table->unsignedBigInteger('app_id');
-            $table->string('notification_uuid')->nullable()->index();
+            $table->unsignedBigInteger('app_id')->index();
+            $table->string('notification_uuid')->nullable();
             $table->string('bundle_id')->nullable();
             $table->string('bundle_version')->nullable();
             $table->string('environment')->nullable();
