@@ -25,7 +25,6 @@ Procesa las notificaciones CONSUMPTION_REQUEST de Apple en tiempo real y envía 
 |  Caché   | file | redis  |
 |   Sesión | file |  redis   |
 - API **Webhook** con **100%** de cobertura de pruebas
-    - [x] Cobertura completa (Services\WebhookService)
 - **Claves Auto-gestionadas** - Las claves privadas solo se almacenan en tu tabla de base de datos `apps` (con cifrado simétrico, claves generadas por tu aplicación)
 - **12 Campos de Consumo** - Calcula todos los campos requeridos por Apple
 - Soporte para reenvío de mensajes del servidor

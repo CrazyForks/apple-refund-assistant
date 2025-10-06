@@ -24,8 +24,9 @@ class ConsumptionLogDaoTest extends TestCase
         $app = App::factory()->create();
 
         // Create a raw log without transaction info (by mocking)
-        $rawLog = $this->createMock(\App\Models\NotificationLog::class);
-        $rawLog->method('getTransactionInfo')->willReturn(null);
+        $rawLog = $this->mock(\App\Models\NotificationLog::class, function ($mock) {
+            $mock->shouldReceive('getTransactionInfo')->andReturn(null);
+        });
 
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('invalid transaction info');

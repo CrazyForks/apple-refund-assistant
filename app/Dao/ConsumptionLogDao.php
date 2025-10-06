@@ -23,7 +23,7 @@ class ConsumptionLogDao
 
 
         $model = new ConsumptionLog();
-        $model->id = $app->id;
+        $model->id = $raw->id;
         $model->app_id = $app->id;
         $model->bundle_id = $raw->bundle_id;
         $model->bundle_version = $raw->bundle_version;

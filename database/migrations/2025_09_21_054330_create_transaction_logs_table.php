@@ -12,17 +12,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('transaction_logs', function (Blueprint $table) {
-            $table->id();
+            $table->unsignedBigInteger('id')->primary();
 
-            $table->unsignedBigInteger('app_id');
-            $table->string('notification_uuid')->nullable()->index();
+            $table->unsignedBigInteger('app_id')->index();
+            $table->string('notification_uuid')->nullable();
             $table->string('notification_type')->nullable();
             $table->string('bundle_id')->nullable();
             $table->string('bundle_version')->nullable();
             $table->string('environment')->nullable();
 
             $table->string('original_transaction_id')->index();
-            $table->decimal('app_account_token')->index()->nullable();
+            $table->string('app_account_token')->index()->nullable();
             $table->string('transaction_id')->index();
 
 
@@ -38,7 +38,8 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->index(['notification_uuid', 'app_id']);
+
+            $table->index(['original_transaction_id', 'app_id']); // For findTransactionByConsumption
         });
     }
 

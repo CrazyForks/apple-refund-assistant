@@ -61,7 +61,7 @@ class FinishNotificationJob implements ShouldQueue
         if (! empty($msg)) {
             NotificationRawLog::query()
                 ->where('id', $log->id)
-                ->update(['forward_msg' => Str::substr($msg, 0, 100)]);
+                ->update(['forward_msg' => Str::substr($msg, 0, 191)]);
         }
     }
 }

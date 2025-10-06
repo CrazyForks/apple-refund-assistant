@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('apple_users', function (Blueprint $table) {
             $table->id();
             $table->string('app_account_token')->comment('https://developer.apple.com/documentation/appstoreserverapi/appaccounttoken');
-            $table->unsignedBigInteger('app_id');
+            $table->unsignedBigInteger('app_id')->index();
 
             // LINK https://developer.apple.com/documentation/appstoreserverapi/consumptionrequest
             $table->decimal('purchased_dollars')->default(0)->comment('https://developer.apple.com/documentation/appstoreserverapi/lifetimedollarspurchased');

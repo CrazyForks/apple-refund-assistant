@@ -26,9 +26,9 @@ class ConsumptionServiceTest extends TestCase
     {
         parent::setUp();
         
-        $this->appleUserDao = Mockery::mock(AppleUserDao::class);
-        $this->appDao = Mockery::mock(AppDao::class);
-        $this->transactionLogDao = Mockery::mock(TransactionLogDao::class);
+        $this->appleUserDao = $this->mock(AppleUserDao::class);
+        $this->appDao = $this->mock(AppDao::class);
+        $this->transactionLogDao = $this->mock(TransactionLogDao::class);
         $this->consumptionService = new ConsumptionService(
             $this->appleUserDao, 
             $this->appDao, 
