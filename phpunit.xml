@@ -24,6 +24,7 @@
             <directory>app/Filament</directory>
             <directory>app/Models</directory>
             <directory>app/Policies</directory>
+            <file>app/Http/Controllers/WelcomeController.php</file>
         </exclude>
     </source>
     <php>
