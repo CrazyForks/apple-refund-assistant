@@ -56,7 +56,6 @@ class AppResource extends Resource
             ->relationship('owner', 'name')
             ->options(User::all()->pluck('name', 'id'))
             ->visible($isAdmin)
-            ->required()
             ->default($currentUserId);
         if (!$isAdmin) {
             $ownerField = Hidden::make('owner_id')
@@ -69,6 +68,7 @@ class AppResource extends Resource
                 TextInput::make('name')
                     ->columnSpanFull()
                     ->required(),
+                TextInput::make('bundle_id')->columnSpanFull(),
                 Textarea::make('description')->columnSpanFull(),
                 TextInput::make('notification_url')
                     ->url()

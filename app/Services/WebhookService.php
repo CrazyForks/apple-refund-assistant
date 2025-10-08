@@ -62,80 +62,70 @@ class WebhookService
      * @throws AppStoreServerNotificationException
      * @throws \Exception
      */
-    public function handleNotification(string $content, int $appId): ?Model
+    public function handleNotification(string $content, int $appId): NotificationLog
     {
         $payload = $this->iapService->decodePayload($content);
 
         $app = $this->appDao->find($appId);
 
         // Check for duplicate notifications using cache
-        $notificationUuid = $payload->getNotificationUUID();
-        $cacheKey = "notification:processed:{$appId}:{$notificationUuid}";
-
-        if (Cache::has($cacheKey)) {
-            Log::info("Duplicate notification detected: {$notificationUuid}, skipping business logic");
-            return null;
-        }
-
-        $raw = $this->insertRawLog($content, $app, $payload);
+        $log = $this->insertRawLog($content, $app, $payload);
 
         // Handle notification based on type
-        switch ($raw->notification_type) {
+        switch ($log->notification_type) {
             case NotificationTypeEnum::TEST:
-                $this->handleTest($app, $raw);
+                $this->handleTest($app, $log);
                 break;
             case NotificationTypeEnum::REFUND:
-                $this->handleRefund($app, $raw);
+                $this->handleRefund($app, $log);
                 break;
             case NotificationTypeEnum::SUBSCRIBED:
             case NotificationTypeEnum::DID_RENEW:
             case NotificationTypeEnum::OFFER_REDEEMED:
             case NotificationTypeEnum::ONE_TIME_CHARGE:
-                $this->handleTransaction($app, $raw);
+                $this->handleTransaction($app, $log);
                 break;
             case NotificationTypeEnum::CONSUMPTION_REQUEST:
-                $this->handleConsumption($app, $raw);
+                $this->handleConsumption($app, $log);
                 break;
             default:
-                Log::info("[{$raw->notification_uuid}]{$raw->notification_type}");
+                Log::info("[{$log->notification_uuid}]{$log->notification_type}");
                 break;
         }
 
-        // Mark notification as processed in cache (before dispatching job)
-        Cache::put($cacheKey, true, Carbon::now()->addHours(24));
-
         // NOTE: use fpm fast-cgi running in background
-        dispatch(new FinishNotificationJob($raw, $app))->afterResponse();
-
-        return $raw;
-    }
-
-    /**
-     * @throws \Exception
-     */
-    protected function handleConsumption(App $app, NotificationLog $raw): ConsumptionLog
-    {
-        $dollar = $this->getTransactionDollar($raw);
-        $this->appDao->incrementConsumption($app->id, $dollar);
-
-        $log = $this->consumptionLogDao->storeLog($app, $raw);
-
-        dispatch(new SendConsumptionInformationJob($log))->afterResponse();
+        dispatch(new FinishNotificationJob($log, $app))->afterResponse();
 
         return $log;
     }
 
+    /**
+     * @throws \Exception
+     */
+    protected function handleConsumption(App $app, NotificationLog $log): ConsumptionLog
+    {
+        $dollar = $this->getTransactionDollar($log);
+        $this->appDao->incrementConsumption($app->id, $dollar);
+
+        $consumption = $this->consumptionLogDao->storeLog($app, $log);
+
+        // NOTE: use fpm fast-cgi running in background
+        dispatch(new SendConsumptionInformationJob($consumption))->afterResponse();
+
+        return $consumption;
+    }
+
 
     /**
      * @throws \Exception
      */
-    protected function handleTransaction(App $app, NotificationLog $raw): TransactionLog
+    protected function handleTransaction(App $app, NotificationLog $log): TransactionLog
     {
-        $dollar = $this->getTransactionDollar($raw);
+        $dollar = $this->getTransactionDollar($log);
         $this->appDao->incrementTransaction($app->id, $dollar);
 
          // Create or get user and update purchased amount
-         $transInfo = $raw->getTransactionInfo();
+         $transInfo = $log->getTransactionInfo();
          $appAccountToken = $transInfo?->appAccountToken;
 
          if (!empty($appAccountToken)) {
@@ -146,29 +136,29 @@ class WebhookService
          }
 
 
-        return $this->transactionLogDao->storeLog($app, $raw);
+        return $this->transactionLogDao->storeLog($app, $log);
     }
 
     /**
      * @throws \Exception
      */
-    protected function handleRefund(App $app, NotificationLog $raw): RefundLog
+    protected function handleRefund(App $app, NotificationLog $log): RefundLog
     {
-        $dollar = $this->getTransactionDollar($raw);
+        $dollar = $this->getTransactionDollar($log);
         $this->appDao->incrementRefund($app->id, $dollar);
 
         // Update user's refunded amount (only if user exists)
-        $transInfo = $raw->getTransactionInfo();
+        $transInfo = $log->getTransactionInfo();
         $appAccountToken = $transInfo?->appAccountToken;
 
         if (!empty($appAccountToken)) {
             $this->appleUserDao->incrementRefundedByToken($appAccountToken, $app->id, $dollar);
         }
 
-        return $this->refundLogDao->storeLog($app, $raw);
+        return $this->refundLogDao->storeLog($app, $log);
     }
 
-    protected function handleTest(App $app, NotificationLog $raw): void
+    protected function handleTest(App $app, NotificationLog $log): void
     {
         $app->status = AppStatusEnum::NORMAL;
         $app->save();
@@ -188,9 +178,9 @@ class WebhookService
     }
 
 
-    protected function getTransactionDollar(NotificationLog $raw): float
+    protected function getTransactionDollar(NotificationLog $log): float
     {
-        $transaction = $raw->getTransactionInfo();
+        $transaction = $log->getTransactionInfo();
         // Use new safe method while maintaining backward compatibility
         return $this->priceService->toDollarFloat(
             $transaction?->currency ?? 'USD',

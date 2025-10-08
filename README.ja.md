@@ -43,6 +43,7 @@ AppleのCONSUMPTION_REQUEST通知をリアルタイムで処理し、直ちに�
 ![ホームページ](assets/2.png)
 ![ホームページ](assets/3.png)
 ![ホームページ](assets/4.png)
+![ホームページ](assets/5.png)
 
 
 ## クイックスタート

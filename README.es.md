@@ -43,6 +43,7 @@ Procesa las notificaciones CONSUMPTION_REQUEST de Apple en tiempo real y envía 
 ![Página Principal](assets/2.png)
 ![Página Principal](assets/3.png)
 ![Página Principal](assets/4.png)
+![Página Principal](assets/5.png)
 
 
 ## Inicio Rápido

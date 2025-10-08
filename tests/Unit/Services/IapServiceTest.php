@@ -4,9 +4,6 @@ namespace Tests\Unit\Services;
 
 use App\Services\IapService;
 use App\Models\App;
-use Carbon\Carbon;
-use Illuminate\Contracts\Cache\Repository;
-use Illuminate\Support\Facades\Http;
 use Readdle\AppStoreServerAPI\AppStoreServerAPI;
 use Readdle\AppStoreServerAPI\Exception\AppStoreServerAPIException;
 use Readdle\AppStoreServerAPI\Exception\AppStoreServerNotificationException;
@@ -18,15 +15,13 @@ use Mockery;
 
 class IapServiceTest extends TestCase
 {
-    protected $cacheRepository;
     protected $iapService;
 
     protected function setUp(): void
     {
         parent::setUp();
         
-        $this->cacheRepository = $this->mock(Repository::class);
-        $this->iapService = new IapService($this->cacheRepository);
+        $this->iapService = new IapService();
     }
 
     public function test_request_notification_success(): void
@@ -61,20 +56,8 @@ class IapServiceTest extends TestCase
         $this->assertEquals('body', $parameters[0]->getName());
     }
 
-    public function test_root_certificate_caching(): void
+    public function test_root_certificate_returns_hardcoded_pem(): void
     {
-        $mockCertificate = 'mock-pem-certificate';
-        
-        $this->cacheRepository
-            ->shouldReceive('remember')
-            ->once()
-            ->with(
-                'apple_root_certificate',
-                \Mockery::type(Carbon::class),
-                \Mockery::type('callable')
-            )
-            ->andReturn($mockCertificate);
-
         // Use reflection to test protected method
         $reflection = new \ReflectionClass($this->iapService);
         $method = $reflection->getMethod('rootCertificate');
@@ -82,8 +65,11 @@ class IapServiceTest extends TestCase
 
         $result = $method->invoke($this->iapService);
 
-        // The result should be the cached certificate
-        $this->assertEquals($mockCertificate, $result);
+        // The result should be the hardcoded Apple Root CA-G3 certificate in PEM format
+        $this->assertStringContainsString('-----BEGIN CERTIFICATE-----', $result);
+        $this->assertStringContainsString('-----END CERTIFICATE-----', $result);
+        // Verify it contains the base64-encoded certificate data
+        $this->assertStringContainsString('MIICQzCCAcmgAwIBAgIILcX8iNLFS5UwCgYIKoZIzj0EAwMwZzEbMBkGA1UEAwwS', $result);
     }
 
     public function test_api_method_creates_app_store_server_api(): void
@@ -116,41 +102,6 @@ class IapServiceTest extends TestCase
         $this->assertInstanceOf(AppStoreServerAPI::class, $result);
     }
 
-    public function test_cache_expiry_is_one_day(): void
-    {
-        $this->cacheRepository
-            ->shouldReceive('remember')
-            ->once()
-            ->with(
-                'apple_root_certificate',
-                \Mockery::on(function ($expiry) {
-                    // Check that expiry is approximately one day from now
-                    $expectedExpiry = Carbon::now()->addDay();
-                    return abs($expiry->diffInMinutes($expectedExpiry)) < 1;
-                }),
-                \Mockery::type('callable')
-            )
-            ->andReturn('mock-certificate');
-
-        // Use reflection to test protected method
-        $reflection = new \ReflectionClass($this->iapService);
-        $method = $reflection->getMethod('rootCertificate');
-        $method->setAccessible(true);
-
-        $result = $method->invoke($this->iapService);
-        
-        // Add assertion to make the test valid
-        $this->assertEquals('mock-certificate', $result);
-    }
-
-    public function test_constructor_sets_cache_repository(): void
-    {
-        $reflection = new \ReflectionClass($this->iapService);
-        $property = $reflection->getProperty('cache');
-        $property->setAccessible(true);
-
-        $this->assertSame($this->cacheRepository, $property->getValue($this->iapService));
-    }
 
     public function test_send_consumption_information(): void
     {
@@ -190,44 +141,6 @@ class IapServiceTest extends TestCase
         $this->assertEquals('environment', $parameters[3]->getName());
     }
 
-    public function test_root_certificate_callback_execution(): void
-    {
-        $mockCertContent = 'mock-certificate-content';
-        $mockPemCert = "-----BEGIN CERTIFICATE-----\n{$mockCertContent}\n-----END CERTIFICATE-----";
-        
-        // Mock HTTP to intercept file_get_contents call
-        Http::fake([
-            'https://www.apple.com/certificateauthority/AppleRootCA-G3.cer' => Http::response($mockCertContent, 200)
-        ]);
-        
-        $callbackExecuted = false;
-        $resultCert = null;
-        
-        $this->cacheRepository
-            ->shouldReceive('remember')
-            ->once()
-            ->with(
-                'apple_root_certificate',
-                \Mockery::type(Carbon::class),
-                \Mockery::type('callable')
-            )
-            ->andReturnUsing(function ($key, $expiry, $callback) use (&$callbackExecuted, &$resultCert) {
-                $callbackExecuted = true;
-                $resultCert = $callback();
-                return $resultCert;
-            });
-
-        // Use reflection to test protected method
-        $reflection = new \ReflectionClass($this->iapService);
-        $method = $reflection->getMethod('rootCertificate');
-        $method->setAccessible(true);
-
-        $result = $method->invoke($this->iapService);
-
-        // Verify callback was executed
-        $this->assertTrue($callbackExecuted);
-        $this->assertNotNull($resultCert);
-    }
 
     public function test_decode_payload_calls_response_body_v2(): void
     {
@@ -305,27 +218,6 @@ class IapServiceTest extends TestCase
         $this->assertStringContainsString('Send consumption information to Apple', $docComment);
     }
 
-    public function test_root_certificate_cache_key(): void
-    {
-        $this->cacheRepository
-            ->shouldReceive('remember')
-            ->once()
-            ->with(
-                'apple_root_certificate',  // Verify exact key
-                \Mockery::type(Carbon::class),
-                \Mockery::type('callable')
-            )
-            ->andReturn('cached-cert');
-
-        // Use reflection to test protected method
-        $reflection = new \ReflectionClass($this->iapService);
-        $method = $reflection->getMethod('rootCertificate');
-        $method->setAccessible(true);
-
-        $result = $method->invoke($this->iapService);
-        
-        $this->assertEquals('cached-cert', $result);
-    }
 
     public function test_api_method_with_production_environment(): void
     {
@@ -344,52 +236,6 @@ class IapServiceTest extends TestCase
         $this->assertInstanceOf(AppStoreServerAPI::class, $result);
     }
 
-    public function test_decode_payload_calls_root_certificate(): void
-    {
-        // Test that decodePayload would call rootCertificate
-        $mockCert = '-----BEGIN CERTIFICATE-----test-----END CERTIFICATE-----';
-        
-        $this->cacheRepository
-            ->shouldReceive('remember')
-            ->with(
-                'apple_root_certificate',
-                \Mockery::type(Carbon::class),
-                \Mockery::type('callable')
-            )
-            ->andReturn($mockCert);
-
-        // Use reflection to verify rootCertificate is called through decodePayload
-        $reflection = new \ReflectionClass($this->iapService);
-        $method = $reflection->getMethod('rootCertificate');
-        $method->setAccessible(true);
-
-        $result = $method->invoke($this->iapService);
-        $this->assertEquals($mockCert, $result);
-    }
-
-    public function test_decode_payload_actual_execution(): void
-    {
-        $mockCert = '-----BEGIN CERTIFICATE-----mockCert-----END CERTIFICATE-----';
-        
-        $this->cacheRepository
-            ->shouldReceive('remember')
-            ->once()
-            ->with(
-                'apple_root_certificate',
-                \Mockery::type(Carbon::class),
-                \Mockery::type('callable')
-            )
-            ->andReturn($mockCert);
-
-        // We can't test the actual decode without real Apple data
-        // But we can verify the method uses the certificate
-        $reflection = new \ReflectionClass($this->iapService);
-        $certMethod = $reflection->getMethod('rootCertificate');
-        $certMethod->setAccessible(true);
-
-        $cert = $certMethod->invoke($this->iapService);
-        $this->assertEquals($mockCert, $cert);
-    }
 
     public function test_api_null_coalescing_operator_coverage(): void
     {
@@ -514,20 +360,8 @@ class IapServiceTest extends TestCase
 
     public function test_decode_payload_executes_code_path(): void
     {
-        // This test will fail, but it covers the code execution path
+        // This test will fail because the payload is invalid, but it executes the code path
         $this->expectException(\Exception::class);
-
-        $mockCert = '-----BEGIN CERTIFICATE-----\nMockCert\n-----END CERTIFICATE-----';
-        
-        $this->cacheRepository
-            ->shouldReceive('remember')
-            ->once()
-            ->with(
-                'apple_root_certificate',
-                \Mockery::type(Carbon::class),
-                \Mockery::type('callable')
-            )
-            ->andReturn($mockCert);
 
         // This will fail because the payload is invalid, but it executes the code path
         $this->iapService->decodePayload('invalid-payload-data');
