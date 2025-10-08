@@ -132,15 +132,72 @@ class WebhookTest extends TestCase
         $this->assertTrue((float) $app->refund_dollars > 0);
     }
 
-    public function test_transaction_events_write_transaction_log_and_increment_stats(): void
+    public function test_subscribed_event_writes_transaction_log(): void
     {
         $app = $this->makeApp();
+        $payload = $this->fakePayload('SUBSCRIBED', $this->meta());
+        $this->stubDecode($payload);
+        $this->postJson('/api/v1/apps/' . $app->id . '/webhook', [])->assertOk();
 
-        foreach (['SUBSCRIBED', 'DID_RENEW', 'OFFER_REDEEMED', 'ONE_TIME_CHARGE'] as $event) {
-            $payload = $this->fakePayload($event, $this->meta());
-            $this->stubDecode($payload);
-            $this->postJson('/api/v1/apps/' . $app->id . '/webhook', [])->assertOk();
-        }
+        $this->assertDatabaseHas('transaction_logs', [
+            'app_id' => $app->id,
+            'original_transaction_id' => '100000000000001',
+            'transaction_id' => '200000000000001',
+        ]);
+
+        $app->refresh();
+        $this->assertTrue((int) $app->transaction_count >= 1);
+        $this->assertTrue((float) $app->transaction_dollars > 0);
+
+        Queue::assertPushed(FinishNotificationJob::class);
+    }
+
+    public function test_did_renew_event_writes_transaction_log(): void
+    {
+        $app = $this->makeApp();
+        $payload = $this->fakePayload('DID_RENEW', $this->meta());
+        $this->stubDecode($payload);
+        $this->postJson('/api/v1/apps/' . $app->id . '/webhook', [])->assertOk();
+
+        $this->assertDatabaseHas('transaction_logs', [
+            'app_id' => $app->id,
+            'original_transaction_id' => '100000000000001',
+            'transaction_id' => '200000000000001',
+        ]);
+
+        $app->refresh();
+        $this->assertTrue((int) $app->transaction_count >= 1);
+        $this->assertTrue((float) $app->transaction_dollars > 0);
+
+        Queue::assertPushed(FinishNotificationJob::class);
+    }
+
+    public function test_offer_redeemed_event_writes_transaction_log(): void
+    {
+        $app = $this->makeApp();
+        $payload = $this->fakePayload('OFFER_REDEEMED', $this->meta());
+        $this->stubDecode($payload);
+        $this->postJson('/api/v1/apps/' . $app->id . '/webhook', [])->assertOk();
+
+        $this->assertDatabaseHas('transaction_logs', [
+            'app_id' => $app->id,
+            'original_transaction_id' => '100000000000001',
+            'transaction_id' => '200000000000001',
+        ]);
+
+        $app->refresh();
+        $this->assertTrue((int) $app->transaction_count >= 1);
+        $this->assertTrue((float) $app->transaction_dollars > 0);
+
+        Queue::assertPushed(FinishNotificationJob::class);
+    }
+
+    public function test_one_time_charge_event_writes_transaction_log(): void
+    {
+        $app = $this->makeApp();
+        $payload = $this->fakePayload('ONE_TIME_CHARGE', $this->meta());
+        $this->stubDecode($payload);
+        $this->postJson('/api/v1/apps/' . $app->id . '/webhook', [])->assertOk();
 
         $this->assertDatabaseHas('transaction_logs', [
             'app_id' => $app->id,
