@@ -63,7 +63,7 @@ class NotificationLogResource extends Resource
                     ->grammar(Grammar::Json)
                     ->copyable()
                     ->columnSpanFull(),
-                TextEntry::make('raw.forward_msg')
+                CodeEntry::make('raw.forward_msg')
                     ->label('Forward msg')
                     ->copyable()
                     ->columnSpanFull(),
