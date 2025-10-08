@@ -39,6 +39,16 @@ class UserResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
+        $password = TextInput::make('password')
+            ->password()
+            ->dehydrated(fn ($state) => filled($state)) // 关键点 1
+            ->required(fn (string $operation): bool => $operation === 'create')
+            ->dehydrateStateUsing(fn (string $state): string => bcrypt($state))
+            ->minLength(4);
+        if (app()->environment('demo')) {
+            $password->disabled();
+        }
+
         return $schema
             ->components([
                 TextInput::make('name')
@@ -55,12 +65,7 @@ class UserResource extends Resource
                     ->options(BoolEnum::class)
                     ->default(BoolEnum::YES)
                     ->required(),
-                TextInput::make('password')
-                    ->password()
-                    ->dehydrated(fn ($state) => filled($state)) // 关键点 1
-                    ->required(fn (string $operation): bool => $operation === 'create')
-                    ->dehydrateStateUsing(fn (string $state): string => bcrypt($state))
-                    ->minLength(4),
+                $password,
             ]);
     }
 

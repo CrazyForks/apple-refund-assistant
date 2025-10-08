@@ -13,12 +13,18 @@ class EditProfile extends BaseEditProfile
 {
     public function form(Schema $schema): Schema
     {
+        $password = $this->getPasswordFormComponent();
+        $confirmPassword = $this->getPasswordConfirmationFormComponent();
+        if (app()->environment('demo')) {
+            $password->disabled();
+        }
+
         return $schema
             ->components([
                 $this->getNameFormComponent(),
                 $this->getEmailFormComponent()->disabled(),
-                $this->getPasswordFormComponent(),
-                $this->getPasswordConfirmationFormComponent(),
+                $password,
+                $confirmPassword,
             ]);
     }
 
