@@ -43,6 +43,7 @@ Apple के CONSUMPTION_REQUEST नोटिफिकेशन को रीय
 ![होमपेज](assets/2.png)
 ![होमपेज](assets/3.png)
 ![होमपेज](assets/4.png)
+![होमपेज](assets/5.png)
 
 
 ## त्वरित शुरुआत

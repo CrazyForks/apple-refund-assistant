@@ -43,6 +43,7 @@ Processa notificações CONSUMPTION_REQUEST da Apple em tempo real e envia imedi
 ![Página Inicial](assets/2.png)
 ![Página Inicial](assets/3.png)
 ![Página Inicial](assets/4.png)
+![Página Inicial](assets/5.png)
 
 
 ## Início Rápido

@@ -43,6 +43,7 @@ Traitez les notifications CONSUMPTION_REQUEST d'Apple en temps réel et envoyez 
 ![Page d'accueil](assets/2.png)
 ![Page d'accueil](assets/3.png)
 ![Page d'accueil](assets/4.png)
+![Page d'accueil](assets/5.png)
 
 
 ## Démarrage Rapide
