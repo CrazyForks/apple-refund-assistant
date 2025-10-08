@@ -1,53 +1,41 @@
-
-## Assistant de Remboursement Apple
-
-[English](./README.md) | [简体中文](./README.zh.md) | [Español](./README.es.md) | [हिन्दी](./README.hi.md) | [العربية](./README.ar.md) | [Português](./README.pt.md) | [Русский](./README.ru.md) | [日本語](./README.ja.md) | Français
-
-Un service de prévention des remboursements de paiement multi-tenant basé sur Laravel.
-
+## apple-refund-assistant
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/seth-shi/apple-refund-assistant/laravel.yml)
 ![Codecov](https://img.shields.io/codecov/c/github/seth-shi/apple-refund-assistant)
 ![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/seth-shi/apple-refund-assistant?utm_source=oss&utm_medium=github&utm_campaign=seth-shi%2Fapple-refund-assistant&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
 
-## Démonstration en Direct
+[English](./README.md) | [简体中文](./README.zh.md) | [Español](./README.es.md) | [हिन्दी](./README.hi.md) | [العربية](./README.ar.md) | [Português](./README.pt.md) | [Русский](./README.ru.md) | [日本語](./README.ja.md) | Français
 
-🌐 **Site de Démonstration**: [https://apple-refund-assistant.shiguopeng.cn/](https://apple-refund-assistant.shiguopeng.cn/)
+Ce service est construit sur l'architecture multi-tenant Laravel / Filament,
+aidant efficacement les développeurs à prévenir les remboursements frauduleux en traitant instantanément les notifications CONSUMPTION_REQUEST d'Apple et en retournant les données de consommation de manière asynchrone.
 
-> ⚠️ **Remarque**: Le système sera réinitialisé toutes les 30 minutes.
-
-## Aperçu
-
-Traitez les notifications CONSUMPTION_REQUEST d'Apple en temps réel et envoyez immédiatement les informations de consommation à Apple, aidant à réduire les remboursements frauduleux.
-
-
-- **Support Multi-devises**
 - **Support Multi-tenant**
-- **Support Multi-langues (中文 / English / Español / हिन्दी / العربية / Português / Русский / 日本語 / Français)**
-- **Zéro Dépendance - Démarrez le service local directement pour un déploiement plus rapide**
+- **Support Multi-langues** (中文 / English / Español / हिन्दी / العربية / Português / Русский / 日本語 / Français)
+- **Support Multi-devises**
+- **Zéro Dépendance File+SQLite** `ou mise à niveau vers Redis+MySQL`
+- **100% Couverture de Tests**
+- **Clés d'Application Auto-gérées** Les clés privées ne sont stockées que dans votre table de base de données `apps` (avec chiffrement symétrique, clés générées par votre application)
+- **12 Champs de Consommation** - [Calculer tous les champs Apple requis](#stratégie-des-champs-de-consommation)
+- **Transfert de Messages de Notification** Le serveur Apple envoie au service actuel, le service actuel transfère vers votre serveur de production
 
-| Dépendance | Zéro Dépendance |  Avancé   |
-|-----|--|-----|
-|  Base de données   | sqlite | MySQL |
-|  Cache   | file | redis  |
-|   Session | file |  redis   |
-- API **Webhook** avec **100%** de couverture de tests
-- **Clés Auto-gérées** - Les clés privées sont uniquement stockées dans votre table de base de données `apps` (avec chiffrement symétrique, clés générées par votre application)
-- **12 Champs de Consommation** - Calcule tous les champs Apple requis
-- Support du transfert de messages du serveur
-  - Le serveur Apple envoie au service actuel, qui transfère à votre serveur de production
+
+## Démo en Ligne
+
+🌐 **URL de Démo**: [https://apple-refund-assistant.shiguopeng.cn/](https://apple-refund-assistant.shiguopeng.cn/)
+
+> ⚠️ **Note**: Le système redémarre toutes les 30 minutes.
 
  
-## Captures d'écran
-![Page d'accueil](assets/0.png)
-![Page d'accueil](assets/1.png)
-![Page d'accueil](assets/2.png)
-![Page d'accueil](assets/3.png)
-![Page d'accueil](assets/4.png)
-![Page d'accueil](assets/5.png)
+## Captures d'Écran
+![Page d'Accueil](assets/0.png)
+![Page d'Accueil](assets/1.png)
+![Page d'Accueil](assets/2.png)
+![Page d'Accueil](assets/3.png)
+![Page d'Accueil](assets/4.png)
+![Page d'Accueil](assets/5.png)
 
 
 ## Démarrage Rapide
-### Utilisation d'une Image Pré-construite
+### Utilisation d'Image Pré-construite
 ```bash
 docker run -d \
   -p 8080:8080 \
@@ -57,7 +45,7 @@ docker run -d \
 ```
 
 
-### Construire et Exécuter Localement
+### Construction et Exécution Locale
 ```bash
 git clone https://github.com/seth-shi/apple-refund-assistant
 cd apple-refund-assistant
@@ -65,7 +53,7 @@ cd apple-refund-assistant
 ./deploy.sh
 ```
 
-### Si Vous Devez Monter des Données
+### Si vous devez monter des données
 ```
 touch database.sqlite
 docker run -d \
@@ -77,38 +65,28 @@ docker run -d \
 ```
 
 ## Stratégie des Champs de Consommation
-* Documentation : [https://developer.apple.com/documentation/appstoreserverapi/consumptionrequest](https://developer.apple.com/documentation/appstoreserverapi/consumptionrequest)
-* Code de Stratégie : [ConsumptionService.php](./app/Services/ConsumptionService.php) 
+* Documentation: [https://developer.apple.com/documentation/appstoreserverapi/consumptionrequest](https://developer.apple.com/documentation/appstoreserverapi/consumptionrequest)
+* Code de Stratégie: [ConsumptionService.php](./app/Services/ConsumptionService.php) 
 * Les champs de la table `users` peuvent être mis à jour par d'autres systèmes
 
 | Champ                       | Description                | Source de Données                          | Règle de Calcul                                                                                           |
 |--------------------------|-------------------|--------------------------------|------------------------------------------------------------------------------------------------|
-| accountTenure            | Jours depuis l'inscription de l'utilisateur            | `users.register_at`            | Temps actuel moins temps d'inscription                                                                                     |
-| appAccountToken          | Token de compte          | `users.app_account_token`      | [Doit être transmis lorsque le client crée la commande](https://developer.apple.com/documentation/StoreKit/Transaction/appAccountToken) |
-| consumptionStatus        | Statut de consommation              | `transactions.expiration_date` | Comparer avec le temps actuel, retourner consommé si expiré                                                                              |
-| customerConsented        | L'utilisateur a consenti à fournir des données          | N/A                              | Codé en dur `true`                                                                                       |
-| deliveryStatus           | Si un achat in-app fonctionnel a été livré avec succès | N/A                              | Codé en dur `0` (livraison normale)                                                                                    |
-| lifetimeDollarsPurchased | Montant total des achats in-app             | `users.purchased_dollars`      | Accumulé en fonction des événements de transaction Apple, ou vous pouvez accumuler manuellement                                                                        |
-| lifetimeDollarsRefunded  | Montant total des remboursements             | `users.refunded_dollars`       | Accumulé en fonction des événements de remboursement Apple, ou vous pouvez accumuler manuellement                                                                        |
-| platform                 | Plateforme                | N/A                              | Codé en dur `1` (apple)                                                                                   |
-| playTime                 | Valeur du temps d'utilisation de l'app par le client        | `users.play_seconds`           | Votre système doit prendre en charge la mise à jour de ce champ, sinon c'est `0`                                                                          |
-| refundPreference         | Résultat attendu pour la demande de remboursement         | `transactions.expiration_date` | Comparer avec le temps actuel, préférer rejeter le remboursement si expiré                                                                             |
-| sampleContentProvided    | Si un essai est fourni            | `apps.sample_content_provided` | Configurer lors de la création de l'app                                                                                      |
-| userStatus               | Statut de l'utilisateur              | N/A                              | Codé en dur `1` (utilisateur normal)                                                                                   |
-
-
-
-## Licence
-
-Sous licence Apache License 2.0, voir [LICENSE](./LICENSE) pour les détails.
-
-## Support
-
-Pour toute question ou préoccupation, veuillez soumettre un problème sur GitHub.
+| accountTenure            | Jours d'inscription utilisateur            | `users.register_at`            | Temps actuel moins temps d'inscription                                                                                     |
+| appAccountToken          | Token de compte          | `users.app_account_token`      | [Doit être passé quand le client crée une commande](https://developer.apple.com/documentation/StoreKit/Transaction/appAccountToken) |
+| consumptionStatus        | Statut de consommation              | `transactions.expiration_date` | Comparer avec le temps actuel, si expiré retourner consommé                                                                              |
+| customerConsented        | Consentement utilisateur à fournir des données          | Aucun                              | Codé en dur `true`                                                                                       |
+| deliveryStatus           | Si un achat in-app fonctionnel a été livré avec succès. | Aucun                              | Codé en dur `0`(livraison normale)                                                                                    |
+| lifetimeDollarsPurchased | Montant total des achats in-app             | `users.purchased_dollars`      | Accumuler ce champ basé sur les événements de transaction Apple, vous pouvez aussi l'accumuler vous-même                                                                        |
+| lifetimeDollarsRefunded  | Montant total des remboursements             | `users.refunded_dollars`       | Accumuler ce champ basé sur les événements de remboursement Apple, vous pouvez aussi l'accumuler vous-même                                                                        |
+| platform                 | Plateforme                | Aucun                              | Codé en dur `1`(apple)                                                                                   |
+| playTime                 | Valeur du temps d'utilisation de l'app par le client        | `users.play_seconds`           | Votre système doit supporter la mise à jour de ce champ, sinon c'est `0`                                                                          |
+| refundPreference         | Résultat attendu de la demande de remboursement         | `transactions.expiration_date` | Comparer avec le temps actuel, si expiré espérer rejeter le remboursement                                                                             |
+| sampleContentProvided    | Si un essai est fourni            | `apps.sample_content_provided` | Configurer l'app lors de la création de l'app                                                                                      |
+| userStatus               | Statut utilisateur              | Aucun                              | Codé en dur `1`(utilisateur normal)                                                                                   |
 
 ## Plans Futurs
-- Vous avez d'autres idées ou êtes intéressé par une collaboration ? Veuillez soumettre un problème sur GitHub - nous attendons vos retours !
+- Avez-vous d'autres idées ou êtes-vous intéressé par la collaboration ? Veuillez soumettre un issue sur GitHub - nous attendons vos commentaires !
 
 ## Remerciements
 * [Rates By Exchange Rate API](https://www.exchangerate-api.com)
-
+* [https://github.com/argus-sight/refund-swatter-lite](https://github.com/argus-sight/refund-swatter-lite)

@@ -9,19 +9,8 @@ use App\Models\App;
 use App\Models\AppleUser;
 use App\Models\ConsumptionLog;
 use App\Models\TransactionLog;
-use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Contracts\Cache\Factory;
-use Illuminate\Contracts\Cache\Repository;
-use Illuminate\Support\Facades\Cache;
-use Psr\SimpleCache\CacheInterface;
-use Readdle\AppStoreServerAPI\AppStoreServerAPI;
-use Readdle\AppStoreServerAPI\Exception\AppStoreServerAPIException;
-use Readdle\AppStoreServerAPI\Exception\AppStoreServerNotificationException;
-use Readdle\AppStoreServerAPI\Exception\WrongEnvironmentException;
 use Readdle\AppStoreServerAPI\RequestBody\ConsumptionRequestBody;
-use Readdle\AppStoreServerAPI\ResponseBodyV2;
-use Readdle\AppStoreServerAPI\Util\Helper;
 
 class ConsumptionService
 {

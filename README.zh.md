@@ -1,40 +1,28 @@
-
-## 苹果退款管理助手
-
-[English](./README.md) | 简体中文 | [Español](./README.es.md) | [हिन्दी](./README.hi.md) | [العربية](./README.ar.md) | [Português](./README.pt.md) | [Русский](./README.ru.md) | [日本語](./README.ja.md) | [Français](./README.fr.md)
-
-基于 Laravel 的多租户支付退款预防服务。
-
+## apple-refund-assistant
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/seth-shi/apple-refund-assistant/laravel.yml)
 ![Codecov](https://img.shields.io/codecov/c/github/seth-shi/apple-refund-assistant)
 ![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/seth-shi/apple-refund-assistant?utm_source=oss&utm_medium=github&utm_campaign=seth-shi%2Fapple-refund-assistant&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
+
+[English](./README.md) | 简体中文 | [Español](./README.es.md) | [हिन्दी](./README.hi.md) | [العربية](./README.ar.md) | [Português](./README.pt.md) | [Русский](./README.ru.md) | [日本語](./README.ja.md) | [Français](./README.fr.md)
+
+本服务构建于 Laravel / Filament 多租户架构之上，
+通过即时处理 Apple 的 CONSUMPTION_REQUEST 通知并异步回传消费数据，有效帮助开发者防范欺诈退款。
+
+- **多租户支持**
+- **多语言支持** (中文 / English / Español / हिन्दी / العربية / Português / Русский / 日本語 / Français)
+- **多币种支持**
+- **零依赖 File+SQLite** `or upgrade to Redis+MySQL`
+- **100% 测试覆盖率**
+- **应用密钥自持** 私钥仅保存在你的数据库`apps`表中(会进行对称加密,密钥由你的应用生成)
+- **12 个消费字段** - [计算所有必需的 Apple 字段](#消费字段策略)
+- **notification 消息转发** 苹果服务器发送到当前服务,当前服务转发到你的正式服务器
+
 
 ## 在线演示
 
 🌐 **演示地址**: [https://apple-refund-assistant.shiguopeng.cn/](https://apple-refund-assistant.shiguopeng.cn/)
 
 > ⚠️ **注意**: 系统每30分钟会重置一次。
-
-## 概述
-
-实时处理 Apple 的 CONSUMPTION_REQUEST 通知，并立即将消费信息发送回 Apple，帮助减少欺诈性退款。
-
-
-- **多币种支持**
-- **多租户支持**
-- **多语言支持(中文 / English / Español / हिन्दी / العربية / Português / Русский / 日本語 / Français)**
-- **零依赖-本地服务直接启动快人一步**
-
-| 依赖项 | 零依赖方案 |  进阶方案   |
-|-----|--|-----|
-|  数据库   | sqlite | MySQL |
-|  缓存   | file | redis  |
-|   session | file |  redis   |
-- **webhook** 接口 **100%** 测试覆盖率
-- **密钥自持** -私钥仅保存在你的数据库`apps`表中(会进行对称加密,密钥由你的应用生成)
-- **12 个消费字段** - 计算所有必需的 Apple 字段
-- 支持服务器消息转发
-  - 苹果服务器发送到当前服务,当前服务转发到你的正式服务器
 
  
 ## 截图
@@ -96,18 +84,10 @@ docker run -d \
 | sampleContentProvided    | 是否提供试用            | `apps.sample_content_provided` | 创建应用时配置应用                                                                                      |
 | userStatus               | 用户状态              | 无                              | 写死是`1`(正常用户)                                                                                   |
 
-
-
-## 许可证
-
-根据 Apache License 2.0 授权，详见 [LICENSE](./LICENSE)。
-## 支持
-
-如有问题或疑问，请在 GitHub 上提交 issue。
-
 ## 未来计划
 - 有其它想法或对合作感兴趣？请在 GitHub 上提交 issue - 我们非常期待您的反馈！
 
 ## 感谢
 * [Rates By Exchange Rate API](https://www.exchangerate-api.com)
+* [https://github.com/argus-sight/refund-swatter-lite](https://github.com/argus-sight/refund-swatter-lite)
 
