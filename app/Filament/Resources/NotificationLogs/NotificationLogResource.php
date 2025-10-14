@@ -5,11 +5,13 @@ namespace App\Filament\Resources\NotificationLogs;
 use App\Filament\Resources\NotificationLogs\Pages\ManageNotificationLogs;
 use App\Models\NotificationLog;
 use BackedEnum;
+use App\Filament\Exports\NotificationLogExporter;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Actions\ExportAction;
 use Filament\Infolists\Components\CodeEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
@@ -108,6 +110,8 @@ class NotificationLogResource extends Resource
                     ->action(function (ManageNotificationLogs $livewire) {
                         $livewire->resetTable();
                     }),
+                ExportAction::make()
+                    ->exporter(NotificationLogExporter::class),
             ])
             ->recordActions([
                 ViewAction::make(),

@@ -5,11 +5,13 @@ namespace App\Filament\Resources\AppleUsers;
 use App\Filament\Resources\AppleUsers\Pages\ManageAppleUsers;
 use App\Models\AppleUser;
 use BackedEnum;
+use App\Filament\Exports\AppleUserExporter;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Actions\ExportAction;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
@@ -84,6 +86,10 @@ class AppleUserResource extends Resource
             ->recordActions([
                 EditAction::make(),
                 DeleteAction::make(),
+            ])
+            ->headerActions([
+                ExportAction::make()
+                    ->exporter(AppleUserExporter::class),
             ]);
     }
 

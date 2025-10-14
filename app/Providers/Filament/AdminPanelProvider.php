@@ -44,6 +44,7 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
+            ->databaseNotifications()
             ->topNavigation()
             ->tenant(App::class)
             ->tenantRoutePrefix('apps')
