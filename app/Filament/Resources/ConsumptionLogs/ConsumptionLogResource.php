@@ -5,9 +5,11 @@ namespace App\Filament\Resources\ConsumptionLogs;
 use App\Filament\Resources\ConsumptionLogs\Pages\ManageConsumptionLogs;
 use App\Models\ConsumptionLog;
 use BackedEnum;
+use App\Filament\Exports\ConsumptionLogExporter;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ViewAction;
+use Filament\Actions\ExportAction;
 use Filament\Facades\Filament;
 use Filament\Infolists\Components\CodeEntry;
 use Filament\Infolists\Components\TextEntry;
@@ -111,6 +113,10 @@ class ConsumptionLogResource extends Resource
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
+            ])
+            ->headerActions([
+                ExportAction::make()
+                    ->exporter(ConsumptionLogExporter::class),
             ]);
     }
 

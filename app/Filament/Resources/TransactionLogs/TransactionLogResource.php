@@ -7,11 +7,13 @@ use App\Enums\NotificationTypeEnum;
 use App\Filament\Resources\TransactionLogs\Pages\ManageTransactionLogs;
 use App\Models\TransactionLog;
 use BackedEnum;
+use App\Filament\Exports\TransactionLogExporter;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Actions\ExportAction;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -119,6 +121,10 @@ class TransactionLogResource extends Resource
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
+            ])
+            ->headerActions([
+                ExportAction::make()
+                    ->exporter(TransactionLogExporter::class),
             ]);
     }
 
