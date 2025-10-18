@@ -528,6 +528,36 @@ class WebhookTest extends TestCase
 
         Carbon::setTestNow();
     }
+
+    public function test_refund_declined_event_updates_consumption_log_status(): void
+    {
+        $app = $this->makeApp();
+
+        // First create a consumption log
+        $consumptionLog = ConsumptionLog::factory()->create([
+            'app_id' => $app->id,
+            'original_transaction_id' => '100000000000001',
+            'status' => \App\Enums\ConsumptionLogStatusEnum::PENDING,
+        ]);
+
+        $payload = $this->fakePayload('REFUND_DECLINED', $this->meta());
+        $this->stubDecode($payload);
+
+        $resp = $this->postJson('/api/v1/apps/' . $app->id . '/webhook', []);
+        $resp->assertOk();
+
+        // Verify the notification was logged
+        $this->assertDatabaseHas('notification_logs', [
+            'app_id' => $app->id,
+            'notification_type' => 'REFUND_DECLINED',
+        ]);
+
+        // Verify consumption log status was updated
+        $consumptionLog->refresh();
+        $this->assertEquals(\App\Enums\ConsumptionLogStatusEnum::REFUND_DECLINED, $consumptionLog->status);
+
+        Queue::assertPushed(FinishNotificationJob::class);
+    }
 }
 
 
