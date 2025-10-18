@@ -181,5 +181,10 @@
     "No pending logs": "保留中のログなし",
     "There are currently no pending consumption logs to send.": "現在送信する保留中の消費ログはありません。",
     "Batch send task started": "一括送信タスクが開始されました",
-    "Successfully added :count consumption logs to the send queue.": ":count件の消費ログを送信キューに正常に追加しました。"
+    "Successfully added :count consumption logs to the send queue.": ":count件の消費ログを送信キューに正常に追加しました。",
+    "Consumption Logs Trend": "消費ログの推移",
+    "Total": "合計",
+    "Refund": "返金",
+    "Refund Declined": "返金拒否",
+    "days": "日"
 }

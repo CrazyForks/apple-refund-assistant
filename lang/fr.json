@@ -181,5 +181,10 @@
     "No pending logs": "Aucun journal en attente",
     "There are currently no pending consumption logs to send.": "Il n'y a actuellement aucun journal de consommation en attente à envoyer.",
     "Batch send task started": "Tâche d'envoi par lot démarrée",
-    "Successfully added :count consumption logs to the send queue.": "Ajouté avec succès :count journaux de consommation à la file d'envoi."
+    "Successfully added :count consumption logs to the send queue.": "Ajouté avec succès :count journaux de consommation à la file d'envoi.",
+    "Consumption Logs Trend": "Tendance des Journaux de Consommation",
+    "Total": "Total",
+    "Refund": "Remboursement",
+    "Refund Declined": "Remboursement Refusé",
+    "days": "jours"
 }

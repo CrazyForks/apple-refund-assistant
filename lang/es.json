@@ -181,5 +181,10 @@
     "No pending logs": "Sin registros pendientes",
     "There are currently no pending consumption logs to send.": "Actualmente no hay registros de consumo pendientes para enviar.",
     "Batch send task started": "Tarea de envío por lotes iniciada",
-    "Successfully added :count consumption logs to the send queue.": "Se agregaron exitosamente :count registros de consumo a la cola de envío."
+    "Successfully added :count consumption logs to the send queue.": "Se agregaron exitosamente :count registros de consumo a la cola de envío.",
+    "Consumption Logs Trend": "Tendencia de Registros de Consumo",
+    "Total": "Total",
+    "Refund": "Reembolso",
+    "Refund Declined": "Reembolso Rechazado",
+    "days": "días"
 }

@@ -181,5 +181,10 @@
     "No pending logs": "कोई लंबित लॉग नहीं",
     "There are currently no pending consumption logs to send.": "वर्तमान में भेजने के लिए कोई लंबित उपभोग लॉग नहीं हैं।",
     "Batch send task started": "बैच भेजने का कार्य शुरू हुआ",
-    "Successfully added :count consumption logs to the send queue.": "सफलतापूर्वक :count उपभोग लॉग को भेजने की कतार में जोड़ा गया।"
+    "Successfully added :count consumption logs to the send queue.": "सफलतापूर्वक :count उपभोग लॉग को भेजने की कतार में जोड़ा गया।",
+    "Consumption Logs Trend": "उपभोग लॉग रुझान",
+    "Total": "कुल",
+    "Refund": "रिफंड",
+    "Refund Declined": "रिफंड अस्वीकृत",
+    "days": "दिन"
 }
