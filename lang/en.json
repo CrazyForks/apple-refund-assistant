@@ -181,5 +181,10 @@
     "No pending logs": "No pending logs",
     "There are currently no pending consumption logs to send.": "There are currently no pending consumption logs to send.",
     "Batch send task started": "Batch send task started",
-    "Successfully added :count consumption logs to the send queue.": "Successfully added :count consumption logs to the send queue."
+    "Successfully added :count consumption logs to the send queue.": "Successfully added :count consumption logs to the send queue.",
+    "Consumption Logs Trend": "Consumption Logs Trend",
+    "Total": "Total",
+    "Refund": "Refund",
+    "Refund Declined": "Refund Declined",
+    "days": "days"
 }

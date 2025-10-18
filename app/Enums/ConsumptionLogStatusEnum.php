@@ -10,6 +10,8 @@ enum ConsumptionLogStatusEnum : string implements HasLabel, HasColor
     case PENDING = 'pending';
     case FAIL = 'fail';
     case SUCCESS = 'success';
+    case REFUND = 'refund';
+    case REFUND_DECLINED = 'refund_declined';
 
 
     public function getLabel(): ?string
@@ -23,6 +25,8 @@ enum ConsumptionLogStatusEnum : string implements HasLabel, HasColor
             self::SUCCESS=> 'success',
             self::PENDING=> 'warning',
             self::FAIL => 'danger',
+            self::REFUND => 'info',
+            self::REFUND_DECLINED => 'danger',
         };
     }
 }

@@ -181,5 +181,10 @@
     "No pending logs": "没有待处理的日志",
     "There are currently no pending consumption logs to send.": "当前没有待处理的消费日志需要发送。",
     "Batch send task started": "批量发送任务已启动",
-    "Successfully added :count consumption logs to the send queue.": "已成功将 :count 条消费日志加入发送队列。"
+    "Successfully added :count consumption logs to the send queue.": "已成功将 :count 条消费日志加入发送队列。",
+    "Consumption Logs Trend": "消费日志趋势",
+    "Total": "总数",
+    "Refund": "退款",
+    "Refund Declined": "退款被拒",
+    "days": "天"
 }

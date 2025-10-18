@@ -181,5 +181,10 @@
     "No pending logs": "لا توجد سجلات معلقة",
     "There are currently no pending consumption logs to send.": "لا توجد حالياً سجلات استهلاك معلقة للإرسال.",
     "Batch send task started": "بدأت مهمة الإرسال المجمع",
-    "Successfully added :count consumption logs to the send queue.": "تم إضافة :count سجل استهلاك بنجاح إلى قائمة الإرسال."
+    "Successfully added :count consumption logs to the send queue.": "تم إضافة :count سجل استهلاك بنجاح إلى قائمة الإرسال.",
+    "Consumption Logs Trend": "اتجاه سجلات الاستهلاك",
+    "Total": "المجموع",
+    "Refund": "استرداد",
+    "Refund Declined": "رفض الاسترداد",
+    "days": "أيام"
 }

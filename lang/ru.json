@@ -181,5 +181,10 @@
     "No pending logs": "Нет ожидающих журналов",
     "There are currently no pending consumption logs to send.": "В настоящее время нет ожидающих журналов потребления для отправки.",
     "Batch send task started": "Задача пакетной отправки запущена",
-    "Successfully added :count consumption logs to the send queue.": "Успешно добавлено :count журналов потребления в очередь отправки."
+    "Successfully added :count consumption logs to the send queue.": "Успешно добавлено :count журналов потребления в очередь отправки.",
+    "Consumption Logs Trend": "Тренд журналов потребления",
+    "Total": "Всего",
+    "Refund": "Возврат",
+    "Refund Declined": "Возврат отклонен",
+    "days": "дней"
 }

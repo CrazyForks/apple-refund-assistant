@@ -181,5 +181,10 @@
     "No pending logs": "Nenhum log pendente",
     "There are currently no pending consumption logs to send.": "Atualmente não há logs de consumo pendentes para enviar.",
     "Batch send task started": "Tarefa de envio em lote iniciada",
-    "Successfully added :count consumption logs to the send queue.": "Adicionados com sucesso :count logs de consumo à fila de envio."
+    "Successfully added :count consumption logs to the send queue.": "Adicionados com sucesso :count logs de consumo à fila de envio.",
+    "Consumption Logs Trend": "Tendência de Logs de Consumo",
+    "Total": "Total",
+    "Refund": "Reembolso",
+    "Refund Declined": "Reembolso Recusado",
+    "days": "dias"
 }

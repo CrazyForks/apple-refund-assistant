@@ -13,6 +13,7 @@ enum NotificationTypeEnum : string implements HasLabel, HasColor
     case ONE_TIME_CHARGE = 'ONE_TIME_CHARGE';
 
     case REFUND = 'REFUND';
+    case REFUND_DECLINED = 'REFUND_DECLINED';
     case TEST = 'TEST';
 
     case CONSUMPTION_REQUEST = 'CONSUMPTION_REQUEST';

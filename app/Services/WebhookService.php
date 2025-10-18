@@ -9,6 +9,7 @@ use App\Dao\NotificationRawLogDao;
 use App\Dao\RefundLogDao;
 use App\Dao\TransactionLogDao;
 use App\Enums\AppStatusEnum;
+use App\Enums\ConsumptionLogStatusEnum;
 use App\Enums\NotificationLogStatusEnum;
 use App\Enums\NotificationTypeEnum;
 use App\Jobs\SendConsumptionInformationJob;
@@ -79,6 +80,9 @@ class WebhookService
             case NotificationTypeEnum::REFUND:
                 $this->handleRefund($app, $log);
                 break;
+            case NotificationTypeEnum::REFUND_DECLINED:
+                $this->handleRefundDeclined($app, $log);
+                break;
             case NotificationTypeEnum::SUBSCRIBED:
             case NotificationTypeEnum::DID_RENEW:
             case NotificationTypeEnum::OFFER_REDEEMED:
@@ -88,6 +92,7 @@ class WebhookService
             case NotificationTypeEnum::CONSUMPTION_REQUEST:
                 $this->handleConsumption($app, $log);
                 break;
+
             default:
                 Log::info("[{$log->notification_uuid}]{$log->notification_type}");
                 break;
@@ -155,6 +160,8 @@ class WebhookService
             $this->appleUserDao->incrementRefundedByToken($appAccountToken, $app->id, $dollar);
         }
 
+        $this->consumptionLogDao->updateStatus($transInfo->originalTransactionId, ConsumptionLogStatusEnum::REFUND);
+
         return $this->refundLogDao->storeLog($app, $log);
     }
 
@@ -186,5 +193,11 @@ class WebhookService
             $transaction?->currency ?? 'USD',
             $transaction?->price ?? 0
         );
+    }
+
+    protected function handleRefundDeclined(App $app, NotificationLog $log): void
+    {
+        $originalTransactionId = $log->getTransactionInfo()?->originalTransactionId;
+        $this->consumptionLogDao->updateStatus($originalTransactionId, ConsumptionLogStatusEnum::REFUND_DECLINED);
     }
 }
