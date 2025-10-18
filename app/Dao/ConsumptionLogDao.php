@@ -41,4 +41,22 @@ class ConsumptionLogDao
 
         return $model;
     }
+
+    /**
+     * Update the status of a ConsumptionLog
+     *
+     * @param $originalId
+     * @param ConsumptionLogStatusEnum $status
+     * @param string|null $statusMsg
+     * @return void
+     */
+    public function updateStatus($originalId, ConsumptionLogStatusEnum $status, ?string $statusMsg = null): void
+    {
+        $changes = ['status' => $status];
+        if ($statusMsg) {
+            $changes['status_msg'] = $statusMsg;
+        }
+
+       ConsumptionLog::query()->where('original_transaction_id', $originalId)->update($changes);
+    }
 }
