@@ -2,9 +2,9 @@
 
 namespace Tests\Unit\Services;
 
-use App\Dao\AppleUserDao;
-use App\Dao\AppDao;
-use App\Dao\TransactionLogDao;
+use App\Repositories\AppleUserRepository;
+use App\Repositories\AppRepository;
+use App\Repositories\TransactionLogRepository;
 use App\Models\App;
 use App\Models\AppleUser;
 use App\Models\ConsumptionLog;
@@ -26,13 +26,13 @@ class ConsumptionServiceTest extends TestCase
     {
         parent::setUp();
         
-        $this->appleUserDao = $this->mock(AppleUserDao::class);
-        $this->appDao = $this->mock(AppDao::class);
-        $this->transactionLogDao = $this->mock(TransactionLogDao::class);
+        $this->appleUserRepo = $this->mock(AppleUserRepository::class);
+        $this->appRepo = $this->mock(AppRepository::class);
+        $this->transactionLogRepo = $this->mock(TransactionLogRepository::class);
         $this->consumptionService = new ConsumptionService(
-            $this->appleUserDao, 
-            $this->appDao, 
-            $this->transactionLogDao
+            $this->appleUserRepo, 
+            $this->appRepo, 
+            $this->transactionLogRepo
         );
     }
 
@@ -62,13 +62,13 @@ class ConsumptionServiceTest extends TestCase
         ]);
         $consumptionLog->setRelation('app', $app);
 
-        $this->transactionLogDao
+        $this->transactionLogRepo
             ->shouldReceive('findTransactionByConsumption')
             ->with($consumptionLog)
             ->once()
             ->andReturn($transaction);
 
-        $this->appleUserDao
+        $this->appleUserRepo
             ->shouldReceive('find')
             ->with('test-token', 1)
             ->once()
@@ -122,13 +122,13 @@ class ConsumptionServiceTest extends TestCase
             'register_at' => null,
         ]);
 
-        $this->transactionLogDao
+        $this->transactionLogRepo
             ->shouldReceive('findTransactionByConsumption')
             ->with($consumptionLog)
             ->once()
             ->andReturn($transaction);
 
-        $this->appleUserDao
+        $this->appleUserRepo
             ->shouldReceive('find')
             ->with('test-token', 1)
             ->once()

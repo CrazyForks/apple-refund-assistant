@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Dao\AppDao;
-use App\Dao\AppleUserDao;
-use App\Dao\ConsumptionLogDao;
-use App\Dao\NotificationRawLogDao;
-use App\Dao\RefundLogDao;
-use App\Dao\TransactionLogDao;
+use App\Repositories\AppRepository;
+use App\Repositories\AppleUserRepository;
+use App\Repositories\ConsumptionLogRepository;
+use App\Repositories\NotificationRawLogRepository;
+use App\Repositories\RefundLogRepository;
+use App\Repositories\TransactionLogRepository;
 use App\Enums\AppStatusEnum;
 use App\Enums\ConsumptionLogStatusEnum;
 use App\Enums\NotificationLogStatusEnum;
@@ -29,12 +29,12 @@ use Readdle\AppStoreServerAPI\ResponseBodyV2;
 class WebhookService
 {
     public function __construct(
-        protected AppDao $appDao,
-        protected NotificationRawLogDao $rawLogDao,
-        protected ConsumptionLogDao $consumptionLogDao,
-        protected RefundLogDao $refundLogDao,
-        protected TransactionLogDao $transactionLogDao,
-        protected AppleUserDao $appleUserDao,
+        protected AppRepository $appRepo,
+        protected NotificationRawLogRepository $rawLogRepo,
+        protected ConsumptionLogRepository $consumptionLogRepo,
+        protected RefundLogRepository $refundLogRepo,
+        protected TransactionLogRepository $transactionLogRepo,
+        protected AppleUserRepository $appleUserRepo,
         protected IapService $iapService,
         protected AmountPriceService $priceService,
     ) {
@@ -49,7 +49,7 @@ class WebhookService
     {
         $payload = $this->iapService->decodePayload($content);
 
-        $app = $this->appDao->find($appId);
+        $app = $this->appRepo->find($appId);
 
         // Check for duplicate notifications using cache
         $log = $this->insertRawLog($content, $app, $payload);
@@ -89,9 +89,9 @@ class WebhookService
     protected function handleConsumption(App $app, NotificationLog $log): ConsumptionLog
     {
         $dollar = $this->getTransactionDollar($log);
-        $this->appDao->incrementConsumption($app->id, $dollar);
+        $this->appRepo->incrementConsumption($app->id, $dollar);
 
-        $consumption = $this->consumptionLogDao->storeLog($app, $log);
+        $consumption = $this->consumptionLogRepo->storeLog($app, $log);
 
         // NOTE: use fpm fast-cgi running in background
         dispatch(new SendConsumptionInformationJob($consumption))->afterResponse();
@@ -103,7 +103,7 @@ class WebhookService
     protected function handleTransaction(App $app, NotificationLog $log): TransactionLog
     {
         $dollar = $this->getTransactionDollar($log);
-        $this->appDao->incrementTransaction($app->id, $dollar);
+        $this->appRepo->incrementTransaction($app->id, $dollar);
 
          // Create or get user and update purchased amount
          $transInfo = $log->getTransactionInfo();
@@ -112,30 +112,30 @@ class WebhookService
          if (!empty($appAccountToken)) {
              // Use originalPurchaseDate as registration time (first purchase time)
              $registerTimestamp = $transInfo->getOriginalPurchaseDateTimestamp();
-             $user = $this->appleUserDao->firstOrCreate($appAccountToken, $app->id, $registerTimestamp);
-             $this->appleUserDao->incrementPurchased($user->id, $dollar);
+             $user = $this->appleUserRepo->firstOrCreate($appAccountToken, $app->id, $registerTimestamp);
+             $this->appleUserRepo->incrementPurchased($user->id, $dollar);
          }
 
 
-        return $this->transactionLogDao->storeLog($app, $log);
+        return $this->transactionLogRepo->storeLog($app, $log);
     }
 
     protected function handleRefund(App $app, NotificationLog $log): RefundLog
     {
         $dollar = $this->getTransactionDollar($log);
-        $this->appDao->incrementRefund($app->id, $dollar);
+        $this->appRepo->incrementRefund($app->id, $dollar);
 
         // Update user's refunded amount (only if user exists)
         $transInfo = $log->getTransactionInfo();
         $appAccountToken = $transInfo?->appAccountToken;
 
         if (!empty($appAccountToken)) {
-            $this->appleUserDao->incrementRefundedByToken($appAccountToken, $app->id, $dollar);
+            $this->appleUserRepo->incrementRefundedByToken($appAccountToken, $app->id, $dollar);
         }
 
-        $this->consumptionLogDao->updateStatus($transInfo->originalTransactionId, ConsumptionLogStatusEnum::REFUND);
+        $this->consumptionLogRepo->updateStatus($transInfo->originalTransactionId, ConsumptionLogStatusEnum::REFUND);
 
-        return $this->refundLogDao->storeLog($app, $log);
+        return $this->refundLogRepo->storeLog($app, $log);
     }
 
     protected function handleTest(App $app, NotificationLog $log): void
@@ -149,7 +149,7 @@ class WebhookService
      */
     protected function insertRawLog($content, App $app, ResponseBodyV2 $payload): NotificationLog
     {
-        $raw = $this->rawLogDao->storeRawLog($content, $app, $payload);
+        $raw = $this->rawLogRepo->storeRawLog($content, $app, $payload);
         if ($raw->status === NotificationLogStatusEnum::UN_MATCH_BUNDLE) {
             throw new BundleIdMismatchException(
                 $app->bundle_id ?? 'unknown',
@@ -174,6 +174,6 @@ class WebhookService
     protected function handleRefundDeclined(App $app, NotificationLog $log): void
     {
         $originalTransactionId = $log->getTransactionInfo()?->originalTransactionId;
-        $this->consumptionLogDao->updateStatus($originalTransactionId, ConsumptionLogStatusEnum::REFUND_DECLINED);
+        $this->consumptionLogRepo->updateStatus($originalTransactionId, ConsumptionLogStatusEnum::REFUND_DECLINED);
     }
 }

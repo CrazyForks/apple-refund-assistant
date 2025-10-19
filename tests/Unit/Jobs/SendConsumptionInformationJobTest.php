@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Jobs;
 
-use App\Dao\AppDao;
+use App\Repositories\AppRepository;
 use App\Enums\ConsumptionLogStatusEnum;
 use App\Enums\EnvironmentEnum;
 use App\Jobs\SendConsumptionInformationJob;
@@ -42,7 +42,7 @@ class SendConsumptionInformationJobTest extends TestCase
                 ->once();
         });
 
-        $appDao = $this->mock(AppDao::class, function ($mock) use ($app) {
+        $appRepo = $this->mock(AppRepository::class, function ($mock) use ($app) {
             $mock->shouldReceive('find')
                 ->with($app->id)
                 ->once()
@@ -50,7 +50,7 @@ class SendConsumptionInformationJobTest extends TestCase
         });
 
         $job = new SendConsumptionInformationJob($log);
-        $job->handle($consumptionService, $iapService, $appDao);
+        $job->handle($consumptionService, $iapService, $appRepo);
 
         $log->refresh();
         $this->assertEquals(ConsumptionLogStatusEnum::SUCCESS, $log->status);
@@ -74,13 +74,13 @@ class SendConsumptionInformationJobTest extends TestCase
 
         $iapService = $this->mock(IapService::class);
 
-        $appDao = $this->mock(AppDao::class, function ($mock) use ($app) {
+        $appRepo = $this->mock(AppRepository::class, function ($mock) use ($app) {
             $mock->shouldReceive('find')
                 ->andReturn($app);
         });
 
         $job = new SendConsumptionInformationJob($log);
-        $job->handle($consumptionService, $iapService, $appDao);
+        $job->handle($consumptionService, $iapService, $appRepo);
 
         $log->refresh();
         $this->assertEquals(ConsumptionLogStatusEnum::FAIL, $log->status);
@@ -108,12 +108,12 @@ class SendConsumptionInformationJobTest extends TestCase
             $mock->shouldReceive('sendConsumptionInformation')->once();
         });
 
-        $appDao = $this->mock(AppDao::class, function ($mock) use ($app) {
+        $appRepo = $this->mock(AppRepository::class, function ($mock) use ($app) {
             $mock->shouldReceive('find')->andReturn($app);
         });
 
         $job = new SendConsumptionInformationJob($log);
-        $job->handle($consumptionService, $iapService, $appDao);
+        $job->handle($consumptionService, $iapService, $appRepo);
 
         $log->refresh();
         $this->assertEquals($requestData, $log->send_body);
@@ -144,12 +144,12 @@ class SendConsumptionInformationJobTest extends TestCase
                 ->once();
         });
 
-        $appDao = $this->mock(AppDao::class, function ($mock) use ($app) {
+        $appRepo = $this->mock(AppRepository::class, function ($mock) use ($app) {
             $mock->shouldReceive('find')->andReturn($app);
         });
 
         $job = new SendConsumptionInformationJob($log);
-        $job->handle($consumptionService, $iapService, $appDao);
+        $job->handle($consumptionService, $iapService, $appRepo);
 
         $log->refresh();
         $this->assertEquals(ConsumptionLogStatusEnum::SUCCESS, $log->status);
@@ -175,12 +175,12 @@ class SendConsumptionInformationJobTest extends TestCase
             $mock->shouldNotReceive('sendConsumptionInformation');
         });
 
-        $appDao = $this->mock(AppDao::class, function ($mock) {
+        $appRepo = $this->mock(AppRepository::class, function ($mock) {
             $mock->shouldNotReceive('find');
         });
 
         $job = new SendConsumptionInformationJob($log);
-        $job->handle($consumptionService, $iapService, $appDao);
+        $job->handle($consumptionService, $iapService, $appRepo);
 
         // Status should remain SUCCESS
         $log->refresh();

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Dao\AppDao;
-use App\Dao\AppleUserDao;
-use App\Dao\TransactionLogDao;
+use App\Repositories\AppRepository;
+use App\Repositories\AppleUserRepository;
+use App\Repositories\TransactionLogRepository;
 use App\Models\App;
 use App\Models\AppleUser;
 use App\Models\ConsumptionLog;
@@ -17,9 +17,9 @@ use Readdle\AppStoreServerAPI\RequestBody\ConsumptionRequestBody;
 class ConsumptionService
 {
     public function __construct(
-        protected AppleUserDao $appleUserDao,
-        protected AppDao $appDao,
-        protected TransactionLogDao $transactionDao,
+        protected AppleUserRepository $appleUserRepo,
+        protected AppRepository $appRepo,
+        protected TransactionLogRepository $transactionRepo,
     ) {
     }
 
@@ -27,8 +27,8 @@ class ConsumptionService
    {
        // Get user data
        $app = $log->app;
-       $transaction = $this->transactionDao->findTransactionByConsumption($log);
-       $user = $this->appleUserDao->find($log->app_account_token, $log->app_id);
+       $transaction = $this->transactionRepo->findTransactionByConsumption($log);
+       $user = $this->appleUserRepo->find($log->app_account_token, $log->app_id);
 
 
        return [

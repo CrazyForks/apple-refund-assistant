@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
-use App\Dao\AppDao;
+use App\Repositories\AppRepository;
 use App\Enums\ConsumptionLogStatusEnum;
 use App\Models\ConsumptionLog;
 use App\Services\ConsumptionService;
@@ -29,7 +29,7 @@ class SendConsumptionInformationJob implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(ConsumptionService $consumptionService, IapService $iapService, AppDao $appDao): void
+    public function handle(ConsumptionService $consumptionService, IapService $iapService, AppRepository $appRepo): void
     {
         $log = $this->consumptionLog;
         if ($log->status === ConsumptionLogStatusEnum::SUCCESS) {
@@ -38,7 +38,7 @@ class SendConsumptionInformationJob implements ShouldQueue
 
         try {
             // Build consumption request
-            $app = $appDao->find($log->app_id);
+            $app = $appRepo->find($log->app_id);
             $requestData = $consumptionService->makeConsumptionRequest($log);
 
             $log->send_body = $requestData;
