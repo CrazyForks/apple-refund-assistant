@@ -8,7 +8,7 @@ use Exception;
 
 class InvalidTransactionInfoException extends Exception
 {
-    public function __construct(string $message = 'Invalid transaction info')
+    public function __construct(string $message = 'invalid transaction info')
     {
         parent::__construct($message);
     }

@@ -19,7 +19,7 @@ class TransactionLogRepository
     {
         $transInfo = $raw->getTransactionInfo();
         if (is_null($transInfo)) {
-            throw new InvalidTransactionInfoException('Transaction info is null or missing');
+            throw new InvalidTransactionInfoException();
         }
 
         $model = new TransactionLog();

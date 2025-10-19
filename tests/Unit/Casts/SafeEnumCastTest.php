@@ -45,8 +45,8 @@ class SafeEnumCastTest extends TestCase
 
         $result = $cast->get($model, 'field', null, []);
 
-        // BoolEnum has NO case with value 0, tryFrom(null) returns NO
-        $this->assertEquals(BoolEnum::NO, $result);
+        // When value is null, SafeEnumCast returns null to preserve nullable behavior
+        $this->assertNull($result);
     }
 
     public function test_get_returns_original_value_for_invalid_integer(): void

@@ -23,6 +23,11 @@ class SafeEnumCast implements CastsAttributes
     // Read value from database
     public function get($model, string $key, $value, array $attributes)
     {
+        // Handle null values explicitly before calling tryFrom
+        if ($value === null) {
+            return null;
+        }
+        
         // tryFrom returns null instead of throwing exception
         return $this->enumClass::tryFrom($value) ?? $value;
     }
