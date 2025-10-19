@@ -186,5 +186,10 @@
     "Total": "Total",
     "Refund": "Refund",
     "Refund Declined": "Refund Declined",
-    "days": "days"
+    "days": "days",
+    "Pending": "Pending",
+    "Failed": "Failed",
+    "Success": "Success",
+    "Refunded": "Refunded",
+    "Export": "Export"
 }

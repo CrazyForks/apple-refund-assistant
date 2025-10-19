@@ -1,19 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Dao\AppDao;
 use App\Enums\ConsumptionLogStatusEnum;
 use App\Models\ConsumptionLog;
-use App\Models\NotificationLog;
-use App\Models\TransactionLog;
 use App\Services\ConsumptionService;
 use App\Services\IapService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Log;
-use Readdle\AppStoreServerAPI\Exception\AppStoreServerAPIException;
 
 class SendConsumptionInformationJob implements ShouldQueue
 {

@@ -186,5 +186,10 @@
     "Total": "总数",
     "Refund": "退款",
     "Refund Declined": "退款被拒",
-    "days": "天"
+    "days": "天",
+    "Pending": "待处理",
+    "Failed": "失败",
+    "Success": "成功",
+    "Refunded": "已退款",
+    "Export": "导出"
 }

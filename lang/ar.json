@@ -186,5 +186,10 @@
     "Total": "المجموع",
     "Refund": "استرداد",
     "Refund Declined": "رفض الاسترداد",
-    "days": "أيام"
+    "days": "أيام",
+    "Pending": "قيد الانتظار",
+    "Failed": "فشل",
+    "Success": "نجاح",
+    "Refunded": "تم الاسترداد",
+    "Export": "تصدير"
 }

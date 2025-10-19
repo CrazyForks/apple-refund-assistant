@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Dao\AppDao;
@@ -14,15 +16,11 @@ use Readdle\AppStoreServerAPI\RequestBody\ConsumptionRequestBody;
 
 class ConsumptionService
 {
-    protected AppleUserDao $appleUserDao;
-    protected TransactionLogDao $transactionDao;
-    protected AppDao $appDao;
-
-    public function __construct(AppleUserDao $appleUserDao, AppDao $appDao, TransactionLogDao $transactionDao)
-    {
-        $this->appleUserDao = $appleUserDao;
-        $this->transactionDao = $transactionDao;
-        $this->appDao = $appDao;
+    public function __construct(
+        protected AppleUserDao $appleUserDao,
+        protected AppDao $appDao,
+        protected TransactionLogDao $transactionDao,
+    ) {
     }
 
    public function makeConsumptionRequest(ConsumptionLog $log): array
@@ -49,7 +47,7 @@ class ConsumptionService
        ];
    }
 
-   private function sampleContentProvided(App $app) : bool
+   private function sampleContentProvided(App $app): bool
    {
        return boolval($app->sample_content_provided);
    }

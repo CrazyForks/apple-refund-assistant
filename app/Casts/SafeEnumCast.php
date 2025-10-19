@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace App\Casts;
 
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
@@ -17,14 +20,14 @@ class SafeEnumCast implements CastsAttributes
         $this->enumClass = $enumClass;
     }
 
-    // 读取数据库值
+    // Read value from database
     public function get($model, string $key, $value, array $attributes)
     {
-        // tryFrom 会返回 null 而不是抛异常
+        // tryFrom returns null instead of throwing exception
         return $this->enumClass::tryFrom($value) ?? $value;
     }
 
-    // 存入数据库
+    // Store value to database
     public function set($model, string $key, $value, array $attributes)
     {
         if ($value instanceof $this->enumClass) {

@@ -23,7 +23,7 @@ class SetDefaultAppAction
             ->successNotificationTitle(__('Saved'))
             ->hidden(fn(App $app) => $app->id === Auth::user()?->default_app_id)
             ->action(function (App $app) {
-                // 使用数据库事务确保操作的原子性
+                // Use database transaction to ensure atomicity
                 $user = Auth::user();
                 $user->default_app_id = $app->id;
                 $user->save();

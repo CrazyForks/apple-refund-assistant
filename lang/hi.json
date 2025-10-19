@@ -186,5 +186,10 @@
     "Total": "कुल",
     "Refund": "रिफंड",
     "Refund Declined": "रिफंड अस्वीकृत",
-    "days": "दिन"
+    "days": "दिन",
+    "Pending": "लंबित",
+    "Failed": "विफल",
+    "Success": "सफलता",
+    "Refunded": "रिफंड किया गया",
+    "Export": "निर्यात"
 }

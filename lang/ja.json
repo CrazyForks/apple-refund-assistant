@@ -186,5 +186,10 @@
     "Total": "合計",
     "Refund": "返金",
     "Refund Declined": "返金拒否",
-    "days": "日"
+    "days": "日",
+    "Pending": "保留中",
+    "Failed": "失敗",
+    "Success": "成功",
+    "Refunded": "返金済み",
+    "Export": "エクスポート"
 }

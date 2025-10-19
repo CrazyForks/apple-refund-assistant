@@ -34,7 +34,7 @@ class ManageConsumptionLogs extends ManageRecords
 
     protected function batchSendConsumptionLogs(): void
     {
-        // 获取最近20条待处理的消费日志
+        // Get the latest 20 pending consumption logs
         $logs = ConsumptionLog::where('status', '!=', ConsumptionLogStatusEnum::SUCCESS)
             ->orderByDesc('id')
             ->limit(20)
@@ -51,7 +51,7 @@ class ManageConsumptionLogs extends ManageRecords
 
         $count = 0;
         foreach ($logs as $log) {
-            // 分发任务到队列
+            // Dispatch task to queue
             dispatch(new SendConsumptionInformationJob($log))->afterResponse();
             $count++;
         }

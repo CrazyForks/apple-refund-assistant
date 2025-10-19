@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Dao\AppDao;
@@ -12,6 +14,7 @@ use App\Enums\AppStatusEnum;
 use App\Enums\ConsumptionLogStatusEnum;
 use App\Enums\NotificationLogStatusEnum;
 use App\Enums\NotificationTypeEnum;
+use App\Exceptions\BundleIdMismatchException;
 use App\Jobs\SendConsumptionInformationJob;
 use App\Jobs\FinishNotificationJob;
 use App\Models\App;
@@ -19,49 +22,28 @@ use App\Models\ConsumptionLog;
 use App\Models\NotificationLog;
 use App\Models\RefundLog;
 use App\Models\TransactionLog;
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Readdle\AppStoreServerAPI\Exception\AppStoreServerNotificationException;
 use Readdle\AppStoreServerAPI\ResponseBodyV2;
 
 class WebhookService
 {
-    protected AppDao $appDao;
-    protected NotificationRawLogDao $rawLogDao;
-    protected RefundLogDao $refundLogDao;
-    protected ConsumptionLogDao $consumptionLogDao;
-    protected TransactionLogDao $transactionLogDao;
-    protected AppleUserDao $appleUserDao;
-    protected IapService $iapService;
-    protected AmountPriceService $priceService;
-
     public function __construct(
-        AppDao                $appDao,
-        NotificationRawLogDao $rawLogDao,
-        ConsumptionLogDao     $consumptionLogDao,
-        RefundLogDao          $refundLogDao,
-        TransactionLogDao     $transactionLogDao,
-        AppleUserDao          $appleUserDao,
-        IapService            $iapService,
-        AmountPriceService    $priceService,
-    )
-    {
-        $this->appDao = $appDao;
-        $this->rawLogDao = $rawLogDao;
-        $this->transactionLogDao = $transactionLogDao;
-        $this->consumptionLogDao = $consumptionLogDao;
-        $this->refundLogDao = $refundLogDao;
-        $this->appleUserDao = $appleUserDao;
-        $this->iapService = $iapService;
-        $this->priceService = $priceService;
+        protected AppDao $appDao,
+        protected NotificationRawLogDao $rawLogDao,
+        protected ConsumptionLogDao $consumptionLogDao,
+        protected RefundLogDao $refundLogDao,
+        protected TransactionLogDao $transactionLogDao,
+        protected AppleUserDao $appleUserDao,
+        protected IapService $iapService,
+        protected AmountPriceService $priceService,
+    ) {
     }
 
 
     /**
      * @throws AppStoreServerNotificationException
-     * @throws \Exception
+     * @throws BundleIdMismatchException
      */
     public function handleNotification(string $content, int $appId): NotificationLog
     {
@@ -104,9 +86,6 @@ class WebhookService
         return $log;
     }
 
-    /**
-     * @throws \Exception
-     */
     protected function handleConsumption(App $app, NotificationLog $log): ConsumptionLog
     {
         $dollar = $this->getTransactionDollar($log);
@@ -121,9 +100,6 @@ class WebhookService
     }
 
 
-    /**
-     * @throws \Exception
-     */
     protected function handleTransaction(App $app, NotificationLog $log): TransactionLog
     {
         $dollar = $this->getTransactionDollar($log);
@@ -144,9 +120,6 @@ class WebhookService
         return $this->transactionLogDao->storeLog($app, $log);
     }
 
-    /**
-     * @throws \Exception
-     */
     protected function handleRefund(App $app, NotificationLog $log): RefundLog
     {
         $dollar = $this->getTransactionDollar($log);
@@ -172,13 +145,16 @@ class WebhookService
     }
 
     /**
-     * @throws \Exception
+     * @throws BundleIdMismatchException
      */
     protected function insertRawLog($content, App $app, ResponseBodyV2 $payload): NotificationLog
     {
         $raw = $this->rawLogDao->storeRawLog($content, $app, $payload);
         if ($raw->status === NotificationLogStatusEnum::UN_MATCH_BUNDLE) {
-            throw new \Exception("bundle_id don't match");
+            throw new BundleIdMismatchException(
+                $app->bundle_id ?? 'unknown',
+                $raw->bundle_id ?? 'unknown'
+            );
         }
 
         return $raw;

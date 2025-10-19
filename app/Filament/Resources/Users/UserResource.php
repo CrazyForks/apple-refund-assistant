@@ -41,7 +41,7 @@ class UserResource extends Resource
     {
         $password = TextInput::make('password')
             ->password()
-            ->dehydrated(fn ($state) => filled($state)) // 关键点 1
+            ->dehydrated(fn ($state) => filled($state)) // Key point 1
             ->required(fn (string $operation): bool => $operation === 'create')
             ->dehydrateStateUsing(fn (string $state): string => bcrypt($state))
             ->minLength(4);

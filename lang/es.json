@@ -186,5 +186,10 @@
     "Total": "Total",
     "Refund": "Reembolso",
     "Refund Declined": "Reembolso Rechazado",
-    "days": "días"
+    "days": "días",
+    "Pending": "Pendiente",
+    "Failed": "Fallido",
+    "Success": "Éxito",
+    "Refunded": "Reembolsado",
+    "Export": "Exportar"
 }

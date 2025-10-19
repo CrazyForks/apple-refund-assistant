@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Enums;
 
 use Filament\Support\Contracts\HasColor;
@@ -28,9 +30,11 @@ enum NotificationTypeEnum : string implements HasLabel, HasColor
     {
         return match ($this) {
             self::DID_RENEW, self::SUBSCRIBED, self::OFFER_REDEEMED, self::ONE_TIME_CHARGE => 'success',
-            self::REFUND=> 'danger',
-            self::TEST=> 'warning',
+            self::REFUND => 'danger',
+            self::REFUND_DECLINED => 'warning',
+            self::TEST => 'warning',
             self::CONSUMPTION_REQUEST => 'info',
+            default => 'gray',
         };
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Enums;
 
 use Filament\Support\Contracts\HasColor;
@@ -16,7 +18,13 @@ enum ConsumptionLogStatusEnum : string implements HasLabel, HasColor
 
     public function getLabel(): ?string
     {
-        return $this->value;
+        return match ($this) {
+            self::PENDING => __('Pending'),
+            self::FAIL => __('Failed'),
+            self::SUCCESS => __('Success'),
+            self::REFUND => __('Refunded'),
+            self::REFUND_DECLINED => __('Refund Declined'),
+        };
     }
 
     public function getColor(): string

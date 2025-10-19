@@ -39,7 +39,7 @@ class ConsumptionLogChart extends ChartWidget
         $startDate = Carbon::now()->subDays($days)->startOfDay();
         $endDate = Carbon::now()->endOfDay();
 
-        // 生成日期标签
+        // Generate date labels
         $labels = [];
         $currentDate = $startDate->copy();
         while ($currentDate <= $endDate) {
@@ -47,7 +47,7 @@ class ConsumptionLogChart extends ChartWidget
             $currentDate->addDay();
         }
 
-        // 查询数据
+        // Query data
         $data = ConsumptionLog::query()
             ->where('app_id', $tenant->id)
             ->where('created_at', '>=', $startDate)
@@ -61,12 +61,12 @@ class ConsumptionLogChart extends ChartWidget
             ->orderBy('date')
             ->get();
 
-        // 初始化数据数组
+        // Initialize data arrays
         $totalData = array_fill(0, count($labels), 0);
         $refundData = array_fill(0, count($labels), 0);
         $refundDeclinedData = array_fill(0, count($labels), 0);
 
-        // 填充数据
+        // Fill data
         foreach ($data as $item) {
             $dateKey = Carbon::parse($item->date)->format('m-d');
             $index = array_search($dateKey, $labels);

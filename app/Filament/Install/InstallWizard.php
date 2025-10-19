@@ -430,7 +430,7 @@ class InstallWizard extends Page implements HasForms
                                             }
 
                                             $logs = '';
-                                            // 倒序显示日志（最新的在上面）
+                                            // Display logs in reverse order (newest at top)
                                             $reversedLogs = array_reverse($this->commandLogs);
                                             foreach ($reversedLogs as $log) {
                                                 $color = match($log['type']) {
@@ -458,7 +458,7 @@ class InstallWizard extends Page implements HasForms
     public function testDatabaseConnection(): void
     {
         try {
-            // 只获取表单数据，不进行验证
+            // Only get form data, no validation
             $data = $this->data;
 
             if (!isset($data['db_connection'])) {
@@ -494,7 +494,7 @@ class InstallWizard extends Page implements HasForms
                     throw new \Exception(__('Please fill in database name'));
                 }
 
-                // 设置 MySQL 连接配置
+                // Set MySQL connection configuration
                 config([
                     'database.connections.mysql.host' => $data['db_host'],
                     'database.connections.mysql.port' => $data['db_port'] ?? '3306',
@@ -505,10 +505,10 @@ class InstallWizard extends Page implements HasForms
                     'database.connections.mysql.collation' => 'utf8mb4_unicode_ci',
                 ]);
 
-                // 清除连接缓存
+                // Clear connection cache
                 DB::purge('mysql');
 
-                // 尝试连接并执行一个简单查询来确保连接有效
+                // Try to connect and execute a simple query to ensure connection is valid
                 $pdo = DB::connection('mysql')->getPdo();
                 DB::connection('mysql')->select('SELECT 1');
             }
@@ -698,13 +698,13 @@ class InstallWizard extends Page implements HasForms
             }
 
         } catch (\Exception $e) {
-            // 记录错误到日志中
+            // Log error to logs
             $this->addCommandLog("❌ " . __('Installation failed') . ": " . $e->getMessage(), 'error');
             $this->addCommandLog(__('Failed step') . ": " . __($this->installSteps[$nextStep]), 'error');
 
             $this->isInstalling = false;
             $this->isCompleted = false;
-            // 不要重置 installStep，保持当前步骤以显示日志
+            // Don't reset installStep, keep current step to display logs
 
             Notification::make()
                 ->title('❌ ' . __('Installation failed'))
