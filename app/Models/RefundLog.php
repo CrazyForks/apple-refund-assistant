@@ -4,12 +4,10 @@ namespace App\Models;
 
 use App\Casts\SafeEnumCast;
 use App\Enums\EnvironmentEnum;
-use App\Enums\NotificationTypeEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Kra8\Snowflake\HasShortflakePrimary;
-
 
 /**
  * @property int $id
@@ -29,6 +27,7 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\App|null $app
+ *
  * @method static \Database\Factories\RefundLogFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog newQuery()
@@ -49,6 +48,7 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog whereRefundReason($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog whereTransactionId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RefundLog whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class RefundLog extends Model

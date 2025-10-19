@@ -18,7 +18,7 @@ class NotificationRawLogRepository
         $status = $app->bundle_id === $meta->getBundleId() ?
             NotificationLogStatusEnum::PROCESSING :
             NotificationLogStatusEnum::UN_MATCH_BUNDLE;
-        $model = new NotificationLog();
+        $model = new NotificationLog;
         $model->app_id = $app->getKey();
         $model->bundle_id = $meta->getBundleId();
         $model->bundle_version = $meta->getBundleVersion();
@@ -30,7 +30,7 @@ class NotificationRawLogRepository
         $model->save();
 
         // Store large request_body in separate table
-        $raw = new NotificationRawLog();
+        $raw = new NotificationRawLog;
         $raw->id = $model->getKey();
         $raw->request_body = $content;
         $raw->save();
@@ -38,4 +38,3 @@ class NotificationRawLogRepository
         return $model;
     }
 }
-

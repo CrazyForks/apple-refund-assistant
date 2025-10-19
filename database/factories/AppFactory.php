@@ -14,7 +14,7 @@ class AppFactory extends Factory
     {
         return [
             'name' => $this->faker->company(),
-            'bundle_id' => 'com.test.' . $this->faker->slug(2),
+            'bundle_id' => 'com.test.'.$this->faker->slug(2),
             'status' => AppStatusEnum::NORMAL->value,
             'refund_count' => 0,
             'refund_dollars' => 0,
@@ -25,4 +25,3 @@ class AppFactory extends Factory
         ];
     }
 }
-

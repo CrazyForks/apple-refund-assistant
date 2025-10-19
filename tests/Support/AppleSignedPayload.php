@@ -4,37 +4,30 @@ declare(strict_types=1);
 
 namespace Tests\Support;
 
-use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
 use Ramsey\Uuid\Uuid;
 use Readdle\AppStoreServerAPI\AppMetadata;
 use Readdle\AppStoreServerAPI\ResponseBodyV2;
 use ReflectionClass;
 use RuntimeException;
 
-
-
 class AppleSignedPayload
 {
-
     /**
      * 根据数组构建 ResponseBodyV2 实例（测试用）
      *
-     * @param array $data
-     *   示例数组：
-     *   [
-     *       'notificationType' => 'TEST',
-     *       'subtype' => null,
-     *       'notificationUUID' => 'uuid-123',
-     *       'version' => '2.0',
-     *       'signedDate' => 1690000000000,
-     *       // AppMetadata 需要的字段（至少包含 bundleId 等）
-     *       'bundleId' => 'com.example.test',
-     *       'bundleVersion' => '1.0.0',
-     *       // 其它 AppMetadata 字段
-     *   ]
-     *
-     * @return ResponseBodyV2
+     * @param  array  $data
+     *                       示例数组：
+     *                       [
+     *                       'notificationType' => 'TEST',
+     *                       'subtype' => null,
+     *                       'notificationUUID' => 'uuid-123',
+     *                       'version' => '2.0',
+     *                       'signedDate' => 1690000000000,
+     *                       // AppMetadata 需要的字段（至少包含 bundleId 等）
+     *                       'bundleId' => 'com.example.test',
+     *                       'bundleVersion' => '1.0.0',
+     *                       // 其它 AppMetadata 字段
+     *                       ]
      */
     public static function buildResponseBodyV2FromArray($event, array $meta): ResponseBodyV2
     {
@@ -42,7 +35,7 @@ class AppleSignedPayload
         $instance = $ref->newInstanceWithoutConstructor();
 
         // 构造 AppMetadata 对象
-        if (!class_exists(AppMetadata::class)) {
+        if (! class_exists(AppMetadata::class)) {
             throw new RuntimeException('AppMetadata class not found');
         }
         if (isset($meta['transactionInfo']) && is_array($meta['transactionInfo'])) {

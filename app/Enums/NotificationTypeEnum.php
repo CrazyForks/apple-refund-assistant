@@ -7,7 +7,7 @@ namespace App\Enums;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasLabel;
 
-enum NotificationTypeEnum : string implements HasLabel, HasColor
+enum NotificationTypeEnum: string implements HasColor, HasLabel
 {
     case SUBSCRIBED = 'SUBSCRIBED';
     case DID_RENEW = 'DID_RENEW';
@@ -19,7 +19,6 @@ enum NotificationTypeEnum : string implements HasLabel, HasColor
     case TEST = 'TEST';
 
     case CONSUMPTION_REQUEST = 'CONSUMPTION_REQUEST';
-
 
     public function getLabel(): ?string
     {

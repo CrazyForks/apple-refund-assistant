@@ -16,21 +16,18 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Facades\FilamentView;
 use Filament\Tables\Columns\Column;
 use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
-use Filament\Widgets\AccountWidget;
-use Filament\Widgets\FilamentInfoWidget;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Filament\Support\Facades\FilamentView;
-use Filament\View\PanelsRenderHook;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -53,7 +50,7 @@ class AdminPanelProvider extends PanelProvider
             ->profile(EditProfile::class)
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
-            ->pages([Dashboard::class,])
+            ->pages([Dashboard::class])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([])
             ->middleware([
@@ -78,16 +75,16 @@ class AdminPanelProvider extends PanelProvider
             $table->defaultSort('id', 'desc');
             $table->recordActionsPosition(RecordActionsPosition::BeforeCells);
         });
-        Column::configureUsing(function(Column $column): void {
+        Column::configureUsing(function (Column $column): void {
             $column->translateLabel();
         });
-        Filter::configureUsing(function(Filter $filter): void {
+        Filter::configureUsing(function (Filter $filter): void {
             $filter->translateLabel();
         });
-        Field::configureUsing(function(Field $field): void {
+        Field::configureUsing(function (Field $field): void {
             $field->translateLabel();
         });
-        Entry::configureUsing(function(Entry $entry): void {
+        Entry::configureUsing(function (Entry $entry): void {
             $entry->translateLabel();
         });
 

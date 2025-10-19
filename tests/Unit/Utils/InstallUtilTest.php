@@ -84,4 +84,3 @@ class InstallUtilTest extends TestCase
         $this->assertTrue($result);
     }
 }
-

@@ -20,7 +20,7 @@ class SafeEnumCastTest extends TestCase
     public function test_get_returns_enum_when_value_is_valid(): void
     {
         $cast = new SafeEnumCast(BoolEnum::class);
-        $model = new \stdClass();
+        $model = new \stdClass;
 
         $result = $cast->get($model, 'field', 1, []);
 
@@ -31,7 +31,7 @@ class SafeEnumCastTest extends TestCase
     public function test_get_returns_original_value_when_enum_conversion_fails(): void
     {
         $cast = new SafeEnumCast(BoolEnum::class);
-        $model = new \stdClass();
+        $model = new \stdClass;
 
         $result = $cast->get($model, 'field', 999, []);
 
@@ -41,7 +41,7 @@ class SafeEnumCastTest extends TestCase
     public function test_get_returns_original_value_when_value_is_null(): void
     {
         $cast = new SafeEnumCast(BoolEnum::class);
-        $model = new \stdClass();
+        $model = new \stdClass;
 
         $result = $cast->get($model, 'field', null, []);
 
@@ -52,7 +52,7 @@ class SafeEnumCastTest extends TestCase
     public function test_get_returns_original_value_for_invalid_integer(): void
     {
         $cast = new SafeEnumCast(BoolEnum::class);
-        $model = new \stdClass();
+        $model = new \stdClass;
 
         $result = $cast->get($model, 'field', 999, []);
 
@@ -62,7 +62,7 @@ class SafeEnumCastTest extends TestCase
     public function test_set_returns_enum_value_when_given_enum_instance(): void
     {
         $cast = new SafeEnumCast(BoolEnum::class);
-        $model = new \stdClass();
+        $model = new \stdClass;
 
         $result = $cast->set($model, 'field', BoolEnum::YES, []);
 
@@ -72,7 +72,7 @@ class SafeEnumCastTest extends TestCase
     public function test_set_returns_original_value_when_not_enum_instance(): void
     {
         $cast = new SafeEnumCast(BoolEnum::class);
-        $model = new \stdClass();
+        $model = new \stdClass;
 
         $result = $cast->set($model, 'field', 42, []);
 
@@ -82,7 +82,7 @@ class SafeEnumCastTest extends TestCase
     public function test_set_returns_string_value_when_given_string(): void
     {
         $cast = new SafeEnumCast(BoolEnum::class);
-        $model = new \stdClass();
+        $model = new \stdClass;
 
         $result = $cast->set($model, 'field', 'test', []);
 
@@ -92,11 +92,10 @@ class SafeEnumCastTest extends TestCase
     public function test_set_returns_null_when_given_null(): void
     {
         $cast = new SafeEnumCast(BoolEnum::class);
-        $model = new \stdClass();
+        $model = new \stdClass;
 
         $result = $cast->set($model, 'field', null, []);
 
         $this->assertNull($result);
     }
 }
-

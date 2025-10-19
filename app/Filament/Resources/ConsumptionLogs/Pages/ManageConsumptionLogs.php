@@ -7,7 +7,6 @@ use App\Filament\Resources\ConsumptionLogs\ConsumptionLogResource;
 use App\Jobs\SendConsumptionInformationJob;
 use App\Models\ConsumptionLog;
 use Filament\Actions\Action;
-use Filament\Actions\CreateAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ManageRecords;
 
@@ -46,6 +45,7 @@ class ManageConsumptionLogs extends ManageRecords
                 ->body(__('There are currently no pending consumption logs to send.'))
                 ->warning()
                 ->send();
+
             return;
         }
 

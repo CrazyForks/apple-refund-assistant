@@ -5,7 +5,7 @@ namespace App\Enums;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasLabel;
 
-enum UserRoleEnum : string implements HasLabel, HasColor
+enum UserRoleEnum: string implements HasColor, HasLabel
 {
     case ADMIN = 'admin';
     case EDITOR = 'editor';
@@ -18,7 +18,7 @@ enum UserRoleEnum : string implements HasLabel, HasColor
         };
     }
 
-    public function getColor():  string
+    public function getColor(): string
     {
         return match ($this) {
             UserRoleEnum::ADMIN => 'success',

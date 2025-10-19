@@ -1,15 +1,14 @@
 <?php
+
 namespace App\Filament\Pages\Tenancy;
 
 use App\Filament\Resources\Apps\AppResource;
 use App\Filament\Tables\Actions\AppTestWebhookAction;
 use App\Filament\Tables\Actions\SetDefaultAppAction;
-use App\Models\App;
 use Filament\Actions\DeleteAction;
 use Filament\Facades\Filament;
 use Filament\Pages\Tenancy\EditTenantProfile;
 use Filament\Schemas\Schema;
-use Illuminate\Support\Facades\Auth;
 
 class ConfigApp extends EditTenantProfile
 {
@@ -26,8 +25,9 @@ class ConfigApp extends EditTenantProfile
     protected function getHeaderActions(): array
     {
         $app = Filament::getTenant();
+
         return [
-            DeleteAction::make()->record($app) ->successRedirectUrl(Filament::getHomeUrl()),
+            DeleteAction::make()->record($app)->successRedirectUrl(Filament::getHomeUrl()),
             SetDefaultAppAction::make()->record($app),
             AppTestWebhookAction::make()->record($app),
         ];

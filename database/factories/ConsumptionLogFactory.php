@@ -20,7 +20,7 @@ class ConsumptionLogFactory extends Factory
             'original_transaction_id' => $this->faker->numerify('##########'),
             'transaction_id' => $this->faker->numerify('##########'),
             'notification_uuid' => $this->faker->uuid(),
-            'bundle_id' => 'com.test.' . $this->faker->slug(2),
+            'bundle_id' => 'com.test.'.$this->faker->slug(2),
             'environment' => EnvironmentEnum::SANDBOX->value,
             'consumption_request_reason' => 'UNINTENDED_PURCHASE',
             'deadline_at' => $this->faker->unixTime('+12 hours'),
@@ -29,4 +29,3 @@ class ConsumptionLogFactory extends Factory
         ];
     }
 }
-

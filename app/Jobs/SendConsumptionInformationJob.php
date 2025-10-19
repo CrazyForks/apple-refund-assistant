@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
-use App\Repositories\AppRepository;
 use App\Enums\ConsumptionLogStatusEnum;
 use App\Models\ConsumptionLog;
+use App\Repositories\AppRepository;
 use App\Services\ConsumptionService;
 use App\Services\IapService;
 use Illuminate\Contracts\Queue\ShouldQueue;

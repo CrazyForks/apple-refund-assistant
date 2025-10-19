@@ -19,10 +19,10 @@ class TransactionLogRepository
     {
         $transInfo = $raw->getTransactionInfo();
         if (is_null($transInfo)) {
-            throw new InvalidTransactionInfoException();
+            throw new InvalidTransactionInfoException;
         }
 
-        $model = new TransactionLog();
+        $model = new TransactionLog;
         $model->id = $raw->id;
         $model->notification_type = $raw->notification_type;
         $model->app_id = $app->id;
@@ -58,4 +58,3 @@ class TransactionLogRepository
             ->first();
     }
 }
-

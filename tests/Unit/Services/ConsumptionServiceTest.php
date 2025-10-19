@@ -2,36 +2,39 @@
 
 namespace Tests\Unit\Services;
 
-use App\Repositories\AppleUserRepository;
-use App\Repositories\AppRepository;
-use App\Repositories\TransactionLogRepository;
 use App\Models\App;
 use App\Models\AppleUser;
 use App\Models\ConsumptionLog;
 use App\Models\TransactionLog;
+use App\Repositories\AppleUserRepository;
+use App\Repositories\AppRepository;
+use App\Repositories\TransactionLogRepository;
 use App\Services\ConsumptionService;
 use Carbon\Carbon;
+use Mockery;
 use Readdle\AppStoreServerAPI\RequestBody\ConsumptionRequestBody;
 use Tests\TestCase;
-use Mockery;
 
 class ConsumptionServiceTest extends TestCase
 {
     protected $appleUserDao;
+
     protected $appDao;
+
     protected $transactionLogDao;
+
     protected $consumptionService;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->appleUserRepo = $this->mock(AppleUserRepository::class);
         $this->appRepo = $this->mock(AppRepository::class);
         $this->transactionLogRepo = $this->mock(TransactionLogRepository::class);
         $this->consumptionService = new ConsumptionService(
-            $this->appleUserRepo, 
-            $this->appRepo, 
+            $this->appleUserRepo,
+            $this->appRepo,
             $this->transactionLogRepo
         );
     }
@@ -50,7 +53,7 @@ class ConsumptionServiceTest extends TestCase
             'register_at' => Carbon::now()->subDays(45),
         ]);
 
-        $transaction = new TransactionLog();
+        $transaction = new TransactionLog;
         $transaction->app_account_token = 'test-token';
         $transaction->expiration_date = Carbon::now()->addDays(30);
 
@@ -58,7 +61,7 @@ class ConsumptionServiceTest extends TestCase
             'app_id' => 1,
             'app_account_token' => 'test-token',
             'original_transaction_id' => 'original-123',
-            'transaction_id' => 'transaction-456'
+            'transaction_id' => 'transaction-456',
         ]);
         $consumptionLog->setRelation('app', $app);
 
@@ -89,7 +92,7 @@ class ConsumptionServiceTest extends TestCase
         $this->assertArrayHasKey('refundPreference', $result);
         $this->assertArrayHasKey('sampleContentProvided', $result);
         $this->assertArrayHasKey('userStatus', $result);
-        
+
         $this->assertEquals('test-token', $result['appAccountToken']);
         $this->assertTrue($result['customerConsented']);
         $this->assertTrue($result['sampleContentProvided']);
@@ -102,7 +105,7 @@ class ConsumptionServiceTest extends TestCase
             'sample_content_provided' => false,
         ]);
 
-        $transaction = new TransactionLog();
+        $transaction = new TransactionLog;
         $transaction->app_account_token = 'test-token';
         $transaction->expiration_date = null;
 
@@ -110,7 +113,7 @@ class ConsumptionServiceTest extends TestCase
             'app_id' => 1,
             'app_account_token' => 'test-token',
             'original_transaction_id' => 'original-123',
-            'transaction_id' => 'transaction-456'
+            'transaction_id' => 'transaction-456',
         ]);
         $consumptionLog->setRelation('app', $app);
 
@@ -139,7 +142,7 @@ class ConsumptionServiceTest extends TestCase
         $this->assertIsArray($result);
         $this->assertArrayHasKey('appAccountToken', $result);
         $this->assertArrayHasKey('sampleContentProvided', $result);
-        
+
         $this->assertEquals('test-token', $result['appAccountToken']);
         $this->assertFalse($result['sampleContentProvided']);
     }
@@ -292,17 +295,17 @@ class ConsumptionServiceTest extends TestCase
         $method->setAccessible(true);
 
         // Test null expiration_date
-        $transaction = new TransactionLog();
+        $transaction = new TransactionLog;
         $transaction->expiration_date = null;
         $this->assertEquals(ConsumptionRequestBody::CONSUMPTION_STATUS__UNDECLARED, $method->invoke($this->consumptionService, $transaction));
 
         // Test expired
-        $transaction = new TransactionLog();
+        $transaction = new TransactionLog;
         $transaction->expiration_date = Carbon::now()->subDay();
         $this->assertEquals(ConsumptionRequestBody::CONSUMPTION_STATUS__FULLY_CONSUMED, $method->invoke($this->consumptionService, $transaction));
 
         // Test not expired
-        $transaction = new TransactionLog();
+        $transaction = new TransactionLog;
         $transaction->expiration_date = Carbon::now()->addDay();
         $this->assertEquals(ConsumptionRequestBody::CONSUMPTION_STATUS__PARTIALLY_CONSUMED, $method->invoke($this->consumptionService, $transaction));
     }
@@ -314,17 +317,17 @@ class ConsumptionServiceTest extends TestCase
         $method->setAccessible(true);
 
         // Test null expiration_date
-        $transaction = new TransactionLog();
+        $transaction = new TransactionLog;
         $transaction->expiration_date = null;
         $this->assertEquals(ConsumptionRequestBody::REFUND_PREFERENCE__UNDECLARED, $method->invoke($this->consumptionService, $transaction));
 
         // Test expired
-        $transaction = new TransactionLog();
+        $transaction = new TransactionLog;
         $transaction->expiration_date = Carbon::now()->subDay();
         $this->assertEquals(ConsumptionRequestBody::REFUND_PREFERENCE__DECLINE, $method->invoke($this->consumptionService, $transaction));
 
         // Test not expired
-        $transaction = new TransactionLog();
+        $transaction = new TransactionLog;
         $transaction->expiration_date = Carbon::now()->addDay();
         $this->assertEquals(ConsumptionRequestBody::REFUND_PREFERENCE__UNDECLARED, $method->invoke($this->consumptionService, $transaction));
     }

@@ -7,7 +7,7 @@ namespace App\Enums;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasLabel;
 
-enum AppStatusEnum : string implements HasLabel, HasColor
+enum AppStatusEnum: string implements HasColor, HasLabel
 {
     case UN_VERIFIED = 'unverified';
     case WEB_HOOKING = 'web_hooking';
@@ -22,7 +22,7 @@ enum AppStatusEnum : string implements HasLabel, HasColor
         };
     }
 
-    public function getColor():  string
+    public function getColor(): string
     {
         return match ($this) {
             AppStatusEnum::UN_VERIFIED => 'danger',

@@ -13,7 +13,6 @@ use Readdle\AppStoreServerAPI\ResponseBodyV2;
 
 class IapService
 {
-
     /**
      * @throws WrongEnvironmentException
      */
@@ -54,7 +53,6 @@ class IapService
         $api->sendConsumptionInformation($transactionId, $requestBody);
     }
 
-
     /**
      * @throws AppStoreServerNotificationException
      */
@@ -69,7 +67,7 @@ class IapService
     protected function rootCertificate()
     {
         // NOTE: 2035 is not valid, but it is the latest certificate from Apple
-        return <<<ROOTPEM
+        return <<<'ROOTPEM'
 -----BEGIN CERTIFICATE-----
 MIICQzCCAcmgAwIBAgIILcX8iNLFS5UwCgYIKoZIzj0EAwMwZzEbMBkGA1UEAwwS
 QXBwbGUgUm9vdCBDQSAtIEczMSYwJAYDVQQLDB1BcHBsZSBDZXJ0aWZpY2F0aW9u

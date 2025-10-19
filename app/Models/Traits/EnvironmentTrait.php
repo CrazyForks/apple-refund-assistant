@@ -2,8 +2,8 @@
 
 namespace App\Models\Traits;
 
-trait EnvironmentTrait {
-
+trait EnvironmentTrait
+{
     public function getEnvironment(): string
     {
         return $this->attributes['environment'] ?? '';

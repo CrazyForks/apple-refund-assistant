@@ -18,13 +18,13 @@ class RefundLogRepositoryTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->repository = new RefundLogRepository();
+        $this->repository = new RefundLogRepository;
     }
 
     public function test_store_log_throws_exception_when_transaction_info_is_null(): void
     {
         $app = App::factory()->create();
-        
+
         // Create a notification log with no transaction info in payload
         $log = NotificationLog::factory()->create([
             'app_id' => $app->id,
@@ -44,4 +44,3 @@ class RefundLogRepositoryTest extends TestCase
         $this->repository->storeLog($app, $log);
     }
 }
-

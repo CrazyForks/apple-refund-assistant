@@ -2,19 +2,17 @@
 
 namespace App\Filament\Resources\NotificationLogs;
 
+use App\Filament\Exports\NotificationLogExporter;
 use App\Filament\Resources\NotificationLogs\Pages\ManageNotificationLogs;
 use App\Models\NotificationLog;
 use BackedEnum;
-use App\Filament\Exports\NotificationLogExporter;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
 use Filament\Actions\ExportAction;
+use Filament\Actions\ViewAction;
 use Filament\Infolists\Components\CodeEntry;
 use Filament\Infolists\Components\TextEntry;
-use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -22,8 +20,6 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\PaginationMode;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
 use Phiki\Grammar\Grammar;
 
 class NotificationLogResource extends Resource
@@ -43,7 +39,6 @@ class NotificationLogResource extends Resource
     {
         return __('Notification Raw');
     }
-
 
     public static function infolist(Schema $schema): Schema
     {

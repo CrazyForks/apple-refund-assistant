@@ -27,7 +27,7 @@ class AppleUserRepository
      */
     public function firstOrCreate(string $appAccountToken, int $appId, ?int $registerTimestamp = null): AppleUser
     {
-        $registerAt = $registerTimestamp 
+        $registerAt = $registerTimestamp
             ? Carbon::createFromTimestamp($registerTimestamp)
             : Carbon::now();
 
@@ -78,4 +78,3 @@ class AppleUserRepository
             ->increment('refunded_dollars', $dollars);
     }
 }
-

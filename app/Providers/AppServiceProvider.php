@@ -4,7 +4,6 @@ namespace App\Providers;
 
 use App\Utils\SqlFormatUtil;
 use BezhanSalleh\LanguageSwitch\LanguageSwitch;
-use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -39,7 +38,7 @@ class AppServiceProvider extends ServiceProvider
             $id = Str::random();
             $index = 0;
             DB::listen(function (QueryExecuted $query) use ($id, &$index) {
-                Log::channel('sql')?->info(SqlFormatUtil::format(sprintf('%d@%s', $index ++, $id), $query));
+                Log::channel('sql')?->info(SqlFormatUtil::format(sprintf('%d@%s', $index++, $id), $query));
             });
         }
     }

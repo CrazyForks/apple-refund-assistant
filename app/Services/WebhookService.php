@@ -4,24 +4,24 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Repositories\AppRepository;
-use App\Repositories\AppleUserRepository;
-use App\Repositories\ConsumptionLogRepository;
-use App\Repositories\NotificationRawLogRepository;
-use App\Repositories\RefundLogRepository;
-use App\Repositories\TransactionLogRepository;
 use App\Enums\AppStatusEnum;
 use App\Enums\ConsumptionLogStatusEnum;
 use App\Enums\NotificationLogStatusEnum;
 use App\Enums\NotificationTypeEnum;
 use App\Exceptions\BundleIdMismatchException;
-use App\Jobs\SendConsumptionInformationJob;
 use App\Jobs\FinishNotificationJob;
+use App\Jobs\SendConsumptionInformationJob;
 use App\Models\App;
 use App\Models\ConsumptionLog;
 use App\Models\NotificationLog;
 use App\Models\RefundLog;
 use App\Models\TransactionLog;
+use App\Repositories\AppleUserRepository;
+use App\Repositories\AppRepository;
+use App\Repositories\ConsumptionLogRepository;
+use App\Repositories\NotificationRawLogRepository;
+use App\Repositories\RefundLogRepository;
+use App\Repositories\TransactionLogRepository;
 use Illuminate\Support\Facades\Log;
 use Readdle\AppStoreServerAPI\Exception\AppStoreServerNotificationException;
 use Readdle\AppStoreServerAPI\ResponseBodyV2;
@@ -37,9 +37,7 @@ class WebhookService
         protected AppleUserRepository $appleUserRepo,
         protected IapService $iapService,
         protected AmountPriceService $priceService,
-    ) {
-    }
-
+    ) {}
 
     /**
      * @throws AppStoreServerNotificationException
@@ -99,23 +97,21 @@ class WebhookService
         return $consumption;
     }
 
-
     protected function handleTransaction(App $app, NotificationLog $log): TransactionLog
     {
         $dollar = $this->getTransactionDollar($log);
         $this->appRepo->incrementTransaction($app->id, $dollar);
 
-         // Create or get user and update purchased amount
-         $transInfo = $log->getTransactionInfo();
-         $appAccountToken = $transInfo?->appAccountToken;
+        // Create or get user and update purchased amount
+        $transInfo = $log->getTransactionInfo();
+        $appAccountToken = $transInfo?->appAccountToken;
 
-         if (!empty($appAccountToken)) {
-             // Use originalPurchaseDate as registration time (first purchase time)
-             $registerTimestamp = $transInfo->getOriginalPurchaseDateTimestamp();
-             $user = $this->appleUserRepo->firstOrCreate($appAccountToken, $app->id, $registerTimestamp);
-             $this->appleUserRepo->incrementPurchased($user->id, $dollar);
-         }
-
+        if (! empty($appAccountToken)) {
+            // Use originalPurchaseDate as registration time (first purchase time)
+            $registerTimestamp = $transInfo->getOriginalPurchaseDateTimestamp();
+            $user = $this->appleUserRepo->firstOrCreate($appAccountToken, $app->id, $registerTimestamp);
+            $this->appleUserRepo->incrementPurchased($user->id, $dollar);
+        }
 
         return $this->transactionLogRepo->storeLog($app, $log);
     }
@@ -129,7 +125,7 @@ class WebhookService
         $transInfo = $log->getTransactionInfo();
         $appAccountToken = $transInfo?->appAccountToken;
 
-        if (!empty($appAccountToken)) {
+        if (! empty($appAccountToken)) {
             $this->appleUserRepo->incrementRefundedByToken($appAccountToken, $app->id, $dollar);
         }
 
@@ -160,10 +156,10 @@ class WebhookService
         return $raw;
     }
 
-
     protected function getTransactionDollar(NotificationLog $log): float
     {
         $transaction = $log->getTransactionInfo();
+
         // Use new safe method while maintaining backward compatibility
         return $this->priceService->toDollarFloat(
             $transaction?->currency ?? 'USD',

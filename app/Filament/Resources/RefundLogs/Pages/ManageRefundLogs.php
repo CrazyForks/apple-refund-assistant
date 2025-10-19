@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\RefundLogs\Pages;
 
 use App\Filament\Resources\RefundLogs\RefundLogResource;
-use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
 
 class ManageRefundLogs extends ManageRecords

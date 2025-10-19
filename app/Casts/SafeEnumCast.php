@@ -12,7 +12,7 @@ class SafeEnumCast implements CastsAttributes
 
     public static function cast($class): string
     {
-        return self::class . ':' . $class;
+        return self::class.':'.$class;
     }
 
     public function __construct(string $enumClass)
@@ -27,7 +27,7 @@ class SafeEnumCast implements CastsAttributes
         if ($value === null) {
             return null;
         }
-        
+
         // tryFrom returns null instead of throwing exception
         return $this->enumClass::tryFrom($value) ?? $value;
     }

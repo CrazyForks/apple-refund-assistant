@@ -25,7 +25,7 @@ class NotificationLogFactory extends Factory
     {
         return [
             'app_id' => App::factory(),
-            'bundle_id' => 'com.test.' . $this->faker->slug(2),
+            'bundle_id' => 'com.test.'.$this->faker->slug(2),
             'bundle_version' => $this->faker->numerify('##.#.#'),
             'environment' => EnvironmentEnum::SANDBOX->value,
             'notification_type' => NotificationTypeEnum::TEST->value,
@@ -35,4 +35,3 @@ class NotificationLogFactory extends Factory
         ];
     }
 }
-

@@ -15,7 +15,6 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
 
-
 /**
  * @property int $id
  * @property string $name
@@ -30,6 +29,7 @@ use Illuminate\Support\Collection;
  * @property int|null $default_app_id
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
+ *
  * @method static \Database\Factories\UserFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newQuery()
@@ -45,9 +45,10 @@ use Illuminate\Support\Collection;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereRememberToken($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereRole($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
-class User extends Authenticatable implements FilamentUser, HasTenants, HasDefaultTenant
+class User extends Authenticatable implements FilamentUser, HasDefaultTenant, HasTenants
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
@@ -58,7 +59,6 @@ class User extends Authenticatable implements FilamentUser, HasTenants, HasDefau
      * @var list<string>
      */
     protected $guarded = [];
-
 
     /**
      * The attributes that should be hidden for serialization.
@@ -71,7 +71,9 @@ class User extends Authenticatable implements FilamentUser, HasTenants, HasDefau
     ];
 
     protected ?Collection $myApps = null;
+
     protected ?App $defaultApp = null;
+
     protected bool $defaultAppLoaded = false;
 
     /**
@@ -88,17 +90,15 @@ class User extends Authenticatable implements FilamentUser, HasTenants, HasDefau
         ];
     }
 
-    public function isAdmin() : bool
+    public function isAdmin(): bool
     {
         return $this->role === UserRoleEnum::ADMIN;
     }
-
 
     public function canAccessPanel(Panel $panel): bool
     {
         return $this->activate;
     }
-
 
     public function getTenants(Panel $panel): array|Collection
     {

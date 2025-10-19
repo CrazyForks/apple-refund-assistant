@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Kra8\Snowflake\HasShortflakePrimary;
 
-
 /**
  * @property int $id
  * @property int $app_id
@@ -34,6 +33,7 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\App|null $app
+ *
  * @method static \Database\Factories\TransactionLogFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionLog newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionLog newQuery()
@@ -59,6 +59,7 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionLog whereQuantity($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionLog whereTransactionId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionLog whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class TransactionLog extends Model

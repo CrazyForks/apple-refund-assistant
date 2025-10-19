@@ -10,25 +10,25 @@ class WelcomeController extends Controller
     public function index()
     {
         $uptime = $this->getSystemUptime();
-        
+
         return view('welcome', [
             'uptime' => $uptime,
         ]);
     }
-    
+
     /**
      * Get system uptime information
-     * 
+     *
      * @return array{days: int, hours: int, minutes: int, seconds: int, formatted: string}
      */
     private function getSystemUptime(): array
     {
         $bootTime = $this->getBootTime();
         $now = Carbon::now();
-        
+
         // Calculate the difference
         $diff = $now->diff($bootTime);
-        
+
         return [
             'days' => $diff->days,
             'hours' => $diff->h,
@@ -37,16 +37,14 @@ class WelcomeController extends Controller
             'formatted' => $bootTime->diffForHumans($now, true),
         ];
     }
-    
+
     /**
      * Get system boot time
-     * 
-     * @return Carbon
      */
     protected function getBootTime(): Carbon
     {
         // Cache the computed boot time to avoid repeated /proc reads (keyed per container)
-        $cacheKey = 'system_boot_time_epoch_' . gethostname();
+        $cacheKey = 'system_boot_time_epoch_'.gethostname();
         $cached = Cache::get($cacheKey);
         if (is_int($cached) && $cached > 0) {
             return Carbon::createFromTimestamp($cached);
@@ -56,6 +54,7 @@ class WelcomeController extends Controller
         $containerStartTime = $this->getContainerStartTimeFromProc();
         if ($containerStartTime) {
             Cache::put($cacheKey, $containerStartTime->getTimestamp(), Carbon::now()->addHour());
+
             return $containerStartTime;
         }
 
@@ -63,6 +62,7 @@ class WelcomeController extends Controller
         $containerStartTime = $this->getContainerStartTimeFromEnv();
         if ($containerStartTime) {
             Cache::put($cacheKey, $containerStartTime->getTimestamp(), Carbon::now()->addHour());
+
             return $containerStartTime;
         }
 
@@ -70,6 +70,7 @@ class WelcomeController extends Controller
         $containerStartTime = $this->getContainerStartTimeFromUptime();
         if ($containerStartTime) {
             Cache::put($cacheKey, $containerStartTime->getTimestamp(), Carbon::now()->addHour());
+
             return $containerStartTime;
         }
 
@@ -77,6 +78,7 @@ class WelcomeController extends Controller
         $containerStartTime = $this->getContainerStartTimeFromDockerApi();
         if ($containerStartTime) {
             Cache::put($cacheKey, $containerStartTime->getTimestamp(), Carbon::now()->addHour());
+
             return $containerStartTime;
         }
 
@@ -93,7 +95,7 @@ class WelcomeController extends Controller
                     $hour = substr($bootTime, 8, 2);
                     $minute = substr($bootTime, 10, 2);
                     $second = substr($bootTime, 12, 2);
-                    
+
                     return Carbon::create($year, $month, $day, $hour, $minute, $second);
                 }
             } catch (\Exception $e) {
@@ -117,12 +119,14 @@ class WelcomeController extends Controller
         // Final fallback: use application start time
         if (defined('LARAVEL_START')) {
             Cache::put($cacheKey, LARAVEL_START, Carbon::now()->addHour());
+
             return Carbon::createFromTimestamp(LARAVEL_START);
         }
-        
+
         // Ultimate fallback: current request time
         $fallback = (int) ($_SERVER['REQUEST_TIME'] ?? time());
         Cache::put($cacheKey, $fallback, Carbon::now()->addHour());
+
         return Carbon::createFromTimestamp($fallback);
     }
 
@@ -137,7 +141,7 @@ class WelcomeController extends Controller
         if ($statContent === false) {
             return null;
         }
-        if (!preg_match('/^btime\s+(\d+)/m', $statContent, $btimeMatch)) {
+        if (! preg_match('/^btime\s+(\d+)/m', $statContent, $btimeMatch)) {
             return null;
         }
         $bootTimeEpoch = (int) $btimeMatch[1];
@@ -158,7 +162,7 @@ class WelcomeController extends Controller
         // We split after the parenthesis, so the index should be 21-2 = 19? More stable to parse the whole line:
         // Here we use the traditional method: after splitting after parenthesis, the 20th element (index 19) is not always stable, so we parse the whole line:
         $allFields = preg_split('/\s+/', trim($pid1Stat));
-        if (!$allFields || count($allFields) < 22) {
+        if (! $allFields || count($allFields) < 22) {
             return null;
         }
         $startTicks = (int) $allFields[21]; // Field 22 (0-based index 21)
@@ -180,6 +184,7 @@ class WelcomeController extends Controller
 
         $startSinceBootSeconds = (int) floor($startTicks / $ticksPerSecond);
         $startEpoch = $bootTimeEpoch + $startSinceBootSeconds;
+
         return Carbon::createFromTimestamp($startEpoch);
     }
 
@@ -189,7 +194,7 @@ class WelcomeController extends Controller
         $envVars = [
             'CONTAINER_START_TIME',
             'DOCKER_CONTAINER_START_TIME',
-            'START_TIME'
+            'START_TIME',
         ];
 
         foreach ($envVars as $envVar) {
@@ -208,12 +213,12 @@ class WelcomeController extends Controller
 
     protected function getContainerStartTimeFromUptime(): ?Carbon
     {
-        if (!file_exists('/proc/uptime')) {
+        if (! file_exists('/proc/uptime')) {
             return null;
         }
 
         $uptimeData = file_get_contents('/proc/uptime');
-        if (!$uptimeData) {
+        if (! $uptimeData) {
             return null;
         }
 
@@ -233,7 +238,7 @@ class WelcomeController extends Controller
     {
         // Try to get container info from Docker socket
         $containerId = gethostname();
-        
+
         // Try to read /proc/self/cgroup to get container ID
         if (file_exists('/proc/self/cgroup')) {
             $cgroupData = file_get_contents('/proc/self/cgroup');
@@ -246,8 +251,8 @@ class WelcomeController extends Controller
         $command = "docker inspect {$containerId} --format='{{.State.StartedAt}}' 2>/dev/null";
         $output = [];
         $result = @exec($command, $output, $exitCode);
-        
-        if ($exitCode === 0 && !empty($output[0])) {
+
+        if ($exitCode === 0 && ! empty($output[0])) {
             try {
                 return Carbon::parse(trim($output[0]));
             } catch (\Exception $e) {
@@ -258,5 +263,3 @@ class WelcomeController extends Controller
         return null;
     }
 }
-
-

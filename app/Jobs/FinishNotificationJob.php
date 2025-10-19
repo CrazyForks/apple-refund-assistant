@@ -18,7 +18,9 @@ class FinishNotificationJob implements ShouldQueue
     use Queueable;
 
     public NotificationLog $log;
+
     public App $app;
+
     /**
      * Create a new job instance.
      */
@@ -45,7 +47,7 @@ class FinishNotificationJob implements ShouldQueue
         $body = $raw->request_body ?? '';
 
         $msg = null;
-        if (! empty($appUrl) && !empty($body)) {
+        if (! empty($appUrl) && ! empty($body)) {
             try {
                 $resp = Http::timeout(config('notification.timeout', 30))
                     ->withBody($body, 'application/json')

@@ -25,7 +25,7 @@ class RefundLogFactory extends Factory
             'app_id' => App::factory(),
             'app_account_token' => $this->faker->uuid(),
             'notification_uuid' => $this->faker->uuid(),
-            'bundle_id' => 'com.test.' . $this->faker->slug(2),
+            'bundle_id' => 'com.test.'.$this->faker->slug(2),
             'bundle_version' => $this->faker->numerify('##.#.#'),
             'environment' => EnvironmentEnum::SANDBOX->value,
             'purchase_date' => $this->faker->unixTime('-6 months'),

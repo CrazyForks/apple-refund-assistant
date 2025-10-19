@@ -24,11 +24,9 @@ return new class extends Migration
             $table->string('bundle_version')->nullable();
             $table->string('environment')->nullable();
 
-
             $table->string('purchase_date')->nullable();
             $table->decimal('price');
             $table->string('currency')->nullable();
-
 
             $table->timestamp('refund_date')->nullable();
             $table->string('refund_reason')->nullable();

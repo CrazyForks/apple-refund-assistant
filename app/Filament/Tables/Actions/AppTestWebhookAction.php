@@ -25,6 +25,7 @@ class AppTestWebhookAction
             ->modalHeading('Check webhook address in app store')
             ->modalDescription(function (App $app) {
                 $url = sprintf('%s/api/v1/apps/%d/webhook', rtrim(config('app.url'), '/'), $app->id);
+
                 return new HtmlString(__('apple_config_hits', ['url' => $url]));
             })
             ->fillForm(fn (App $record): array => $record->toArray())

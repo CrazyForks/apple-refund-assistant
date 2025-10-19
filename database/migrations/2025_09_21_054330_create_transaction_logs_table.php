@@ -25,7 +25,6 @@ return new class extends Migration
             $table->string('app_account_token')->index()->nullable();
             $table->string('transaction_id')->index();
 
-
             $table->string('product_id')->nullable();
             $table->string('product_type')->nullable();
             $table->timestamp('purchase_date')->nullable();
@@ -37,7 +36,6 @@ return new class extends Migration
             $table->integer('quantity')->default(1);
 
             $table->timestamps();
-
 
             $table->index(['original_transaction_id', 'app_id']); // For findTransactionByConsumption
         });

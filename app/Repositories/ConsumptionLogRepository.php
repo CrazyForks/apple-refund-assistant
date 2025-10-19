@@ -20,11 +20,10 @@ class ConsumptionLogRepository
     {
         $transInfo = $raw->getTransactionInfo();
         if (is_null($transInfo)) {
-            throw new InvalidTransactionInfoException();
+            throw new InvalidTransactionInfoException;
         }
 
-
-        $model = new ConsumptionLog();
+        $model = new ConsumptionLog;
         $model->id = $raw->id;
         $model->app_id = $app->id;
         $model->bundle_id = $raw->bundle_id;
@@ -46,11 +45,6 @@ class ConsumptionLogRepository
 
     /**
      * Update the status of a ConsumptionLog
-     *
-     * @param $originalId
-     * @param ConsumptionLogStatusEnum $status
-     * @param string|null $statusMsg
-     * @return void
      */
     public function updateStatus($originalId, ConsumptionLogStatusEnum $status, ?string $statusMsg = null): void
     {
@@ -59,7 +53,6 @@ class ConsumptionLogRepository
             $changes['status_msg'] = $statusMsg;
         }
 
-       ConsumptionLog::query()->where('original_transaction_id', $originalId)->update($changes);
+        ConsumptionLog::query()->where('original_transaction_id', $originalId)->update($changes);
     }
 }
-

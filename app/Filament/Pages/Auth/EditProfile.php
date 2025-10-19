@@ -28,7 +28,6 @@ class EditProfile extends BaseEditProfile
             ]);
     }
 
-
     protected function getPasswordFormComponent(): Component
     {
         return TextInput::make('password')

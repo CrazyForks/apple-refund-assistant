@@ -17,24 +17,24 @@ class AppleUserRepositoryTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->repository = new AppleUserRepository();
+        $this->repository = new AppleUserRepository;
     }
 
     public function test_find_returns_null_when_token_is_empty(): void
     {
         $app = App::factory()->create();
-        
+
         $result = $this->repository->find('', $app->id);
-        
+
         $this->assertNull($result);
     }
 
     public function test_find_returns_null_when_token_is_null(): void
     {
         $app = App::factory()->create();
-        
+
         $result = $this->repository->find(null, $app->id);
-        
+
         $this->assertNull($result);
     }
 
@@ -45,9 +45,9 @@ class AppleUserRepositoryTest extends TestCase
             'app_account_token' => 'test-token',
             'app_id' => $app->id,
         ]);
-        
+
         $result = $this->repository->find('test-token', $app->id);
-        
+
         $this->assertNotNull($result);
         $this->assertEquals($user->id, $result->id);
     }
@@ -78,9 +78,8 @@ class AppleUserRepositoryTest extends TestCase
         $result = $this->repository->incrementRefundedByToken('test-token', $app->id, 9.99);
 
         $this->assertEquals(1, $result);
-        
+
         $user->refresh();
         $this->assertEquals(9.99, $user->refunded_dollars);
     }
 }
-

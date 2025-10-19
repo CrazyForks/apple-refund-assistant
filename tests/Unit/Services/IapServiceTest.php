@@ -2,16 +2,13 @@
 
 namespace Tests\Unit\Services;
 
-use App\Services\IapService;
 use App\Models\App;
+use App\Services\IapService;
+use Mockery;
 use Readdle\AppStoreServerAPI\AppStoreServerAPI;
-use Readdle\AppStoreServerAPI\Exception\AppStoreServerAPIException;
-use Readdle\AppStoreServerAPI\Exception\AppStoreServerNotificationException;
-use Readdle\AppStoreServerAPI\Exception\WrongEnvironmentException;
 use Readdle\AppStoreServerAPI\Response\SendTestNotificationResponse;
 use Readdle\AppStoreServerAPI\ResponseBodyV2;
 use Tests\TestCase;
-use Mockery;
 
 class IapServiceTest extends TestCase
 {
@@ -20,8 +17,8 @@ class IapServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
-        $this->iapService = new IapService();
+
+        $this->iapService = new IapService;
     }
 
     public function test_request_notification_success(): void
@@ -29,10 +26,10 @@ class IapServiceTest extends TestCase
         // Since SendTestNotificationResponse is final, we can't mock it easily
         // Let's just test that the method exists and has the right signature
         $this->assertTrue(method_exists($this->iapService, 'requestNotification'));
-        
+
         $reflection = new \ReflectionMethod($this->iapService, 'requestNotification');
         $this->assertEquals(5, $reflection->getNumberOfParameters());
-        
+
         // Test parameter names
         $parameters = $reflection->getParameters();
         $this->assertEquals('issuerId', $parameters[0]->getName());
@@ -47,10 +44,10 @@ class IapServiceTest extends TestCase
         // Since ResponseBodyV2::createFromRawNotification requires real Apple data,
         // we'll just test that our method exists and has the correct signature
         $this->assertTrue(method_exists($this->iapService, 'decodePayload'));
-        
+
         $reflection = new \ReflectionMethod($this->iapService, 'decodePayload');
         $this->assertEquals(1, $reflection->getNumberOfParameters());
-        
+
         // Test parameter name
         $parameters = $reflection->getParameters();
         $this->assertEquals('body', $parameters[0]->getName());
@@ -102,15 +99,14 @@ class IapServiceTest extends TestCase
         $this->assertInstanceOf(AppStoreServerAPI::class, $result);
     }
 
-
     public function test_send_consumption_information(): void
     {
-        $app = new \App\Models\App();
+        $app = new \App\Models\App;
         $app->issuer_id = 'test-issuer-id';
         $app->bundle_id = 'com.test.app';
         $app->key_id = 'test-key-id';
         $app->p8_key = 'test-p8-key';
-        
+
         $transactionId = 'test-transaction-id';
         $requestBody = [
             'accountTenure' => 1,
@@ -122,17 +118,17 @@ class IapServiceTest extends TestCase
             'platform' => 1,
             'playTime' => 3600,
             'sampleContentProvided' => false,
-            'userStatus' => 1
+            'userStatus' => 1,
         ];
         $environment = 'Sandbox';
 
         // We can't fully test this without mocking AppStoreServerAPI
         // But we can test that the method exists and has correct signature
         $this->assertTrue(method_exists($this->iapService, 'sendConsumptionInformation'));
-        
+
         $reflection = new \ReflectionMethod($this->iapService, 'sendConsumptionInformation');
         $this->assertEquals(4, $reflection->getNumberOfParameters());
-        
+
         // Test that it accepts correct parameter types
         $parameters = $reflection->getParameters();
         $this->assertEquals('app', $parameters[0]->getName());
@@ -141,17 +137,16 @@ class IapServiceTest extends TestCase
         $this->assertEquals('environment', $parameters[3]->getName());
     }
 
-
     public function test_decode_payload_calls_response_body_v2(): void
     {
         // Test that decodePayload method signature is correct
         $reflection = new \ReflectionMethod($this->iapService, 'decodePayload');
-        
+
         // Check return type
         $returnType = $reflection->getReturnType();
         $this->assertNotNull($returnType);
         $this->assertEquals('Readdle\AppStoreServerAPI\ResponseBodyV2', $returnType->getName());
-        
+
         // Check that it throws the right exception
         $docComment = $reflection->getDocComment();
         $this->assertStringContainsString('@throws AppStoreServerNotificationException', $docComment);
@@ -161,12 +156,12 @@ class IapServiceTest extends TestCase
     {
         // Test that requestNotification has correct return type
         $reflection = new \ReflectionMethod($this->iapService, 'requestNotification');
-        
+
         // Check return type
         $returnType = $reflection->getReturnType();
         $this->assertNotNull($returnType);
         $this->assertEquals('Readdle\AppStoreServerAPI\Response\SendTestNotificationResponse', $returnType->getName());
-        
+
         // Check that it throws the right exception
         $docComment = $reflection->getDocComment();
         $this->assertStringContainsString('@throws AppStoreServerAPIException', $docComment);
@@ -183,7 +178,7 @@ class IapServiceTest extends TestCase
         $result = $method->invokeArgs(null, [null, null, null, null, 'Sandbox']);
 
         $this->assertInstanceOf(AppStoreServerAPI::class, $result);
-        
+
         // Test with actual values
         $result2 = $method->invokeArgs(null, ['issuer', 'bundle', 'key', 'p8', 'Production']);
         $this->assertInstanceOf(AppStoreServerAPI::class, $result2);
@@ -191,33 +186,32 @@ class IapServiceTest extends TestCase
 
     public function test_send_consumption_information_creates_api_and_calls_method(): void
     {
-        $app = new \App\Models\App();
+        $app = new \App\Models\App;
         $app->issuer_id = 'issuer-123';
         $app->bundle_id = 'com.example.app';
         $app->key_id = 'key-456';
         $app->p8_key = 'p8-key-content';
-        
+
         $transactionId = 'transaction-123';
         $requestBody = [
             'accountTenure' => 2,
-            'consumptionStatus' => 1
+            'consumptionStatus' => 1,
         ];
         $environment = 'Production';
 
         // Test the method signature and exception documentation
         $reflection = new \ReflectionMethod($this->iapService, 'sendConsumptionInformation');
-        
+
         // Check return type is void
         $returnType = $reflection->getReturnType();
         $this->assertNotNull($returnType);
         $this->assertEquals('void', $returnType->getName());
-        
+
         // Verify it has the @throws annotation
         $docComment = $reflection->getDocComment();
         $this->assertStringContainsString('@throws AppStoreServerAPIException', $docComment);
         $this->assertStringContainsString('Send consumption information to Apple', $docComment);
     }
-
 
     public function test_api_method_with_production_environment(): void
     {
@@ -230,12 +224,11 @@ class IapServiceTest extends TestCase
             'com.prod.app',
             'prod-key',
             'prod-p8',
-            'Production'
+            'Production',
         ]);
 
         $this->assertInstanceOf(AppStoreServerAPI::class, $result);
     }
-
 
     public function test_api_null_coalescing_operator_coverage(): void
     {
@@ -276,7 +269,7 @@ class IapServiceTest extends TestCase
 
     public function test_send_consumption_information_with_complete_data(): void
     {
-        $app = new App();
+        $app = new App;
         $app->issuer_id = 'complete-issuer';
         $app->bundle_id = 'com.complete.app';
         $app->key_id = 'complete-key';
@@ -293,7 +286,7 @@ class IapServiceTest extends TestCase
             'platform' => 2,
             'playTime' => 7200,
             'sampleContentProvided' => true,
-            'userStatus' => 2
+            'userStatus' => 2,
         ];
         $environment = 'Production';
 
@@ -307,7 +300,7 @@ class IapServiceTest extends TestCase
             $app->bundle_id,
             $app->key_id,
             $app->p8_key,
-            $environment
+            $environment,
         ]);
 
         $this->assertInstanceOf(AppStoreServerAPI::class, $api);
@@ -333,7 +326,7 @@ class IapServiceTest extends TestCase
         // This test will fail with API exception, but it covers the code execution path
         $this->expectException(\Exception::class);
 
-        $app = new App();
+        $app = new App;
         $app->issuer_id = 'invalid-issuer';
         $app->bundle_id = 'com.invalid.bundle';
         $app->key_id = 'invalid-key';
@@ -351,7 +344,7 @@ class IapServiceTest extends TestCase
             'platform' => 1,
             'playTime' => 3600,
             'sampleContentProvided' => false,
-            'userStatus' => 1
+            'userStatus' => 1,
         ];
         $environment = 'Sandbox';
 

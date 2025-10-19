@@ -17,7 +17,7 @@ class AppRepositoryTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->repository = new AppRepository();
+        $this->repository = new AppRepository;
     }
 
     public function test_increment_refund_money(): void
@@ -31,7 +31,7 @@ class AppRepositoryTest extends TestCase
         $result = $this->repository->incrementRefundMoney($app->id, $money);
 
         $this->assertEquals(1, $result);
-        
+
         $app->refresh();
         $this->assertEquals(1, $app->refund_count);
         $this->assertEquals(5.99, $app->refund_dollars);
@@ -48,7 +48,7 @@ class AppRepositoryTest extends TestCase
         $result = $this->repository->incrementTransactionMoney($app->id, $money);
 
         $this->assertEquals(1, $result);
-        
+
         $app->refresh();
         $this->assertEquals(1, $app->transaction_count);
         $this->assertEquals(9.99, $app->transaction_dollars);
@@ -65,10 +65,9 @@ class AppRepositoryTest extends TestCase
         $result = $this->repository->incrementConsumptionMoney($app->id, $money);
 
         $this->assertEquals(1, $result);
-        
+
         $app->refresh();
         $this->assertEquals(1, $app->consumption_count);
         $this->assertEquals(3.99, $app->consumption_dollars);
     }
 }
-

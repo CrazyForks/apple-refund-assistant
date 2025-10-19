@@ -4,8 +4,6 @@ namespace Tests\Unit\Services;
 
 use App\Services\AmountPriceService;
 use Brick\Money\Money;
-use Carbon\Carbon;
-use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -26,13 +24,13 @@ class AmountPriceServiceTest extends TestCase
         // 在测试方法内部创建，并且 Mock 在创建之前设置
         Http::fake([
             'https://open.er-api.com/v6/latest/USD' => Http::response([
-                'rates' => ['USD' => 1.0]
-            ])
+                'rates' => ['USD' => 1.0],
+            ]),
         ]);
 
         $service = $this->createService();
         $result = $service->toDollar('USD', 100);
-        
+
         $this->assertInstanceOf(Money::class, $result);
         $this->assertEquals('USD', $result->getCurrency()->getCurrencyCode());
     }
@@ -41,13 +39,13 @@ class AmountPriceServiceTest extends TestCase
     {
         Http::fake([
             'https://open.er-api.com/v6/latest/USD' => Http::response([
-                'rates' => ['USD' => 1.0, 'CNY' => 7.2]
-            ])
+                'rates' => ['USD' => 1.0, 'CNY' => 7.2],
+            ]),
         ]);
 
         $service = $this->createService();
         $result = $service->toDollarFloat('USD', 250);
-        
+
         $this->assertIsFloat($result);
         $this->assertGreaterThan(0, $result);
     }
@@ -56,13 +54,13 @@ class AmountPriceServiceTest extends TestCase
     {
         Http::fake([
             'https://open.er-api.com/v6/latest/USD' => Http::response([
-                'rates' => ['USD' => 1.0]
-            ])
+                'rates' => ['USD' => 1.0],
+            ]),
         ]);
 
         $service = $this->createService();
         $result = $service->toDollar('USD', 0);
-        
+
         $this->assertInstanceOf(Money::class, $result);
         $this->assertEquals('0.00', $result->getAmount()->__toString());
     }
@@ -74,9 +72,9 @@ class AmountPriceServiceTest extends TestCase
                 'rates' => [
                     'USD' => 1.0,
                     'EUR' => 0.85,
-                    'CNY' => 7.2
-                ]
-            ], 200)
+                    'CNY' => 7.2,
+                ],
+            ], 200),
         ]);
 
         $service = $this->createService();
@@ -100,14 +98,14 @@ class AmountPriceServiceTest extends TestCase
             'https://open.er-api.com/v6/latest/USD' => Http::response([
                 'rates' => [
                     'USD' => 1.0,
-                    'EUR' => 2.0  // 简单的 2:1 比率便于测试
-                ]
-            ])
+                    'EUR' => 2.0,  // 简单的 2:1 比率便于测试
+                ],
+            ]),
         ]);
 
         $service = $this->createService();
         $result = $service->toDollar('EUR', 200); // €2.00 -> $1.00
-        
+
         $this->assertInstanceOf(Money::class, $result);
         $this->assertEquals('USD', $result->getCurrency()->getCurrencyCode());
         $this->assertEquals('1.00', $result->getAmount()->__toString());
@@ -119,29 +117,28 @@ class AmountPriceServiceTest extends TestCase
             'https://open.er-api.com/v6/latest/USD' => Http::response([
                 'rates' => [
                     'USD' => 1.0,
-                    'CNY' => 10.0  // 简单的 10:1 比率
-                ]
-            ])
+                    'CNY' => 10.0,  // 简单的 10:1 比率
+                ],
+            ]),
         ]);
 
         $service = $this->createService();
         $result = $service->toDollarFloat('CNY', 1000); // ¥10.00 -> $1.00
-        
+
         $this->assertIsFloat($result);
         $this->assertEquals(1.0, $result);
     }
-
 
     public function test_cache_get_dollar_data_uses_cache(): void
     {
         Http::fake([
             'https://open.er-api.com/v6/latest/USD' => Http::response([
-                'rates' => ['USD' => 1.0, 'EUR' => 0.85]
-            ])
+                'rates' => ['USD' => 1.0, 'EUR' => 0.85],
+            ]),
         ]);
 
         $service = $this->createService();
-        
+
         // Use reflection to test protected method
         $reflection = new \ReflectionClass($service);
         $method = $reflection->getMethod('cacheGetDollarData');
@@ -149,10 +146,10 @@ class AmountPriceServiceTest extends TestCase
 
         // 第一次调用
         $result1 = $method->invoke($service);
-        
+
         // 第二次调用应该从缓存获取
         $result2 = $method->invoke($service);
-        
+
         $this->assertEquals($result1, $result2);
         // 验证只发送了一次 HTTP 请求
         Http::assertSentCount(1);
@@ -163,12 +160,12 @@ class AmountPriceServiceTest extends TestCase
         // 测试 HTTP 请求配置了 30 秒超时
         Http::fake([
             'https://open.er-api.com/v6/latest/USD' => Http::response([
-                'rates' => ['USD' => 1.0, 'EUR' => 0.85]
-            ])
+                'rates' => ['USD' => 1.0, 'EUR' => 0.85],
+            ]),
         ]);
 
         $service = $this->createService();
-        
+
         $reflection = new \ReflectionClass($service);
         $method = $reflection->getMethod('requestDollarData');
         $method->setAccessible(true);
@@ -185,13 +182,13 @@ class AmountPriceServiceTest extends TestCase
     {
         Http::fake([
             'https://open.er-api.com/v6/latest/USD' => Http::response([
-                'success' => true
+                'success' => true,
                 // 没有 'rates' 键
-            ])
+            ]),
         ]);
 
         $service = $this->createService();
-        
+
         $reflection = new \ReflectionClass($service);
         $method = $reflection->getMethod('requestDollarData');
         $method->setAccessible(true);
@@ -209,13 +206,13 @@ class AmountPriceServiceTest extends TestCase
                 'rates' => [
                     'USD' => 1.0,
                     'EUR' => 0.85,
-                    'CNY' => 7.2
-                ]
-            ])
+                    'CNY' => 7.2,
+                ],
+            ]),
         ]);
 
         $service = $this->createService();
-        
+
         $reflection = new \ReflectionClass($service);
         $method = $reflection->getMethod('getExchangeRateProvider');
         $method->setAccessible(true);
@@ -228,7 +225,7 @@ class AmountPriceServiceTest extends TestCase
     public function test_get_converter_is_lazy_loaded(): void
     {
         $service = $this->createService();
-        
+
         $reflection = new \ReflectionClass($service);
         $property = $reflection->getProperty('converter');
         $property->setAccessible(true);
@@ -243,13 +240,13 @@ class AmountPriceServiceTest extends TestCase
             'https://open.er-api.com/v6/latest/USD' => Http::response([
                 'rates' => [
                     'USD' => 1.0,
-                    'EUR' => 2.0
-                ]
-            ])
+                    'EUR' => 2.0,
+                ],
+            ]),
         ]);
 
         $service = $this->createService();
-        
+
         $reflection = new \ReflectionClass($service);
         $method = $reflection->getMethod('getConverter');
         $method->setAccessible(true);
@@ -265,17 +262,16 @@ class AmountPriceServiceTest extends TestCase
     {
         Http::fake([
             'https://open.er-api.com/v6/latest/USD' => Http::response([
-                'rates' => ['USD' => 1.0]
-            ])
+                'rates' => ['USD' => 1.0],
+            ]),
         ]);
 
         $service = $this->createService();
         $result = $service->toDollar('USD', -100); // -$1.00
-        
+
         $this->assertInstanceOf(Money::class, $result);
         $this->assertLessThan(0, $result->getAmount()->toFloat());
     }
-
 
     public function test_multiple_currency_conversions_in_sequence(): void
     {
@@ -284,22 +280,22 @@ class AmountPriceServiceTest extends TestCase
                 'rates' => [
                     'USD' => 1.0,
                     'EUR' => 2.0,
-                    'CNY' => 10.0
-                ]
-            ])
+                    'CNY' => 10.0,
+                ],
+            ]),
         ]);
 
         $service = $this->createService();
-        
+
         // 测试连续转换
         $result1 = $service->toDollar('EUR', 200);
         $result2 = $service->toDollar('CNY', 1000);
         $result3 = $service->toDollar('USD', 100);
-        
+
         $this->assertEquals('1.00', $result1->getAmount()->__toString());
         $this->assertEquals('1.00', $result2->getAmount()->__toString());
         $this->assertEquals('1.00', $result3->getAmount()->__toString());
-        
+
         // Converter 应该只初始化一次
         Http::assertSentCount(1);
     }
@@ -314,26 +310,26 @@ class AmountPriceServiceTest extends TestCase
         $dataDir = storage_path('data');
         $dollarJsonPath = storage_path('data/dollar.json');
         $backupPath = storage_path('data/dollar.json.backup');
-        
+
         // 备份原有文件（如果存在）
         $hadOriginalFile = false;
         if (file_exists($dollarJsonPath)) {
             $hadOriginalFile = true;
             copy($dollarJsonPath, $backupPath);
         }
-        
+
         // 创建目录（如果不存在）
-        if (!is_dir($dataDir)) {
+        if (! is_dir($dataDir)) {
             mkdir($dataDir, 0755, true);
         }
-        
+
         // 创建测试数据文件
         $testData = json_encode([
             'rates' => [
                 'USD' => 1.0,
                 'EUR' => 0.85,
-                'CNY' => 7.2
-            ]
+                'CNY' => 7.2,
+            ],
         ]);
         file_put_contents($dollarJsonPath, $testData);
 
@@ -354,7 +350,7 @@ class AmountPriceServiceTest extends TestCase
         $this->assertIsArray($result);
         $this->assertArrayHasKey('USD', $result);
         $this->assertEquals(1.0, $result['USD']);
-        
+
         // 恢复原文件或清理测试文件
         if ($hadOriginalFile) {
             // 恢复原文件
@@ -381,13 +377,13 @@ class AmountPriceServiceTest extends TestCase
                     'EUR' => 0.85,
                     'CNY' => 7.2,
                     'GBP' => 0.73,
-                    'JPY' => 110.0
-                ]
-            ])
+                    'JPY' => 110.0,
+                ],
+            ]),
         ]);
 
         $service = $this->createService();
-        
+
         $reflection = new \ReflectionClass($service);
         $method = $reflection->getMethod('getExchangeRateProvider');
         $method->setAccessible(true);
@@ -395,13 +391,13 @@ class AmountPriceServiceTest extends TestCase
         $provider = $method->invoke($service);
 
         $this->assertInstanceOf(\Brick\Money\ExchangeRateProvider\ConfigurableProvider::class, $provider);
-        
+
         // 验证汇率提供器已经设置了多个货币
         // 通过实际转换来验证
         $converter = new \Brick\Money\CurrencyConverter($provider);
         $money = \Brick\Money\Money::of(1, 'USD');
         $eurMoney = $converter->convert($money, 'EUR', new \Brick\Money\Context\CashContext(2), \Brick\Math\RoundingMode::HALF_UP);
-        
+
         $this->assertEquals('EUR', $eurMoney->getCurrency()->getCurrencyCode());
     }
 
@@ -411,13 +407,13 @@ class AmountPriceServiceTest extends TestCase
             'https://open.er-api.com/v6/latest/USD' => Http::response([
                 'rates' => [
                     'USD' => 1.0,
-                    'EUR' => 0.85
-                ]
-            ])
+                    'EUR' => 0.85,
+                ],
+            ]),
         ]);
 
         $service = $this->createService();
-        
+
         $reflection = new \ReflectionClass($service);
         $method = $reflection->getMethod('getExchangeRateProvider');
         $method->setAccessible(true);
@@ -432,12 +428,12 @@ class AmountPriceServiceTest extends TestCase
     {
         Http::fake([
             'https://open.er-api.com/v6/latest/USD' => Http::response([
-                'rates' => ['USD' => 1.0, 'EUR' => 0.85]
-            ])
+                'rates' => ['USD' => 1.0, 'EUR' => 0.85],
+            ]),
         ]);
 
         $service = $this->createService();
-        
+
         // 使用反射测试缓存过期时间
         $reflection = new \ReflectionClass($service);
         $method = $reflection->getMethod('cacheGetDollarData');
@@ -445,7 +441,7 @@ class AmountPriceServiceTest extends TestCase
 
         // 第一次调用会设置缓存
         $result = $method->invoke($service);
-        
+
         $this->assertIsArray($result);
         // 缓存应该被设置到当天结束
     }
@@ -454,13 +450,13 @@ class AmountPriceServiceTest extends TestCase
     {
         Http::fake([
             'https://open.er-api.com/v6/latest/USD' => Http::response([
-                'rates' => ['USD' => 1.0]
-            ])
+                'rates' => ['USD' => 1.0],
+            ]),
         ]);
 
         $service = $this->createService();
         $result = $service->toDollar('USD', 5000); // $50.00
-        
+
         $this->assertInstanceOf(Money::class, $result);
         $this->assertEquals('50.00', $result->getAmount()->__toString());
         $this->assertEquals('USD', $result->getCurrency()->getCurrencyCode());
@@ -470,13 +466,13 @@ class AmountPriceServiceTest extends TestCase
     {
         Http::fake([
             'https://open.er-api.com/v6/latest/USD' => Http::response([
-                'rates' => ['USD' => 1.0]
-            ])
+                'rates' => ['USD' => 1.0],
+            ]),
         ]);
 
         $service = $this->createService();
         $result = $service->toDollarFloat('USD', 0);
-        
+
         $this->assertIsFloat($result);
         $this->assertEquals(0.0, $result);
     }
@@ -487,16 +483,16 @@ class AmountPriceServiceTest extends TestCase
             'https://open.er-api.com/v6/latest/USD' => Http::response([
                 'rates' => [
                     'USD' => 1.0,
-                    'EUR' => 2.0
-                ]
-            ])
+                    'EUR' => 2.0,
+                ],
+            ]),
         ]);
 
         $service = $this->createService();
-        
+
         // 测试反向汇率是否正确设置
         $result = $service->toDollar('EUR', 200); // €2.00 -> $1.00
-        
+
         $this->assertInstanceOf(Money::class, $result);
         $this->assertEquals('USD', $result->getCurrency()->getCurrencyCode());
         $this->assertEquals('1.00', $result->getAmount()->__toString());
@@ -509,13 +505,13 @@ class AmountPriceServiceTest extends TestCase
                 'result' => 'success',
                 'rates' => [
                     'USD' => 1.0,
-                    'EUR' => 0.85
-                ]
-            ])
+                    'EUR' => 0.85,
+                ],
+            ]),
         ]);
 
         $service = $this->createService();
-        
+
         $reflection = new \ReflectionClass($service);
         $method = $reflection->getMethod('requestDollarData');
         $method->setAccessible(true);
@@ -533,22 +529,22 @@ class AmountPriceServiceTest extends TestCase
             'https://open.er-api.com/v6/latest/USD' => Http::response([
                 'rates' => [
                     'USD' => 1.0,
-                    'JPY' => 110.0  // 使用真实的 JPY 汇率
-                ]
-            ])
+                    'JPY' => 110.0,  // 使用真实的 JPY 汇率
+                ],
+            ]),
         ]);
 
         $service = $this->createService();
-        
+
         // 测试高精度计算是否正确
         $reflection = new \ReflectionClass($service);
         $method = $reflection->getMethod('getExchangeRateProvider');
         $method->setAccessible(true);
 
         $provider = $method->invoke($service);
-        
+
         $this->assertInstanceOf(\Brick\Money\ExchangeRateProvider\ConfigurableProvider::class, $provider);
-        
+
         // 验证可以进行转换
         $result = $service->toDollar('JPY', 11000); // ¥110.00
         $this->assertInstanceOf(Money::class, $result);

@@ -2,14 +2,14 @@
 
 namespace App\Filament\Resources\ConsumptionLogs;
 
+use App\Filament\Exports\ConsumptionLogExporter;
 use App\Filament\Resources\ConsumptionLogs\Pages\ManageConsumptionLogs;
 use App\Models\ConsumptionLog;
 use BackedEnum;
-use App\Filament\Exports\ConsumptionLogExporter;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\ViewAction;
 use Filament\Actions\ExportAction;
+use Filament\Actions\ViewAction;
 use Filament\Facades\Filament;
 use Filament\Infolists\Components\CodeEntry;
 use Filament\Infolists\Components\TextEntry;
@@ -25,6 +25,7 @@ class ConsumptionLogResource extends Resource
     protected static ?string $model = ConsumptionLog::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
     protected static ?int $navigationSort = -1;
 
     public static function getNavigationLabel(): string
@@ -36,7 +37,6 @@ class ConsumptionLogResource extends Resource
     {
         return __('Refund apply');
     }
-
 
     public static function getNavigationBadge(): ?string
     {

@@ -3,24 +3,19 @@
 namespace Tests\Feature;
 
 use App\Enums\AppStatusEnum;
+use App\Jobs\FinishNotificationJob;
+use App\Jobs\SendConsumptionInformationJob;
 use App\Models\App;
 use App\Models\AppleUser;
 use App\Models\ConsumptionLog;
-use App\Models\NotificationLog;
-use App\Models\RefundLog;
-use App\Models\TransactionLog;
 use App\Services\AmountPriceService;
 use App\Services\IapService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Queue;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
-use App\Jobs\SendConsumptionInformationJob;
-use App\Jobs\FinishNotificationJob;
-use Readdle\AppStoreServerAPI\AppMetadata;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Queue;
 use Readdle\AppStoreServerAPI\ResponseBodyV2;
-use Readdle\AppStoreServerAPI\TransactionInfo;
 use Tests\Support\AppleSignedPayload;
 use Tests\TestCase;
 
@@ -73,6 +68,7 @@ class WebhookTest extends TestCase
     protected function fakePayload(string $event, array $meta): ResponseBodyV2
     {
         $payload = AppleSignedPayload::buildResponseBodyV2FromArray($event, $meta);
+
         return $payload;
     }
 
@@ -96,7 +92,7 @@ class WebhookTest extends TestCase
         $payload = $this->fakePayload('TEST', $this->meta());
         $this->stubDecode($payload);
 
-        $resp = $this->postJson('/api/v1/apps/' . $app->id . '/webhook', []);
+        $resp = $this->postJson('/api/v1/apps/'.$app->id.'/webhook', []);
         $resp->assertOk();
 
         $this->assertDatabaseHas('notification_logs', [
@@ -118,7 +114,7 @@ class WebhookTest extends TestCase
         $payload = $this->fakePayload('REFUND', $this->meta());
         $this->stubDecode($payload);
 
-        $this->postJson('/api/v1/apps/' . $app->id . '/webhook', [])->assertOk();
+        $this->postJson('/api/v1/apps/'.$app->id.'/webhook', [])->assertOk();
 
         $this->assertDatabaseHas('refund_logs', [
             'app_id' => $app->id,
@@ -137,7 +133,7 @@ class WebhookTest extends TestCase
         $app = $this->makeApp();
         $payload = $this->fakePayload('SUBSCRIBED', $this->meta());
         $this->stubDecode($payload);
-        $this->postJson('/api/v1/apps/' . $app->id . '/webhook', [])->assertOk();
+        $this->postJson('/api/v1/apps/'.$app->id.'/webhook', [])->assertOk();
 
         $this->assertDatabaseHas('transaction_logs', [
             'app_id' => $app->id,
@@ -157,7 +153,7 @@ class WebhookTest extends TestCase
         $app = $this->makeApp();
         $payload = $this->fakePayload('DID_RENEW', $this->meta());
         $this->stubDecode($payload);
-        $this->postJson('/api/v1/apps/' . $app->id . '/webhook', [])->assertOk();
+        $this->postJson('/api/v1/apps/'.$app->id.'/webhook', [])->assertOk();
 
         $this->assertDatabaseHas('transaction_logs', [
             'app_id' => $app->id,
@@ -177,7 +173,7 @@ class WebhookTest extends TestCase
         $app = $this->makeApp();
         $payload = $this->fakePayload('OFFER_REDEEMED', $this->meta());
         $this->stubDecode($payload);
-        $this->postJson('/api/v1/apps/' . $app->id . '/webhook', [])->assertOk();
+        $this->postJson('/api/v1/apps/'.$app->id.'/webhook', [])->assertOk();
 
         $this->assertDatabaseHas('transaction_logs', [
             'app_id' => $app->id,
@@ -197,7 +193,7 @@ class WebhookTest extends TestCase
         $app = $this->makeApp();
         $payload = $this->fakePayload('ONE_TIME_CHARGE', $this->meta());
         $this->stubDecode($payload);
-        $this->postJson('/api/v1/apps/' . $app->id . '/webhook', [])->assertOk();
+        $this->postJson('/api/v1/apps/'.$app->id.'/webhook', [])->assertOk();
 
         $this->assertDatabaseHas('transaction_logs', [
             'app_id' => $app->id,
@@ -219,7 +215,7 @@ class WebhookTest extends TestCase
         $payload = $this->fakePayload('CONSUMPTION_REQUEST', $this->meta());
         $this->stubDecode($payload);
 
-        $this->postJson('/api/v1/apps/' . $app->id . '/webhook', [])->assertOk();
+        $this->postJson('/api/v1/apps/'.$app->id.'/webhook', [])->assertOk();
 
         $this->assertDatabaseHas('consumption_logs', [
             'app_id' => $app->id,
@@ -242,7 +238,7 @@ class WebhookTest extends TestCase
         $payload = $this->fakePayload('TEST', $this->meta(['bundleId' => 'com.fake.app']));
         $this->stubDecode($payload);
 
-        $resp = $this->postJson('/api/v1/apps/' . $app->id . '/webhook', []);
+        $resp = $this->postJson('/api/v1/apps/'.$app->id.'/webhook', []);
         $resp->assertStatus(500);
 
         $this->assertDatabaseMissing('notification_raw_logs', [
@@ -260,7 +256,7 @@ class WebhookTest extends TestCase
         $payload = $this->fakePayload('REFUND', $meta);
         $this->stubDecode($payload);
 
-        $resp = $this->postJson('/api/v1/apps/' . $app->id . '/webhook', []);
+        $resp = $this->postJson('/api/v1/apps/'.$app->id.'/webhook', []);
         $resp->assertStatus(500);
 
         $this->assertDatabaseMissing('refund_logs', [
@@ -277,16 +273,16 @@ class WebhookTest extends TestCase
         $payload = $this->fakePayload('UNKNOWN_EVENT', $this->meta());
         $this->stubDecode($payload);
 
-        $resp = $this->postJson('/api/v1/apps/' . $app->id . '/webhook', []);
+        $resp = $this->postJson('/api/v1/apps/'.$app->id.'/webhook', []);
         $resp->assertOk();
 
         $this->assertDatabaseHas('notification_logs', [
             'app_id' => $app->id,
             'notification_type' => 'UNKNOWN_EVENT',
         ]);
-        $this->assertDatabaseMissing('transaction_logs', [ 'app_id' => $app->id ]);
-        $this->assertDatabaseMissing('refund_logs', [ 'app_id' => $app->id ]);
-        $this->assertDatabaseMissing('consumption_logs', [ 'app_id' => $app->id ]);
+        $this->assertDatabaseMissing('transaction_logs', ['app_id' => $app->id]);
+        $this->assertDatabaseMissing('refund_logs', ['app_id' => $app->id]);
+        $this->assertDatabaseMissing('consumption_logs', ['app_id' => $app->id]);
 
         Log::shouldHaveReceived('info')
             ->withArgs(function ($message) {
@@ -306,13 +302,13 @@ class WebhookTest extends TestCase
             'transactionInfo' => array_merge($this->meta()['transactionInfo'], [
                 'appAccountToken' => 'user-token-123',
                 'originalPurchaseDate' => $originalPurchaseDate,
-            ])
+            ]),
         ]);
 
         $payload = $this->fakePayload('SUBSCRIBED', $meta);
         $this->stubDecode($payload);
 
-        $this->postJson('/api/v1/apps/' . $app->id . '/webhook', [])->assertOk();
+        $this->postJson('/api/v1/apps/'.$app->id.'/webhook', [])->assertOk();
 
         $this->assertDatabaseHas('apple_users', [
             'app_account_token' => 'user-token-123',
@@ -353,13 +349,13 @@ class WebhookTest extends TestCase
         $meta = $this->meta([
             'transactionInfo' => array_merge($this->meta()['transactionInfo'], [
                 'appAccountToken' => 'existing-user',
-            ])
+            ]),
         ]);
 
         $payload = $this->fakePayload('SUBSCRIBED', $meta);
         $this->stubDecode($payload);
 
-        $this->postJson('/api/v1/apps/' . $app->id . '/webhook', [])->assertOk();
+        $this->postJson('/api/v1/apps/'.$app->id.'/webhook', [])->assertOk();
 
         $existingUser->refresh();
         $this->assertEquals(11.99, $existingUser->purchased_dollars);
@@ -377,13 +373,13 @@ class WebhookTest extends TestCase
         $meta = $this->meta([
             'transactionInfo' => array_merge($this->meta()['transactionInfo'], [
                 'appAccountToken' => null,
-            ])
+            ]),
         ]);
 
         $payload = $this->fakePayload('SUBSCRIBED', $meta);
         $this->stubDecode($payload);
 
-        $resp = $this->postJson('/api/v1/apps/' . $app->id . '/webhook', []);
+        $resp = $this->postJson('/api/v1/apps/'.$app->id.'/webhook', []);
         $resp->assertOk();
 
         // Transaction log should be created
@@ -414,13 +410,13 @@ class WebhookTest extends TestCase
         $meta = $this->meta([
             'transactionInfo' => array_merge($this->meta()['transactionInfo'], [
                 'appAccountToken' => 'refund-user',
-            ])
+            ]),
         ]);
 
         $payload = $this->fakePayload('REFUND', $meta);
         $this->stubDecode($payload);
 
-        $this->postJson('/api/v1/apps/' . $app->id . '/webhook', [])->assertOk();
+        $this->postJson('/api/v1/apps/'.$app->id.'/webhook', [])->assertOk();
 
         $user->refresh();
         $this->assertEquals(1.99, $user->refunded_dollars);
@@ -434,13 +430,13 @@ class WebhookTest extends TestCase
         $meta = $this->meta([
             'transactionInfo' => array_merge($this->meta()['transactionInfo'], [
                 'appAccountToken' => 'non-existent-user',
-            ])
+            ]),
         ]);
 
         $payload = $this->fakePayload('REFUND', $meta);
         $this->stubDecode($payload);
 
-        $resp = $this->postJson('/api/v1/apps/' . $app->id . '/webhook', []);
+        $resp = $this->postJson('/api/v1/apps/'.$app->id.'/webhook', []);
         $resp->assertOk();
 
         // Refund log should be created
@@ -461,7 +457,7 @@ class WebhookTest extends TestCase
         $meta = $this->meta([
             'transactionInfo' => array_merge($this->meta()['transactionInfo'], [
                 'appAccountToken' => 'multi-user',
-            ])
+            ]),
         ]);
 
         // Create three different payloads with unique UUIDs
@@ -484,13 +480,13 @@ class WebhookTest extends TestCase
         });
 
         // First transaction
-        $this->postJson('/api/v1/apps/' . $app->id . '/webhook', [])->assertOk();
+        $this->postJson('/api/v1/apps/'.$app->id.'/webhook', [])->assertOk();
 
         // Second transaction
-        $this->postJson('/api/v1/apps/' . $app->id . '/webhook', [])->assertOk();
+        $this->postJson('/api/v1/apps/'.$app->id.'/webhook', [])->assertOk();
 
         // Third transaction
-        $this->postJson('/api/v1/apps/' . $app->id . '/webhook', [])->assertOk();
+        $this->postJson('/api/v1/apps/'.$app->id.'/webhook', [])->assertOk();
 
         $user = AppleUser::where('app_account_token', 'multi-user')->first();
         $this->assertNotNull($user);
@@ -508,13 +504,13 @@ class WebhookTest extends TestCase
             'transactionInfo' => array_merge($this->meta()['transactionInfo'], [
                 'appAccountToken' => 'zero-time-user',
                 'originalPurchaseDate' => 0,
-            ])
+            ]),
         ]);
 
         $payload = $this->fakePayload('SUBSCRIBED', $meta);
         $this->stubDecode($payload);
 
-        $this->postJson('/api/v1/apps/' . $app->id . '/webhook', [])->assertOk();
+        $this->postJson('/api/v1/apps/'.$app->id.'/webhook', [])->assertOk();
 
         $user = AppleUser::where('app_account_token', 'zero-time-user')->first();
         $this->assertNotNull($user);
@@ -543,7 +539,7 @@ class WebhookTest extends TestCase
         $payload = $this->fakePayload('REFUND_DECLINED', $this->meta());
         $this->stubDecode($payload);
 
-        $resp = $this->postJson('/api/v1/apps/' . $app->id . '/webhook', []);
+        $resp = $this->postJson('/api/v1/apps/'.$app->id.'/webhook', []);
         $resp->assertOk();
 
         // Verify the notification was logged
@@ -559,5 +555,3 @@ class WebhookTest extends TestCase
         Queue::assertPushed(FinishNotificationJob::class);
     }
 }
-
-

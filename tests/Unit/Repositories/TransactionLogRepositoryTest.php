@@ -20,13 +20,13 @@ class TransactionLogRepositoryTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->repository = new TransactionLogRepository();
+        $this->repository = new TransactionLogRepository;
     }
 
     public function test_store_log_throws_exception_when_transaction_info_is_null(): void
     {
         $app = App::factory()->create();
-        
+
         // Create a notification log with no transaction info in payload
         $log = NotificationLog::factory()->create([
             'app_id' => $app->id,
@@ -50,7 +50,7 @@ class TransactionLogRepositoryTest extends TestCase
     {
         $app = App::factory()->create();
         $log = NotificationLog::factory()->create(['app_id' => $app->id]);
-        
+
         $transactionLog = TransactionLog::factory()->create([
             'app_id' => $app->id,
             'original_transaction_id' => '123456',
@@ -70,7 +70,7 @@ class TransactionLogRepositoryTest extends TestCase
     public function test_find_transaction_by_consumption_returns_latest(): void
     {
         $app = App::factory()->create();
-        
+
         // Create multiple transactions with same original_transaction_id
         $oldTransaction = TransactionLog::factory()->create([
             'app_id' => $app->id,
@@ -96,4 +96,3 @@ class TransactionLogRepositoryTest extends TestCase
         $this->assertEquals($newerTransaction->id, $result->id);
     }
 }
-

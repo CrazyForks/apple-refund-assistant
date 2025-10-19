@@ -1,8 +1,5 @@
 <?php
 
-use Illuminate\Encryption\Encrypter;
-
-
 return [
     'installed_at' => env('APP_INSTALLED_AT'),
 

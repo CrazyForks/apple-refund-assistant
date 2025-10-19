@@ -5,7 +5,6 @@ namespace App\Filament\Resources\Apps;
 use App\Enums\BoolEnum;
 use App\Filament\Resources\Apps\Pages\ManageApps;
 use App\Filament\Tables\Actions\AppTestWebhookAction;
-use App\Filament\Tables\Actions\SetDefaultAppAction;
 use App\Models\App;
 use App\Models\User;
 use BackedEnum;
@@ -57,10 +56,10 @@ class AppResource extends Resource
             ->options(User::all()->pluck('name', 'id'))
             ->visible($isAdmin)
             ->default($currentUserId);
-        if (!$isAdmin) {
+        if (! $isAdmin) {
             $ownerField = Hidden::make('owner_id')
                 ->label(__('Owner id'))
-                ->default(fn() => $currentUserId);
+                ->default(fn () => $currentUserId);
         }
 
         return $schema
@@ -102,7 +101,7 @@ class AppResource extends Resource
                 TextColumn::make('owner.name')
                     ->label(__('Owner')),
                 IconColumn::make('notification_url')
-                    ->boolean(fn ($state) => !empty($state)),
+                    ->boolean(fn ($state) => ! empty($state)),
                 TextColumn::make('created_at'),
                 TextColumn::make('updated_at')
                     ->toggleable(isToggledHiddenByDefault: true),

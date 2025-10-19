@@ -18,10 +18,10 @@ class RefundLogRepository
     {
         $transInfo = $raw->getTransactionInfo();
         if (is_null($transInfo)) {
-            throw new InvalidTransactionInfoException();
+            throw new InvalidTransactionInfoException;
         }
 
-        $model = new RefundLog();
+        $model = new RefundLog;
         $model->id = $raw->id;
         $model->app_id = $app->id;
         $model->bundle_id = $raw->bundle_id;
@@ -43,4 +43,3 @@ class RefundLogRepository
         return $model;
     }
 }
-

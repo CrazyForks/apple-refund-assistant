@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Casts\SafeEnumCast;
 use App\Enums\AppStatusEnum;
 use App\Enums\BoolEnum;
-use Filament\Infolists\Components\TextEntry;
 use Filament\Models\Contracts\HasAvatar;
 use Filament\Models\Contracts\HasCurrentTenantLabel;
 use Filament\Models\Contracts\HasName;
@@ -14,8 +13,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Crypt;
 use Kra8\Snowflake\HasShortflakePrimary;
-
-
 
 /**
  * @property int $id
@@ -41,6 +38,7 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property $activate
  * @property-read \App\Models\User|null $owner
+ *
  * @method static \Database\Factories\AppFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App newQuery()
@@ -66,13 +64,15 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App whereTransactionCount($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App whereTransactionDollars($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|App whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
-class App extends Model implements HasName, HasCurrentTenantLabel, HasAvatar
+class App extends Model implements HasAvatar, HasCurrentTenantLabel, HasName
 {
     use HasFactory, HasShortflakePrimary;
 
     protected $guarded = [];
+
     protected $casts = [
         'status' => [SafeEnumCast::class, AppStatusEnum::class],
         'activate' => [SafeEnumCast::class, BoolEnum::class],
@@ -115,5 +115,4 @@ class App extends Model implements HasName, HasCurrentTenantLabel, HasAvatar
 
         return '/assets/icon/status_fail.png';
     }
-
 }

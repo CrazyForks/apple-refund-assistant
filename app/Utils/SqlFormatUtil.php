@@ -2,7 +2,6 @@
 
 namespace App\Utils;
 
-use Carbon\Carbon;
 use Illuminate\Database\Events\QueryExecuted;
 
 class SqlFormatUtil
@@ -27,10 +26,10 @@ class SqlFormatUtil
         $formattedSql = self::formatSql($sql);
 
         return sprintf(
-            "\n" . str_repeat('=', 80) . "\n" .
-            "{$id}\n" .
-            "⏱️ : %s ms\n" .
-            "🔍 :\n%s\n" .
+            "\n".str_repeat('=', 80)."\n".
+            "{$id}\n".
+            "⏱️ : %s ms\n".
+            "🔍 :\n%s\n".
             str_repeat('=', 80),
             number_format($time, 2),
             $formattedSql
@@ -44,7 +43,7 @@ class SqlFormatUtil
             'ORDER BY', 'GROUP BY', 'HAVING', 'LIMIT', 'OFFSET', 'INSERT', 'INTO',
             'VALUES', 'UPDATE', 'SET', 'DELETE', 'CREATE', 'TABLE', 'ALTER', 'DROP',
             'INDEX', 'PRIMARY KEY', 'FOREIGN KEY', 'REFERENCES', 'ON', 'AND', 'OR',
-            'NOT', 'NULL', 'DEFAULT', 'AUTO_INCREMENT', 'UNIQUE', 'CONSTRAINT'
+            'NOT', 'NULL', 'DEFAULT', 'AUTO_INCREMENT', 'UNIQUE', 'CONSTRAINT',
         ];
 
         $formatted = $sql;
@@ -53,14 +52,14 @@ class SqlFormatUtil
             'ORDER BY', 'GROUP BY', 'HAVING', 'LIMIT'];
 
         foreach ($mainClauses as $clause) {
-            $formatted = preg_replace('/\s+' . $clause . '\s+/i', "\n    " . $clause . ' ', $formatted);
+            $formatted = preg_replace('/\s+'.$clause.'\s+/i', "\n    ".$clause.' ', $formatted);
         }
 
         $formatted = preg_replace('/,\s*(?=\w)/', ",\n        ", $formatted);
 
         $formatted = preg_replace('/\s+(AND|OR)\s+/i', "\n        $1 ", $formatted);
 
-        $formatted = "    " . trim($formatted);
+        $formatted = '    '.trim($formatted);
 
         return $formatted;
     }

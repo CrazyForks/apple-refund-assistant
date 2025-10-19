@@ -5,12 +5,11 @@ namespace App\Enums;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasLabel;
 
-enum NotificationLogStatusEnum : int implements HasLabel, HasColor
+enum NotificationLogStatusEnum: int implements HasColor, HasLabel
 {
     case PROCESSING = 1;
     case PROCESSED = 2;
     case UN_MATCH_BUNDLE = 3;
-
 
     public function getLabel(): ?string
     {
@@ -21,7 +20,7 @@ enum NotificationLogStatusEnum : int implements HasLabel, HasColor
         };
     }
 
-    public function getColor():  string
+    public function getColor(): string
     {
         return match ($this) {
             NotificationLogStatusEnum::PROCESSING => 'warning',

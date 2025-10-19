@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\App;
 use App\Models\NotificationRawLog;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -26,4 +25,3 @@ class NotificationRawLogFactory extends Factory
         ];
     }
 }
-

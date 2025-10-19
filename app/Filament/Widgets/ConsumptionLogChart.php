@@ -16,7 +16,7 @@ class ConsumptionLogChart extends ChartWidget
 
     protected static ?int $sort = 1;
 
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
 
     public ?string $filter = '30';
 
@@ -28,7 +28,7 @@ class ConsumptionLogChart extends ChartWidget
     protected function getData(): array
     {
         $tenant = Filament::getTenant();
-        if (!$tenant) {
+        if (! $tenant) {
             return [
                 'datasets' => [],
                 'labels' => [],
@@ -55,7 +55,7 @@ class ConsumptionLogChart extends ChartWidget
             ->select([
                 DB::raw('DATE(created_at) as date'),
                 'status',
-                DB::raw('COUNT(*) as count')
+                DB::raw('COUNT(*) as count'),
             ])
             ->groupBy('date', 'status')
             ->orderBy('date')
@@ -70,11 +70,11 @@ class ConsumptionLogChart extends ChartWidget
         foreach ($data as $item) {
             $dateKey = Carbon::parse($item->date)->format('m-d');
             $index = array_search($dateKey, $labels);
-            
+
             if ($index !== false) {
                 $count = $item->count;
                 $totalData[$index] += $count;
-                
+
                 if ($item->status === ConsumptionLogStatusEnum::REFUND) {
                     $refundData[$index] = $count;
                 } elseif ($item->status === ConsumptionLogStatusEnum::REFUND_DECLINED) {
@@ -122,10 +122,9 @@ class ConsumptionLogChart extends ChartWidget
     protected function getFilters(): ?array
     {
         return [
-            '30' => '30 ' . __('days'),
-            '90' => '90 ' . __('days'),
-            '180' => '180 ' . __('days'),
+            '30' => '30 '.__('days'),
+            '90' => '90 '.__('days'),
+            '180' => '180 '.__('days'),
         ];
     }
 }
-

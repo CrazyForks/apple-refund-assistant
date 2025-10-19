@@ -21,8 +21,7 @@ class AmountPriceService
 
     public function __construct(
         protected Repository $cache,
-    ) {
-    }
+    ) {}
 
     /**
      * Get currency converter (lazy loading)
@@ -32,15 +31,17 @@ class AmountPriceService
         if ($this->converter === null) {
             $this->converter = new CurrencyConverter($this->getExchangeRateProvider());
         }
+
         return $this->converter;
     }
 
     /**
      * Convert price to USD Money object
      *
-     * @param string $currency Currency code (e.g., 'CNY', 'EUR')
-     * @param int $priceInCents Price in cents
+     * @param  string  $currency  Currency code (e.g., 'CNY', 'EUR')
+     * @param  int  $priceInCents  Price in cents
      * @return Money USD amount object
+     *
      * @throws CurrencyConversionException
      */
     public function toDollar(string $currency, int $priceInCents): Money
@@ -65,8 +66,8 @@ class AmountPriceService
     /**
      * Convert price to USD float (backward compatible)
      *
-     * @param string $currency Currency code
-     * @param int $priceInCents Price in cents
+     * @param  string  $currency  Currency code
+     * @param  int  $priceInCents  Price in cents
      * @return float USD amount
      */
     public function toDollarFloat(string $currency, int $priceInCents): float
@@ -79,7 +80,7 @@ class AmountPriceService
      */
     protected function getExchangeRateProvider(): ConfigurableProvider
     {
-        $provider = new ConfigurableProvider();
+        $provider = new ConfigurableProvider;
         $exchangeRates = $this->cacheGetDollarData();
 
         // Set exchange rates (relative to USD)
@@ -116,7 +117,7 @@ class AmountPriceService
                 ->get('https://open.er-api.com/v6/latest/USD')
                 ->json();
         } catch (\Exception $e) {
-            Log::error('Failed to fetch exchange rates: ' . $e->getMessage());
+            Log::error('Failed to fetch exchange rates: '.$e->getMessage());
             $jsonData = json_decode(file_get_contents(storage_path('data/dollar.json')), true);
         }
 

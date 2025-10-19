@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\AppStatusEnum;
+use App\Jobs\SendConsumptionInformationJob;
 use App\Models\App;
 use App\Models\AppleUser;
 use App\Models\ConsumptionLog;
@@ -13,8 +14,6 @@ use App\Services\AmountPriceService;
 use App\Services\IapService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
-use App\Jobs\SendConsumptionInformationJob;
-use App\Jobs\FinishNotificationJob;
 use Mockery;
 use Readdle\AppStoreServerAPI\ResponseBodyV2;
 use Tests\Support\AppleSignedPayload;
@@ -218,7 +217,7 @@ class WebhookIntegrationTest extends TestCase
             $mock->shouldReceive('decodePayload')->once()->andReturn($payload);
         });
 
-        $response = $this->postJson('/api/v1/apps/' . $app->id . '/webhook', []);
+        $response = $this->postJson('/api/v1/apps/'.$app->id.'/webhook', []);
         $response->assertStatus(500);
 
         $this->assertEquals(1, NotificationLog::where('app_id', $app->id)->count());
@@ -231,7 +230,7 @@ class WebhookIntegrationTest extends TestCase
      */
     protected function sendWebhookNotification(App $app): void
     {
-        $response = $this->postJson('/api/v1/apps/' . $app->id . '/webhook', []);
+        $response = $this->postJson('/api/v1/apps/'.$app->id.'/webhook', []);
         $response->assertOk();
     }
 
@@ -267,8 +266,7 @@ class WebhookIntegrationTest extends TestCase
     /**
      * Mock all service calls at once
      *
-     * @param App $app
-     * @param array $notifications Array of notifications, each element contains ['event' => string, 'userToken' => ?string, 'price' => float]
+     * @param  array  $notifications  Array of notifications, each element contains ['event' => string, 'userToken' => ?string, 'price' => float]
      */
     protected function mockAllServices(App $app, array $notifications): void
     {

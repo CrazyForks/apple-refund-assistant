@@ -12,9 +12,7 @@ use App\Models\NotificationLog;
 use App\Models\NotificationRawLog;
 use App\Models\RefundLog;
 use App\Models\TransactionLog;
-use App\Models\User;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Hash;
 
 class ResetApp extends Command
 {
@@ -36,25 +34,25 @@ class ResetApp extends Command
         // Seed Apple Users
         $this->info('Seeding Apple Users...');
         AppleUser::factory($count / 100)->create([
-            'app_id' => fn() => $apps->random()->id,
+            'app_id' => fn () => $apps->random()->id,
         ]);
 
         // Seed Transaction Logs
         $this->info('Seeding Transaction Logs...');
         TransactionLog::factory($count)->create([
-            'app_id' => fn() => $apps->random()->id,
+            'app_id' => fn () => $apps->random()->id,
         ]);
 
         // Seed Refund Logs
         $this->info('Seeding Refund Logs...');
         RefundLog::factory($count)->create([
-            'app_id' => fn() => $apps->random()->id,
+            'app_id' => fn () => $apps->random()->id,
         ]);
 
         // Seed Consumption Logs
         $this->info('Seeding Consumption Logs...');
         ConsumptionLog::factory($count)->create([
-            'app_id' => fn() => $apps->random()->id,
+            'app_id' => fn () => $apps->random()->id,
         ]);
 
         // Seed Notification Logs with Raw Logs

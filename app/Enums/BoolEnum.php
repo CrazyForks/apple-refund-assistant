@@ -5,7 +5,7 @@ namespace App\Enums;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasLabel;
 
-enum BoolEnum : int implements HasLabel, HasColor
+enum BoolEnum: int implements HasColor, HasLabel
 {
     case YES = 1;
     case NO = 0;
@@ -18,7 +18,7 @@ enum BoolEnum : int implements HasLabel, HasColor
         };
     }
 
-    public function getColor():  string
+    public function getColor(): string
     {
         return match ($this) {
             BoolEnum::YES => 'success',

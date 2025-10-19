@@ -21,9 +21,9 @@ class PayloadDtoTest extends TestCase
                     'decoded' => [
                         'originalTransactionId' => 'orig-123',
                         'transactionId' => 'trans-456',
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ];
 
         $dto = PayloadDto::fromRawPayload($payload);
@@ -47,8 +47,8 @@ class PayloadDtoTest extends TestCase
                 'transactionInfo' => [
                     'originalTransactionId' => 'orig-789',
                     'transactionId' => 'trans-012',
-                ]
-            ]
+                ],
+            ],
         ];
 
         $dto = PayloadDto::fromRawPayload($payload);
@@ -68,7 +68,7 @@ class PayloadDtoTest extends TestCase
             'appMetadata' => [
                 'bundleId' => 'com.demo.app',
                 'environment' => 'LocalSandbox',
-            ]
+            ],
         ];
 
         $dto = PayloadDto::fromRawPayload($payload);
@@ -83,7 +83,7 @@ class PayloadDtoTest extends TestCase
             'notificationUUID' => 'uuid-999',
             'data' => [
                 'bundleId' => 'com.app.test',
-            ]
+            ],
         ];
 
         $dto = PayloadDto::fromRawPayload($payload);
@@ -100,7 +100,7 @@ class PayloadDtoTest extends TestCase
                 'bundleId' => 'com.app.consume',
                 'environment' => 'Sandbox',
                 'consumptionRequestReason' => 'UNINTENDED_PURCHASE',
-            ]
+            ],
         ];
 
         $dto = PayloadDto::fromRawPayload($payload);
@@ -116,7 +116,7 @@ class PayloadDtoTest extends TestCase
             'data' => [
                 'bundleId' => 'com.app.test',
                 'environment' => 'Sandbox',
-            ]
+            ],
         ];
 
         $dto = PayloadDto::fromRawPayload($payload);
@@ -132,7 +132,7 @@ class PayloadDtoTest extends TestCase
             'data' => [
                 'bundleId' => 'com.app.test',
                 'environment' => 'Sandbox',
-            ]
+            ],
         ];
 
         $dto = PayloadDto::fromRawPayload($payload);

@@ -19,10 +19,11 @@ class AssignRequestIdMiddleware
     {
         $requestId = Str::uuid()->toString();
         Log::withContext([
-            'request-id' => $requestId
+            'request-id' => $requestId,
         ]);
         $response = $next($request);
         $response->headers->set('Request-Id', $requestId);
+
         return $response;
     }
 }

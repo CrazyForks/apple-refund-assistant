@@ -25,7 +25,6 @@ return new class extends Migration
             $table->string('original_transaction_id')->index();
             $table->string('transaction_id')->index();
 
-
             $table->string('consumption_request_reason')->nullable();
             $table->timestamp('deadline_at')->nullable();
             $table->string('status')->default(\App\Enums\ConsumptionLogStatusEnum::PENDING);

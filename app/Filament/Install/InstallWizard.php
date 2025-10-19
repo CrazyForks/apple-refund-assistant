@@ -31,13 +31,21 @@ class InstallWizard extends Page implements HasForms
     protected string $view = 'filament.pages.install-wizard';
 
     public ?array $data = [];
+
     public bool $isCompleted = false;
+
     public bool $isDatabaseTested = false;
+
     public string $databaseTestMessage = '';
+
     public bool $isInstalling = false;
+
     public int $installStep = 0;
+
     public string $installStepMessage = '';
+
     public array $commandLogs = [];
+
     public array $installSteps = [
         1 => 'Write .env configuration file',
         2 => 'Clear all caches',
@@ -49,6 +57,7 @@ class InstallWizard extends Page implements HasForms
     {
         if (config('app.installed')) {
             redirect('/admin');
+
             return;
         }
 
@@ -56,7 +65,7 @@ class InstallWizard extends Page implements HasForms
         $savedConfig = session('install_wizard_config', []);
 
         // Use existing APP_KEY if available, otherwise generate a new one
-        $key = $savedConfig['app_key'] ?? 'base64:' . base64_encode(Encrypter::generateKey(config('app.cipher')));
+        $key = $savedConfig['app_key'] ?? 'base64:'.base64_encode(Encrypter::generateKey(config('app.cipher')));
         $defaultConfig = [
             'app_name' => 'Apple Refund Assistant',
             'app_url' => request()->getSchemeAndHttpHost(),
@@ -85,20 +94,20 @@ class InstallWizard extends Page implements HasForms
 
     protected function saveConfigToSession(): void
     {
-         // Get current form data
-         $formData = $this->form->getState();
+        // Get current form data
+        $formData = $this->form->getState();
 
-         // Merge with existing session data to preserve all configurations
-         $existingConfig = session('install_wizard_config', []);
-         $allConfig = array_merge($existingConfig, $formData);
+        // Merge with existing session data to preserve all configurations
+        $existingConfig = session('install_wizard_config', []);
+        $allConfig = array_merge($existingConfig, $formData);
 
-         // Ensure app_key is always saved (it's dehydrated=false so not in form data)
-         if (isset($this->data['app_key'])) {
-             $allConfig['app_key'] = $this->data['app_key'];
-         }
+        // Ensure app_key is always saved (it's dehydrated=false so not in form data)
+        if (isset($this->data['app_key'])) {
+            $allConfig['app_key'] = $this->data['app_key'];
+        }
 
-         // Save all configuration to session
-         session(['install_wizard_config' => $allConfig]);
+        // Save all configuration to session
+        session(['install_wizard_config' => $allConfig]);
     }
 
     protected function saveTestStatusToSession(): void
@@ -130,15 +139,16 @@ class InstallWizard extends Page implements HasForms
                                             ];
                                             $results = [];
                                             foreach ($paths as $name => $path) {
-                                                if (!is_dir($path)) {
-                                                    $results[] = "❌ {$name}: " . __('Directory does not exist');
-                                                } elseif (!is_writable($path)) {
-                                                    $results[] = "❌ {$name}: " . __('No write permission');
+                                                if (! is_dir($path)) {
+                                                    $results[] = "❌ {$name}: ".__('Directory does not exist');
+                                                } elseif (! is_writable($path)) {
+                                                    $results[] = "❌ {$name}: ".__('No write permission');
                                                 } else {
-                                                    $results[] = "✅ {$name}: " . __('Permission normal');
+                                                    $results[] = "✅ {$name}: ".__('Permission normal');
                                                 }
                                             }
-                                            return Html::make(implode("<br>", $results));
+
+                                            return Html::make(implode('<br>', $results));
                                         }),
                                 ])
                                 ->footerActions([
@@ -177,9 +187,9 @@ class InstallWizard extends Page implements HasForms
                                         ->required()
                                         ->native(false)
                                         ->options([
-                                            'local' => __('Local') . ' (Local)',
-                                            'development' => __('Development') . ' (Development)',
-                                            'production' => __('Production') . ' (Production)',
+                                            'local' => __('Local').' (Local)',
+                                            'development' => __('Development').' (Development)',
+                                            'production' => __('Production').' (Production)',
                                         ]),
 
                                     Select::make('app_debug')
@@ -195,22 +205,22 @@ class InstallWizard extends Page implements HasForms
                                         ->native(false)
                                         ->searchable()
                                         ->options([
-                                            'Asia/Shanghai' => __('China Standard Time') . ' (Asia/Shanghai)',
-                                            'Asia/Hong_Kong' => __('Hong Kong Time') . ' (Asia/Hong_Kong)',
-                                            'Asia/Taipei' => __('Taipei Time') . ' (Asia/Taipei)',
-                                            'Asia/Tokyo' => __('Tokyo Time') . ' (Asia/Tokyo)',
-                                            'Asia/Seoul' => __('Seoul Time') . ' (Asia/Seoul)',
-                                            'Asia/Singapore' => __('Singapore Time') . ' (Asia/Singapore)',
-                                            'Asia/Bangkok' => __('Bangkok Time') . ' (Asia/Bangkok)',
-                                            'Asia/Kuala_Lumpur' => __('Kuala Lumpur Time') . ' (Asia/Kuala_Lumpur)',
-                                            'Asia/Jakarta' => __('Jakarta Time') . ' (Asia/Jakarta)',
-                                            'UTC' => __('Coordinated Universal Time') . ' (UTC)',
-                                            'America/New_York' => __('New York Time') . ' (America/New_York)',
-                                            'America/Los_Angeles' => __('Los Angeles Time') . ' (America/Los_Angeles)',
-                                            'Europe/London' => __('London Time') . ' (Europe/London)',
-                                            'Europe/Paris' => __('Paris Time') . ' (Europe/Paris)',
-                                            'Europe/Berlin' => __('Berlin Time') . ' (Europe/Berlin)',
-                                            'Australia/Sydney' => __('Sydney Time') . ' (Australia/Sydney)',
+                                            'Asia/Shanghai' => __('China Standard Time').' (Asia/Shanghai)',
+                                            'Asia/Hong_Kong' => __('Hong Kong Time').' (Asia/Hong_Kong)',
+                                            'Asia/Taipei' => __('Taipei Time').' (Asia/Taipei)',
+                                            'Asia/Tokyo' => __('Tokyo Time').' (Asia/Tokyo)',
+                                            'Asia/Seoul' => __('Seoul Time').' (Asia/Seoul)',
+                                            'Asia/Singapore' => __('Singapore Time').' (Asia/Singapore)',
+                                            'Asia/Bangkok' => __('Bangkok Time').' (Asia/Bangkok)',
+                                            'Asia/Kuala_Lumpur' => __('Kuala Lumpur Time').' (Asia/Kuala_Lumpur)',
+                                            'Asia/Jakarta' => __('Jakarta Time').' (Asia/Jakarta)',
+                                            'UTC' => __('Coordinated Universal Time').' (UTC)',
+                                            'America/New_York' => __('New York Time').' (America/New_York)',
+                                            'America/Los_Angeles' => __('Los Angeles Time').' (America/Los_Angeles)',
+                                            'Europe/London' => __('London Time').' (Europe/London)',
+                                            'Europe/Paris' => __('Paris Time').' (Europe/Paris)',
+                                            'Europe/Berlin' => __('Berlin Time').' (Europe/Berlin)',
+                                            'Australia/Sydney' => __('Sydney Time').' (Australia/Sydney)',
                                         ])
                                         ->helperText(__('Select the timezone used by the application, affects log time and scheduled tasks')),
                                 ])->columns(2),
@@ -223,7 +233,7 @@ class InstallWizard extends Page implements HasForms
                             // Save database config to session
                             $this->saveConfigToSession();
 
-                            if (!$this->isDatabaseTested) {
+                            if (! $this->isDatabaseTested) {
                                 Notification::make()
                                     ->title(__('Please test database connection first'))
                                     ->body(__('Before proceeding to the next step, please click the "Test Database Connection" button to ensure the database configuration is correct'))
@@ -238,8 +248,9 @@ class InstallWizard extends Page implements HasForms
                             Section::make(__('Database Settings'))
                                 ->description(function (Get $get) {
                                     if ($get('db_connection') === 'sqlite') {
-                                        return '⚠️ ' . __('Important reminder: If the specified SQLite database file already exists, the installation process may overwrite existing data. Please be sure to backup important database files first!');
+                                        return '⚠️ '.__('Important reminder: If the specified SQLite database file already exists, the installation process may overwrite existing data. Please be sure to backup important database files first!');
                                     }
+
                                     return null;
                                 })
                                 ->schema([
@@ -266,8 +277,8 @@ class InstallWizard extends Page implements HasForms
 
                                     TextInput::make('db_host')
                                         ->label(__('Database Host'))
-                                        ->required(fn(Get $get) => $get('db_connection') === 'mysql')
-                                        ->visible(fn(Get $get) => $get('db_connection') === 'mysql')
+                                        ->required(fn (Get $get) => $get('db_connection') === 'mysql')
+                                        ->visible(fn (Get $get) => $get('db_connection') === 'mysql')
                                         ->live(onBlur: true)
                                         ->afterStateUpdated(function () {
                                             $this->isDatabaseTested = false;
@@ -277,8 +288,8 @@ class InstallWizard extends Page implements HasForms
 
                                     TextInput::make('db_port')
                                         ->label(__('Database Port'))
-                                        ->required(fn(Get $get) => $get('db_connection') === 'mysql')
-                                        ->visible(fn(Get $get) => $get('db_connection') === 'mysql')
+                                        ->required(fn (Get $get) => $get('db_connection') === 'mysql')
+                                        ->visible(fn (Get $get) => $get('db_connection') === 'mysql')
                                         ->live(onBlur: true)
                                         ->afterStateUpdated(function () {
                                             $this->isDatabaseTested = false;
@@ -287,12 +298,13 @@ class InstallWizard extends Page implements HasForms
                                         }),
 
                                     TextInput::make('db_database')
-                                        ->label(fn(Get $get) => $get('db_connection') === 'sqlite' ? __('Database File Path') : __('Database Name'))
+                                        ->label(fn (Get $get) => $get('db_connection') === 'sqlite' ? __('Database File Path') : __('Database Name'))
                                         ->required()
                                         ->helperText(function (Get $get) {
                                             if ($get('db_connection') === 'sqlite') {
                                                 return __('Relative to project root directory. ⚠️ If file already exists, please backup existing database file first!');
                                             }
+
                                             return '';
                                         })
                                         ->live(onBlur: true)
@@ -304,8 +316,8 @@ class InstallWizard extends Page implements HasForms
 
                                     TextInput::make('db_username')
                                         ->label(__('Database Username'))
-                                        ->required(fn(Get $get) => $get('db_connection') === 'mysql')
-                                        ->visible(fn(Get $get) => $get('db_connection') === 'mysql')
+                                        ->required(fn (Get $get) => $get('db_connection') === 'mysql')
+                                        ->visible(fn (Get $get) => $get('db_connection') === 'mysql')
                                         ->live(onBlur: true)
                                         ->afterStateUpdated(function () {
                                             $this->isDatabaseTested = false;
@@ -317,7 +329,7 @@ class InstallWizard extends Page implements HasForms
                                         ->label(__('Database Password'))
                                         ->password()
                                         ->revealable()
-                                        ->visible(fn(Get $get) => $get('db_connection') === 'mysql')
+                                        ->visible(fn (Get $get) => $get('db_connection') === 'mysql')
                                         ->live(onBlur: true)
                                         ->afterStateUpdated(function () {
                                             $this->isDatabaseTested = false;
@@ -334,17 +346,19 @@ class InstallWizard extends Page implements HasForms
                                                 return $this->databaseTestMessage;
                                             }
                                             if ($this->isDatabaseTested) {
-                                                return '✅ ' . __('Database connection test passed');
+                                                return '✅ '.__('Database connection test passed');
                                             }
-                                            return '⚠️ ' . __('Please click the button below to test database connection (must pass test to proceed to next step)');
+
+                                            return '⚠️ '.__('Please click the button below to test database connection (must pass test to proceed to next step)');
                                         })
                                         ->color(function () {
                                             if ($this->isDatabaseTested) {
                                                 return 'success';
                                             }
-                                            if ($this->databaseTestMessage && !$this->isDatabaseTested) {
+                                            if ($this->databaseTestMessage && ! $this->isDatabaseTested) {
                                                 return 'danger';
                                             }
+
                                             return 'warning';
                                         }),
                                 ])
@@ -352,7 +366,7 @@ class InstallWizard extends Page implements HasForms
                                     Action::make('testDatabaseConnection')
                                         ->label(__('Test Database Connection'))
                                         ->icon('heroicon-o-signal')
-                                        ->color(fn() => $this->isDatabaseTested ? 'success' : 'primary')
+                                        ->color(fn () => $this->isDatabaseTested ? 'success' : 'primary')
                                         ->action(function () {
                                             $this->testDatabaseConnection();
                                         }),
@@ -391,29 +405,29 @@ class InstallWizard extends Page implements HasForms
                         ->icon('heroicon-o-rocket-launch')
                         ->description(__('Prepare to install system'))
                         ->components([
-                            Section::make('🎉 ' . __('Installation Complete'))
+                            Section::make('🎉 '.__('Installation Complete'))
                                 ->description(__('Congratulations! System installation has been completed successfully.'))
                                 ->schema([
                                     Html::make('<div class="text-center space-y-4">
                                            <div class="pt-4">
                                              <a href="/admin" target="_blank" style="color: #1e9fff;" class="text-blue-600 hover:text-blue-800 underline font-medium transition-colors">
-                                                 ' . __('Access Admin Panel') . ' /admin
+                                                 '.__('Access Admin Panel').' /admin
                                              </a>
                                          </div>
                                         <div class="space-y-2">
-                                            <p><strong>' . __('Admin Account Information') . '：</strong></p>
-                                            <p>' . __('Email') . ': <code>admin@dev.com</code></p>
-                                            <p>' . __('Password') . ': <code>admin</code></p>
+                                            <p><strong>'.__('Admin Account Information').'：</strong></p>
+                                            <p>'.__('Email').': <code>admin@dev.com</code></p>
+                                            <p>'.__('Password').': <code>admin</code></p>
                                         </div>
 
                                         <div class="text-sm text-gray-600">
-                                            <p>⚠️ ' . __('If you need to optimize performance and security, please execute the following commands') . '</p>
+                                            <p>⚠️ '.__('If you need to optimize performance and security, please execute the following commands').'</p>
                                             <code>php artisan key:generate</code> <br>
                                             <code>php artisan optimize</code>
                                         </div>
-                                    </div>')
+                                    </div>'),
                                 ])
-                                ->visible(fn() => $this->isCompleted),
+                                ->visible(fn () => $this->isCompleted),
                             Section::make(__('Installation Execution Log'))
                                 ->schema([
                                     Textarea::make('command_logs')
@@ -422,7 +436,7 @@ class InstallWizard extends Page implements HasForms
                                         ->extraInputAttributes([
                                             'class' => 'font-mono text-sm bg-gray-50',
                                             'style' => 'resize: vertical; min-height: 200px;',
-                                            'readonly' => true
+                                            'readonly' => true,
                                         ])
                                         ->placeholder(function () {
                                             if (empty($this->commandLogs)) {
@@ -433,7 +447,7 @@ class InstallWizard extends Page implements HasForms
                                             // Display logs in reverse order (newest at top)
                                             $reversedLogs = array_reverse($this->commandLogs);
                                             foreach ($reversedLogs as $log) {
-                                                $color = match($log['type']) {
+                                                $color = match ($log['type']) {
                                                     'success' => '🟢',
                                                     'error' => '🔴',
                                                     'warning' => '🟡',
@@ -441,6 +455,7 @@ class InstallWizard extends Page implements HasForms
                                                 };
                                                 $logs .= "[{$log['timestamp']}] {$color} {$log['message']}\n";
                                             }
+
                                             return $logs;
                                         })
                                         ->rows(10)
@@ -450,7 +465,7 @@ class InstallWizard extends Page implements HasForms
                 ])
                     ->submitAction(view('filament.pages.install-wizard-submit-button'))
                     ->persistStepInQueryString()
-                    ->skippable(false)
+                    ->skippable(false),
             ])
             ->statePath('data');
     }
@@ -461,25 +476,25 @@ class InstallWizard extends Page implements HasForms
             // Only get form data, no validation
             $data = $this->data;
 
-            if (!isset($data['db_connection'])) {
+            if (! isset($data['db_connection'])) {
                 throw new \Exception(__('Please select database type first'));
             }
 
             $connection = $data['db_connection'];
 
             if ($connection === 'sqlite') {
-                if (!isset($data['db_database']) || empty($data['db_database'])) {
+                if (! isset($data['db_database']) || empty($data['db_database'])) {
                     throw new \Exception(__('Please fill in database file path'));
                 }
 
                 $dbPath = base_path($data['db_database']);
                 $dbDir = dirname($dbPath);
 
-                if (!File::exists($dbDir)) {
+                if (! File::exists($dbDir)) {
                     File::makeDirectory($dbDir, 0755, true);
                 }
 
-                if (!File::exists($dbPath)) {
+                if (! File::exists($dbPath)) {
                     File::put($dbPath, '');
                 }
 
@@ -487,10 +502,10 @@ class InstallWizard extends Page implements HasForms
                 DB::purge('sqlite');
                 DB::connection('sqlite')->getPdo();
             } else {
-                if (!isset($data['db_host']) || empty($data['db_host'])) {
+                if (! isset($data['db_host']) || empty($data['db_host'])) {
                     throw new \Exception(__('Please fill in database host'));
                 }
-                if (!isset($data['db_database']) || empty($data['db_database'])) {
+                if (! isset($data['db_database']) || empty($data['db_database'])) {
                     throw new \Exception(__('Please fill in database name'));
                 }
 
@@ -514,12 +529,12 @@ class InstallWizard extends Page implements HasForms
             }
 
             $this->isDatabaseTested = true;
-            $this->databaseTestMessage = '✅ ' . __('Database connection test successful, you can proceed to the next step');
+            $this->databaseTestMessage = '✅ '.__('Database connection test successful, you can proceed to the next step');
             $this->saveTestStatusToSession();
 
         } catch (\Exception $e) {
             $this->isDatabaseTested = false;
-            $this->databaseTestMessage = '❌ ' . __('Database connection failed') . '：' . $e->getMessage();
+            $this->databaseTestMessage = '❌ '.__('Database connection failed').'：'.$e->getMessage();
             $this->saveTestStatusToSession();
         }
     }
@@ -530,27 +545,27 @@ class InstallWizard extends Page implements HasForms
 
         // Application Configuration
         $lines[] = '# Application Configuration';
-        $lines[] = 'APP_NAME="' . $data['app_name'] . '"';
-        $lines[] = 'APP_ENV=' . $data['app_env'];
-        $lines[] = 'APP_KEY=' . config('app.key');
-        $lines[] = 'APP_DEBUG=' . ($data['app_debug'] ? 'true' : 'false');
-        $lines[] = 'APP_URL=' . $data['app_url'];
-        $lines[] = 'APP_TIMEZONE=' . $data['app_timezone'];
-        $lines[] = 'APP_INSTALLED_AT=' . Carbon::now()->unix();
+        $lines[] = 'APP_NAME="'.$data['app_name'].'"';
+        $lines[] = 'APP_ENV='.$data['app_env'];
+        $lines[] = 'APP_KEY='.config('app.key');
+        $lines[] = 'APP_DEBUG='.($data['app_debug'] ? 'true' : 'false');
+        $lines[] = 'APP_URL='.$data['app_url'];
+        $lines[] = 'APP_TIMEZONE='.$data['app_timezone'];
+        $lines[] = 'APP_INSTALLED_AT='.Carbon::now()->unix();
         $lines[] = '';
 
         // Database Configuration
         $lines[] = '# Database Configuration';
-        $lines[] = 'DB_CONNECTION=' . $data['db_connection'];
+        $lines[] = 'DB_CONNECTION='.$data['db_connection'];
 
         if ($data['db_connection'] === 'mysql') {
-            $lines[] = 'DB_HOST=' . $data['db_host'];
-            $lines[] = 'DB_PORT=' . $data['db_port'];
-            $lines[] = 'DB_DATABASE=' . $data['db_database'];
-            $lines[] = 'DB_USERNAME=' . $data['db_username'];
-            $lines[] = 'DB_PASSWORD=' . ($data['db_password'] ? '"' . $data['db_password'] . '"' : '');
+            $lines[] = 'DB_HOST='.$data['db_host'];
+            $lines[] = 'DB_PORT='.$data['db_port'];
+            $lines[] = 'DB_DATABASE='.$data['db_database'];
+            $lines[] = 'DB_USERNAME='.$data['db_username'];
+            $lines[] = 'DB_PASSWORD='.($data['db_password'] ? '"'.$data['db_password'].'"' : '');
         } else {
-            $lines[] = 'DB_DATABASE=' . $data['db_database'];
+            $lines[] = 'DB_DATABASE='.$data['db_database'];
         }
         $lines[] = '';
 
@@ -597,7 +612,7 @@ class InstallWizard extends Page implements HasForms
     protected function executeCommand(string $command, array $parameters = []): array
     {
         $startTime = microtime(true);
-        $this->addCommandLog(__('Executing command') . ": php artisan {$command} " . implode(' ', $parameters), 'info');
+        $this->addCommandLog(__('Executing command').": php artisan {$command} ".implode(' ', $parameters), 'info');
 
         try {
             $exitCode = Artisan::call($command, $parameters);
@@ -605,14 +620,14 @@ class InstallWizard extends Page implements HasForms
             $duration = round((microtime(true) - $startTime) * 1000, 2);
 
             if ($exitCode === 0) {
-                $this->addCommandLog("✅ " . __('Command executed successfully') . " (" . __('Duration') . ": {$duration}ms)", 'success');
-                if (!empty(trim($output))) {
-                    $this->addCommandLog(__('Output') . ": " . trim($output), 'info');
+                $this->addCommandLog('✅ '.__('Command executed successfully').' ('.__('Duration').": {$duration}ms)", 'success');
+                if (! empty(trim($output))) {
+                    $this->addCommandLog(__('Output').': '.trim($output), 'info');
                 }
             } else {
-                $this->addCommandLog("❌ " . __('Command execution failed') . " (" . __('Exit code') . ": {$exitCode})", 'error');
-                if (!empty(trim($output))) {
-                    $this->addCommandLog(__('Error output') . ": " . trim($output), 'error');
+                $this->addCommandLog('❌ '.__('Command execution failed').' ('.__('Exit code').": {$exitCode})", 'error');
+                if (! empty(trim($output))) {
+                    $this->addCommandLog(__('Error output').': '.trim($output), 'error');
                 }
             }
 
@@ -620,18 +635,18 @@ class InstallWizard extends Page implements HasForms
                 'success' => $exitCode === 0,
                 'output' => $output,
                 'exit_code' => $exitCode,
-                'duration' => $duration
+                'duration' => $duration,
             ];
         } catch (\Exception $e) {
             $duration = round((microtime(true) - $startTime) * 1000, 2);
-            $this->addCommandLog("❌ " . __('Command execution exception') . ": " . $e->getMessage(), 'error');
-            $this->addCommandLog(__('Duration') . ": {$duration}ms", 'error');
+            $this->addCommandLog('❌ '.__('Command execution exception').': '.$e->getMessage(), 'error');
+            $this->addCommandLog(__('Duration').": {$duration}ms", 'error');
 
             return [
                 'success' => false,
                 'output' => $e->getMessage(),
                 'exit_code' => 1,
-                'duration' => $duration
+                'duration' => $duration,
             ];
         }
     }
@@ -641,7 +656,7 @@ class InstallWizard extends Page implements HasForms
         $this->commandLogs[] = [
             'timestamp' => now()->format('H:i:s'),
             'message' => $message,
-            'type' => $type
+            'type' => $type,
         ];
 
         // Keep only last 50 log entries to prevent memory issues
@@ -649,7 +664,6 @@ class InstallWizard extends Page implements HasForms
             $this->commandLogs = array_slice($this->commandLogs, -50);
         }
     }
-
 
     public function executeNextStep(): void
     {
@@ -664,7 +678,7 @@ class InstallWizard extends Page implements HasForms
                 $this->isInstalling = false;
 
                 // Add completion log
-                $this->addCommandLog("🎉 " . __('Installation complete!'), 'success');
+                $this->addCommandLog('🎉 '.__('Installation complete!'), 'success');
                 $this->addCommandLog(__('You can now access the admin panel'), 'success');
 
                 // Clear installation session data
@@ -699,22 +713,21 @@ class InstallWizard extends Page implements HasForms
 
         } catch (\Exception $e) {
             // Log error to logs
-            $this->addCommandLog("❌ " . __('Installation failed') . ": " . $e->getMessage(), 'error');
-            $this->addCommandLog(__('Failed step') . ": " . __($this->installSteps[$nextStep]), 'error');
+            $this->addCommandLog('❌ '.__('Installation failed').': '.$e->getMessage(), 'error');
+            $this->addCommandLog(__('Failed step').': '.__($this->installSteps[$nextStep]), 'error');
 
             $this->isInstalling = false;
             $this->isCompleted = false;
             // Don't reset installStep, keep current step to display logs
 
             Notification::make()
-                ->title('❌ ' . __('Installation failed'))
-                ->body(__('Step') . ' ' . $nextStep . ' (' . __($this->installSteps[$nextStep]) . ') ' . __('failed') . '：' . $e->getMessage())
+                ->title('❌ '.__('Installation failed'))
+                ->body(__('Step').' '.$nextStep.' ('.__($this->installSteps[$nextStep]).') '.__('failed').'：'.$e->getMessage())
                 ->danger()
                 ->persistent()
                 ->send();
         }
     }
-
 
     protected function writeEnvFile(array $data): void
     {
@@ -725,10 +738,9 @@ class InstallWizard extends Page implements HasForms
 
         File::put($envPath, $envContent);
 
-        $this->addCommandLog("✅ " . __('.env file generation completed'), 'success');
-        $this->addCommandLog(__('File path') . ": {$envPath}", 'info');
+        $this->addCommandLog('✅ '.__('.env file generation completed'), 'success');
+        $this->addCommandLog(__('File path').": {$envPath}", 'info');
     }
-
 
     public static function canAccess(): bool
     {

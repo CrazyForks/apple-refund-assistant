@@ -19,13 +19,13 @@ class ConsumptionLogRepositoryTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->repository = new ConsumptionLogRepository();
+        $this->repository = new ConsumptionLogRepository;
     }
 
     public function test_store_log_throws_exception_when_transaction_info_is_null(): void
     {
         $app = App::factory()->create();
-        
+
         // Create a notification log with no transaction info in payload
         $log = NotificationLog::factory()->create([
             'app_id' => $app->id,
@@ -48,7 +48,7 @@ class ConsumptionLogRepositoryTest extends TestCase
     public function test_update_status_with_message(): void
     {
         $app = App::factory()->create();
-        
+
         $log = NotificationLog::factory()->create([
             'app_id' => $app->id,
             'payload' => json_encode([
@@ -66,7 +66,7 @@ class ConsumptionLogRepositoryTest extends TestCase
                 ],
             ]),
         ]);
-        
+
         $consumptionLog = $this->repository->storeLog($app, $log);
 
         $this->repository->updateStatus(
@@ -80,4 +80,3 @@ class ConsumptionLogRepositoryTest extends TestCase
         $this->assertEquals('Test error message', $consumptionLog->status_msg);
     }
 }
-

@@ -11,6 +11,7 @@ class SqlFormatUtilTest extends TestCase
     protected function makeQueryExecuted(string $sql, array $bindings = [], float $time = 10.5): QueryExecuted
     {
         $connection = $this->app->make('db')->connection();
+
         return new QueryExecuted($sql, $bindings, $time, $connection);
     }
 
@@ -228,4 +229,3 @@ class SqlFormatUtilTest extends TestCase
         $this->assertStringContainsString("name = 'O'Brien'", $result);
     }
 }
-

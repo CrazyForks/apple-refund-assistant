@@ -5,13 +5,11 @@ namespace App\Models;
 use App\Casts\SafeEnumCast;
 use App\Enums\ConsumptionLogStatusEnum;
 use App\Enums\EnvironmentEnum;
-use App\Enums\NotificationTypeEnum;
 use App\Models\Traits\EnvironmentTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Kra8\Snowflake\HasShortflakePrimary;
-
 
 /**
  * @property int $id
@@ -31,6 +29,7 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\App|null $app
+ *
  * @method static \Database\Factories\ConsumptionLogFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConsumptionLog newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConsumptionLog newQuery()
@@ -51,11 +50,12 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConsumptionLog whereStatusMsg($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConsumptionLog whereTransactionId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ConsumptionLog whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class ConsumptionLog extends Model
 {
-    use HasFactory, HasShortflakePrimary, EnvironmentTrait;
+    use EnvironmentTrait, HasFactory, HasShortflakePrimary;
 
     protected $guarded = [];
 
@@ -64,7 +64,6 @@ class ConsumptionLog extends Model
         'status' => [SafeEnumCast::class, ConsumptionLogStatusEnum::class],
         'send_body' => 'json',
     ];
-
 
     public function app(): BelongsTo
     {

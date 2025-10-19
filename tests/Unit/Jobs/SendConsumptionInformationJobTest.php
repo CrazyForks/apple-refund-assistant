@@ -2,12 +2,12 @@
 
 namespace Tests\Unit\Jobs;
 
-use App\Repositories\AppRepository;
 use App\Enums\ConsumptionLogStatusEnum;
 use App\Enums\EnvironmentEnum;
 use App\Jobs\SendConsumptionInformationJob;
 use App\Models\App;
 use App\Models\ConsumptionLog;
+use App\Repositories\AppRepository;
 use App\Services\ConsumptionService;
 use App\Services\IapService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -187,4 +187,3 @@ class SendConsumptionInformationJobTest extends TestCase
         $this->assertEquals(ConsumptionLogStatusEnum::SUCCESS, $log->status);
     }
 }
-

@@ -21,8 +21,7 @@ class TransactionInfoDto
         public readonly ?int $quantity = null,
         public readonly ?int $revocationDate = null,
         public readonly ?int $revocationReason = null,
-    ) {
-    }
+    ) {}
 
     public static function fromArray(array $data): self
     {
@@ -49,7 +48,7 @@ class TransactionInfoDto
      */
     public function getPurchaseDateTimestamp(): int
     {
-        return (int)(($this->purchaseDate ?? 0) / 1000);
+        return (int) (($this->purchaseDate ?? 0) / 1000);
     }
 
     /**
@@ -57,7 +56,7 @@ class TransactionInfoDto
      */
     public function getOriginalPurchaseDateTimestamp(): int
     {
-        return (int)(($this->originalPurchaseDate ?? 0) / 1000);
+        return (int) (($this->originalPurchaseDate ?? 0) / 1000);
     }
 
     /**
@@ -65,7 +64,7 @@ class TransactionInfoDto
      */
     public function getExpiresDateTimestamp(): int
     {
-        return (int)(($this->expiresDate ?? 0) / 1000);
+        return (int) (($this->expiresDate ?? 0) / 1000);
     }
 
     /**
@@ -73,7 +72,7 @@ class TransactionInfoDto
      */
     public function getRevocationDateTimestamp(): int
     {
-        return (int)(($this->revocationDate ?? 0) / 1000);
+        return (int) (($this->revocationDate ?? 0) / 1000);
     }
 
     /**
@@ -92,4 +91,3 @@ class TransactionInfoDto
         return "code[{$this->revocationReason}]";
     }
 }
-

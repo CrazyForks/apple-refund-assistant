@@ -15,8 +15,7 @@ class WebhookController extends Controller
 {
     public function __construct(
         protected WebhookService $hookService,
-    ) {
-    }
+    ) {}
 
     /**
      * @throws AppStoreServerNotificationException
@@ -27,6 +26,7 @@ class WebhookController extends Controller
         Log::info($bodyJson, ['title' => 'notification']);
 
         $this->hookService->handleNotification($bodyJson, $id);
+
         return new Response('SUCCESS');
     }
 }

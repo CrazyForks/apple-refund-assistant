@@ -12,10 +12,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Kra8\Snowflake\HasShortflakePrimary;
 
-
-
-
-
 /**
  * @property int $id
  * @property int $app_id
@@ -31,6 +27,7 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\App|null $app
  * @property-read \App\Models\NotificationRawLog|null $raw
+ *
  * @method static \Database\Factories\NotificationLogFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|NotificationLog newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|NotificationLog newQuery()
@@ -47,6 +44,7 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|NotificationLog wherePayload($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|NotificationLog whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|NotificationLog whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class NotificationLog extends Model
@@ -54,6 +52,7 @@ class NotificationLog extends Model
     use HasFactory, HasShortflakePrimary;
 
     protected $guarded = [];
+
     protected $casts = [
         'status' => [SafeEnumCast::class, NotificationLogStatusEnum::class],
         'environment' => [SafeEnumCast::class, EnvironmentEnum::class],

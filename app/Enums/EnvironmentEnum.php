@@ -5,7 +5,7 @@ namespace App\Enums;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasLabel;
 
-enum EnvironmentEnum : string implements HasLabel, HasColor
+enum EnvironmentEnum: string implements HasColor, HasLabel
 {
     case PRODUCTION = 'Production';
     case SANDBOX = 'Sandbox';
@@ -15,7 +15,7 @@ enum EnvironmentEnum : string implements HasLabel, HasColor
         return $this->value;
     }
 
-    public function getColor():  string
+    public function getColor(): string
     {
         return match ($this) {
             EnvironmentEnum::PRODUCTION => 'success',

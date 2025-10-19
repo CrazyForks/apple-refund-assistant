@@ -224,4 +224,3 @@ class TransactionInfoDtoTest extends TestCase
         $this->assertEquals(1711000000, $dto->getRevocationDateTimestamp());
     }
 }
-

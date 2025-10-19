@@ -205,7 +205,7 @@ class FinishNotificationJobTest extends TestCase
     public function test_handle_forwards_notification_successfully(): void
     {
         Http::fake([
-            'https://example.com/webhook' => Http::response('Success response', 200)
+            'https://example.com/webhook' => Http::response('Success response', 200),
         ]);
 
         $app = App::factory()->create(['notification_url' => 'https://example.com/webhook']);
@@ -217,7 +217,7 @@ class FinishNotificationJobTest extends TestCase
             'bundle_version' => '1.0.0',
             'environment' => 'Sandbox',
             'notification_type' => 'TEST',
-            'notification_uuid' => 'test-uuid-' . uniqid(),
+            'notification_uuid' => 'test-uuid-'.uniqid(),
             'status' => NotificationLogStatusEnum::PROCESSING,
             'forward_success' => false,
         ]);
@@ -252,7 +252,7 @@ class FinishNotificationJobTest extends TestCase
     public function test_handle_forwards_notification_with_http_failure(): void
     {
         Http::fake([
-            'https://example.com/webhook' => Http::response('Error', 500)
+            'https://example.com/webhook' => Http::response('Error', 500),
         ]);
 
         $app = App::factory()->create(['notification_url' => 'https://example.com/webhook']);
@@ -263,7 +263,7 @@ class FinishNotificationJobTest extends TestCase
             'bundle_version' => '1.0.0',
             'environment' => 'Sandbox',
             'notification_type' => 'TEST',
-            'notification_uuid' => 'test-uuid-' . uniqid(),
+            'notification_uuid' => 'test-uuid-'.uniqid(),
             'status' => NotificationLogStatusEnum::PROCESSING,
             'forward_success' => true,
         ]);
@@ -300,7 +300,7 @@ class FinishNotificationJobTest extends TestCase
             'bundle_version' => '1.0.0',
             'environment' => 'Sandbox',
             'notification_type' => 'TEST',
-            'notification_uuid' => 'test-uuid-' . uniqid(),
+            'notification_uuid' => 'test-uuid-'.uniqid(),
             'status' => NotificationLogStatusEnum::PROCESSING,
             'forward_success' => true,
         ]);
@@ -328,7 +328,7 @@ class FinishNotificationJobTest extends TestCase
     {
         $longMessage = str_repeat('x', 200);
         Http::fake([
-            'https://example.com/webhook' => Http::response($longMessage, 200)
+            'https://example.com/webhook' => Http::response($longMessage, 200),
         ]);
 
         $app = App::factory()->create(['notification_url' => 'https://example.com/webhook']);
@@ -339,7 +339,7 @@ class FinishNotificationJobTest extends TestCase
             'bundle_version' => '1.0.0',
             'environment' => 'Sandbox',
             'notification_type' => 'TEST',
-            'notification_uuid' => 'test-uuid-' . uniqid(),
+            'notification_uuid' => 'test-uuid-'.uniqid(),
             'status' => NotificationLogStatusEnum::PROCESSING,
             'forward_success' => false,
         ]);
@@ -373,7 +373,7 @@ class FinishNotificationJobTest extends TestCase
             'bundle_version' => '1.0.0',
             'environment' => 'Sandbox',
             'notification_type' => 'TEST',
-            'notification_uuid' => 'test-uuid-' . uniqid(),
+            'notification_uuid' => 'test-uuid-'.uniqid(),
             'status' => NotificationLogStatusEnum::PROCESSING,
             'forward_success' => false,
         ]);

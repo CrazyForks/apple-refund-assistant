@@ -9,8 +9,8 @@ class InvalidTransactionInfoExceptionTest extends TestCase
 {
     public function test_exception_with_default_message(): void
     {
-        $exception = new InvalidTransactionInfoException();
-        
+        $exception = new InvalidTransactionInfoException;
+
         $this->assertInstanceOf(InvalidTransactionInfoException::class, $exception);
         $this->assertEquals('invalid transaction info', $exception->getMessage());
         $this->assertEquals(0, $exception->getCode());
@@ -20,8 +20,7 @@ class InvalidTransactionInfoExceptionTest extends TestCase
     {
         $customMessage = 'Custom error message';
         $exception = new InvalidTransactionInfoException($customMessage);
-        
+
         $this->assertEquals($customMessage, $exception->getMessage());
     }
 }
-

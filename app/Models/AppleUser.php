@@ -18,6 +18,7 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\App|null $app
+ *
  * @method static \Database\Factories\AppleUserFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AppleUser newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AppleUser newQuery()
@@ -31,6 +32,7 @@ use Kra8\Snowflake\HasShortflakePrimary;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AppleUser whereRefundedDollars($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AppleUser whereRegisterAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AppleUser whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class AppleUser extends Model
@@ -38,11 +40,11 @@ class AppleUser extends Model
     use HasFactory, HasShortflakePrimary;
 
     protected $guarded = [];
-    
+
     protected $casts = [
         'register_at' => 'datetime',
     ];
-    
+
     public function app(): BelongsTo
     {
         return $this->belongsTo(App::class, 'app_id');

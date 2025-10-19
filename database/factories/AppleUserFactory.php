@@ -22,4 +22,3 @@ class AppleUserFactory extends Factory
         ];
     }
 }
-

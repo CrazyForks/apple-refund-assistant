@@ -13,4 +13,3 @@ class InvalidTransactionInfoException extends Exception
         parent::__construct($message);
     }
 }
-

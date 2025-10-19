@@ -2,19 +2,15 @@
 
 namespace App\Filament\Resources\AppleUsers;
 
+use App\Filament\Exports\AppleUserExporter;
 use App\Filament\Resources\AppleUsers\Pages\ManageAppleUsers;
 use App\Models\AppleUser;
 use BackedEnum;
-use App\Filament\Exports\AppleUserExporter;
-use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
 use Filament\Actions\ExportAction;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\TextInput;
-use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -26,6 +22,7 @@ class AppleUserResource extends Resource
     protected static ?string $model = AppleUser::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
     protected static ?int $navigationSort = 98;
 
     public static function getModelLabel(): string
@@ -37,7 +34,6 @@ class AppleUserResource extends Resource
     {
         return __('Apple User');
     }
-
 
     public static function form(Schema $schema): Schema
     {
