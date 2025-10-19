@@ -1,6 +1,7 @@
 ## apple-refund-assistant
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/seth-shi/apple-refund-assistant/laravel.yml)
-![Codecov](https://img.shields.io/codecov/c/github/seth-shi/apple-refund-assistant)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=seth-shi_apple-refund-assistant&metric=coverage)](https://sonarcloud.io/summary/new_code?id=seth-shi_apple-refund-assistant)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=seth-shi_apple-refund-assistant&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=seth-shi_apple-refund-assistant)
 ![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/seth-shi/apple-refund-assistant?utm_source=oss&utm_medium=github&utm_campaign=seth-shi%2Fapple-refund-assistant&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
 
 English | [简体中文](./README.zh.md) | [Español](./README.es.md) | [हिन्दी](./README.hi.md) | [العربية](./README.ar.md) | [Português](./README.pt.md) | [Русский](./README.ru.md) | [日本語](./README.ja.md) | [Français](./README.fr.md)

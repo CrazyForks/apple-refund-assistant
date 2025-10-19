@@ -27,3 +27,4 @@ Thumbs.db
 _ide_helper.php
 docker-compose.yaml
 .scannerwork/
+tests-report.xml

@@ -1,8 +1,11 @@
 name: apple-refund-assistant-ci
 
 on:
-  release:
-    types: [published]
+  push:
+    branches: [ master ]
+    tags:
+      - 'v*'
+      - 'latest'
 
 jobs:
   laravel-tests:
@@ -37,12 +40,14 @@ jobs:
     - name: Run tests with coverage
       run: |
         echo "Running tests with coverage..."
-        docker exec test-container php artisan test --coverage --parallel --coverage-clover coverage.xml
+        docker exec test-container php artisan test --coverage --parallel --coverage-clover coverage.xml --log-junit tests-report.xml
     
     - name: Copy coverage files from container
       run: |
         docker cp test-container:/var/www/html/coverage.xml ./coverage.xml
-        echo "Coverage files copied successfully"   
+        docker cp test-container:/var/www/html/tests-report.xml ./tests-report.xml
+        echo "Coverage files copied successfully"  
+    
     - name: Remove test container
       run: docker rm -f test-container
     - name: SonarQube Scan
@@ -51,6 +56,7 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   publish-docker-image:
+    if: startsWith(github.ref, 'refs/tags/')
     needs: laravel-tests
     runs-on: ubuntu-latest
     permissions:
