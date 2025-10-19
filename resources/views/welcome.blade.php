@@ -1517,7 +1517,7 @@
         </div>
         <div
             class="bg-[#fff2f2] dark:bg-[#1D0002] relative lg:-ml-px -mb-px lg:mb-0 rounded-t-lg lg:rounded-t-none lg:rounded-r-lg aspect-[335/376] lg:aspect-auto w-full lg:w-[438px] shrink-0 overflow-hidden">
-           <img src="/assets/icon/logo.png" alt="">
+            <img src="/assets/icon/logo.png" alt="Apple Refund Assistant logo" class="w-full h-full object-contain">
         </div>
     </main>
 </div>
