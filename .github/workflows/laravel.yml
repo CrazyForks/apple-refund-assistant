@@ -45,13 +45,10 @@ jobs:
         echo "Coverage files copied successfully"   
     - name: Remove test container
       run: docker rm -f test-container
-    - name: Upload coverage reports to Codecov
-      ## don't use v5 here
-      uses: codecov/codecov-action@v4
-      with:
-        fail_ci_if_error: true
-        files: ./coverage.xml
-        token: ${{ secrets.CODECOV_TOKEN }}
+    - name: SonarQube Scan
+      uses: SonarSource/sonarqube-scan-action@v6
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   publish-docker-image:
     needs: laravel-tests
