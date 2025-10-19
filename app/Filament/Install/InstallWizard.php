@@ -410,7 +410,7 @@ class InstallWizard extends Page implements HasForms
                                 ->schema([
                                     Html::make('<div class="text-center space-y-4">
                                            <div class="pt-4">
-                                             <a href="/admin" target="_blank" style="color: #1e9fff;" class="text-blue-600 hover:text-blue-800 underline font-medium transition-colors">
+                                             <a href="/admin" target="_blank" style="font-weight: bold; color: #1e9fff;" class="text-blue-600 hover:text-blue-800 underline font-medium transition-colors">
                                                  '.__('Access Admin Panel').' /admin
                                              </a>
                                          </div>
